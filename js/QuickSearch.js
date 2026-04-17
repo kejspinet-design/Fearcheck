@@ -94,53 +94,22 @@ class QuickSearch {
      */
     async checkFearBan(steamId) {
         try {
-            // Используем CORS прокси для обхода CORS ограничений
-            const proxyUrl = 'https://api.allorigins.win/raw?url=';
-            const fearApiUrl = `https://api.fearproject.ru/punishments/search?q=${steamId}&page=1&limit=10&type=1`;
-            const fullUrl = proxyUrl + encodeURIComponent(fearApiUrl);
+            // Временная заглушка - Fear API требует прокси сервер
+            // В будущем можно настроить собственный прокси или использовать другой метод
+            console.log('[QuickSearch] Fear API check for:', steamId);
             
-            console.log('[QuickSearch] Fear API URL:', fullUrl);
+            // Имитируем проверку
+            await new Promise(resolve => setTimeout(resolve, 1000));
             
-            const response = await fetch(fullUrl, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json'
-                }
-            });
+            return { 
+                banned: false, 
+                reason: 'Проверка недоступна (требуется прокси)', 
+                error: true 
+            };
             
-            if (!response.ok) {
-                console.warn(`[QuickSearch] Fear API returned ${response.status}`);
-                return { banned: false, reason: 'Ошибка API', error: true };
-            }
-            
-            const data = await response.json();
-            console.log('[QuickSearch] Fear API response:', data);
-            
-            // Check if any active bans found
-            if (data && data.punishments && Array.isArray(data.punishments) && data.punishments.length > 0) {
-                const ban = data.punishments[0];
-                const status = ban.status; // 1 = active, 0 = expired
-                
-                if (status === 1) {
-                    return {
-                        banned: true,
-                        reason: ban.reason || 'Забанен',
-                        error: false
-                    };
-                } else {
-                    return {
-                        banned: false,
-                        reason: 'Бан истек',
-                        error: false
-                    };
-                }
-            } else {
-                return { banned: false, reason: 'Не забанен', error: false };
-            }
         } catch (error) {
             console.error('[QuickSearch] Fear API error:', error);
-            // Если CORS прокси не работает, показываем что проверка недоступна
-            return { banned: false, reason: 'Проверка недоступна', error: true };
+            return { banned: false, reason: 'Ошибка проверки', error: true };
         }
     }
 
