@@ -196,19 +196,17 @@ class ConfigChecker {
      */
     async checkFearBan(steamId) {
         try {
-            const response = await fetch(`${this.apiClient.config.fearApiBase}/punishments/search?q=${steamId}&page=1&limit=10&type=1`, {
+            // Use our Vercel serverless function
+            const response = await fetch(`/api/fear?q=${encodeURIComponent(steamId)}&page=1&limit=10&type=1`, {
                 method: 'GET',
-                mode: 'cors',
-                credentials: 'include',
                 headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
+                    'Accept': 'application/json'
                 }
             });
             
             if (!response.ok) {
                 console.warn(`[ConfigChecker] Fear API returned ${response.status} for ${steamId}`);
-                return { banned: false, reason: 'Не забанен' };
+                return { banned: false, reason: 'Ошибка API' };
             }
             
             const data = await response.json();
