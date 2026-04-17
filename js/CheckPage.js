@@ -36,27 +36,26 @@ class CheckPage {
     setupSearchListener() {
         const originalRenderResults = this.quickSearch.renderResults.bind(this.quickSearch);
         
-        this.quickSearch.renderResults = (steamId, fearResult, umaResult, vacResult) => {
+        this.quickSearch.renderResults = (steamId, fearResult, umaResult) => {
             // Call original render
-            originalRenderResults(steamId, fearResult, umaResult, vacResult);
+            originalRenderResults(steamId, fearResult, umaResult);
             
             // Add to history
-            this.addToHistory(steamId, fearResult, umaResult, vacResult);
+            this.addToHistory(steamId, fearResult, umaResult);
         };
     }
 
     /**
      * Add search result to history
      */
-    addToHistory(steamId, fearResult, umaResult, vacResult) {
-        const isBanned = fearResult.banned || umaResult.banned || vacResult.banned;
+    addToHistory(steamId, fearResult, umaResult) {
+        const isBanned = fearResult.banned || umaResult.banned;
         
         const historyItem = {
             steamId: steamId,
             timestamp: Date.now(),
             fearBanned: fearResult.banned,
             umaBanned: umaResult.banned,
-            vacBanned: vacResult.banned,
             isBanned: isBanned
         };
         
@@ -177,12 +176,6 @@ class CheckPage {
                     <span class="ban-detail-label">UMA.SU:</span>
                     <span class="ban-detail-value ${item.umaBanned ? 'banned' : 'clean'}">
                         ${item.umaBanned ? '❌ Забанен' : '✅ Чист'}
-                    </span>
-                </div>
-                <div class="ban-detail-row">
-                    <span class="ban-detail-label">VAC:</span>
-                    <span class="ban-detail-value ${item.vacBanned ? 'banned' : 'clean'}">
-                        ${item.vacBanned ? '❌ Забанен' : '✅ Чист'}
                     </span>
                 </div>
             </div>
