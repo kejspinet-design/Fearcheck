@@ -94,19 +94,23 @@ class QuickSearch {
      */
     async checkFearBan(steamId) {
         try {
-            // Прямой запрос к Fear API
-            const response = await fetch(`https://api.fearproject.ru/punishments/search?q=${steamId}&page=1&limit=10&type=1`, {
+            // Используем CORS прокси для обхода CORS ограничений
+            const proxyUrl = 'https://api.allorigins.win/raw?url=';
+            const fearApiUrl = `https://api.fearproject.ru/punishments/search?q=${steamId}&page=1&limit=10&type=1`;
+            const fullUrl = proxyUrl + encodeURIComponent(fearApiUrl);
+            
+            console.log('[QuickSearch] Fear API URL:', fullUrl);
+            
+            const response = await fetch(fullUrl, {
                 method: 'GET',
                 headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfaWQiOiI3NjU2MTE5OTUyNDc4MDMyNyIsImlhdCI6MTc3NjI2MzY4MiwiZXhwIjoxNzc4ODU1NjgyfQ.TdgSNRkzoVN2a7ysy4QPNcv7S_wFQ9WpiPwcb6C2D84'
+                    'Accept': 'application/json'
                 }
             });
             
             if (!response.ok) {
                 console.warn(`[QuickSearch] Fear API returned ${response.status}`);
-                return { banned: false, reason: 'Не забанен', error: false };
+                return { banned: false, reason: 'Ошибка API', error: true };
             }
             
             const data = await response.json();
@@ -135,7 +139,8 @@ class QuickSearch {
             }
         } catch (error) {
             console.error('[QuickSearch] Fear API error:', error);
-            return { banned: false, reason: 'Ошибка проверки', error: true };
+            // Если CORS прокси не работает, показываем что проверка недоступна
+            return { banned: false, reason: 'Проверка недоступна', error: true };
         }
     }
 
