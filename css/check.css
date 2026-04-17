@@ -26,7 +26,7 @@ body {
 
 .nav-link {
     background: transparent;
-    border: 1px solid rgba(220, 38, 38, 0.4);
+    border: 1px solid rgba(37, 99, 235, 0.4);
     color: #E5E7EB;
     text-decoration: none;
     font-size: 14px;
@@ -41,9 +41,9 @@ body {
 }
 
 .nav-link:hover {
-    background: rgba(220, 38, 38, 0.15);
-    border-color: rgba(220, 38, 38, 0.6);
-    color: #DC2626;
+    background: rgba(37, 99, 235, 0.15);
+    border-color: rgba(37, 99, 235, 0.6);
+    color: #2563EB;
 }
 
 .nav-link.active {
@@ -70,7 +70,7 @@ body {
     background: rgba(26, 11, 46, 0.6);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(220, 38, 38, 0.25);
+    border: 1px solid rgba(37, 99, 235, 0.25);
     border-radius: 24px;
     padding: 20px 16px;
     display: flex;
@@ -82,8 +82,8 @@ body {
 }
 
 .check-section:hover {
-    border-color: rgba(220, 38, 38, 0.4);
-    box-shadow: 0 12px 48px rgba(220, 38, 38, 0.2);
+    border-color: rgba(37, 99, 235, 0.4);
+    box-shadow: 0 12px 48px rgba(37, 99, 235, 0.2);
 }
 
 /* ========== PLAYERS LIST IN CHECK SECTIONS ========== */
@@ -108,7 +108,7 @@ body {
 }
 
 .check-section .players-list::-webkit-scrollbar-thumb {
-    background: #DC2626;
+    background: #2563EB;
     border-radius: 10px;
 }
 
@@ -138,7 +138,7 @@ body {
 }
 
 .quick-search-container-page::-webkit-scrollbar-thumb {
-    background: #DC2626;
+    background: #2563EB;
     border-radius: 10px;
 }
 
@@ -166,7 +166,7 @@ body {
 }
 
 .config-checker-container::-webkit-scrollbar-thumb {
-    background: #DC2626;
+    background: #2563EB;
     border-radius: 10px;
 }
 
