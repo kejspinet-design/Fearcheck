@@ -96,81 +96,51 @@ class QuickSearch {
         try {
             console.log('[QuickSearch] Checking Fear API for:', steamId);
             
-            // Попробуем несколько CORS прокси по очереди
-            const proxies = [
-                'https://corsproxy.io/?',
-                'https://cors-anywhere.herokuapp.com/',
-                'https://api.codetabs.com/v1/proxy?quest='
-            ];
+            // Use our Vercel serverless function
+            const apiUrl = `/api/fear?q=${encodeURIComponent(steamId)}&page=1&limit=10&type=1`;
             
-            const fearApiUrl = `https://api.fearproject.ru/punishments/search?q=${steamId}&page=1&limit=10&type=1`;
+            console.log('[QuickSearch] Requesting:', apiUrl);
             
-            for (let i = 0; i < proxies.length; i++) {
-                try {
-                    const proxyUrl = proxies[i] + encodeURIComponent(fearApiUrl);
-                    console.log(`[QuickSearch] Trying proxy ${i + 1}:`, proxyUrl);
-                    
-                    const response = await fetch(proxyUrl, {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        timeout: 10000
-                    });
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        console.log('[QuickSearch] Fear API response:', data);
-                        
-                        // Check if any active bans found
-                        if (data && data.punishments && Array.isArray(data.punishments) && data.punishments.length > 0) {
-                            const ban = data.punishments[0];
-                            const status = ban.status; // 1 = active, 0 = expired
-                            
-                            if (status === 1) {
-                                return {
-                                    banned: true,
-                                    reason: ban.reason || 'Забанен',
-                                    error: false
-                                };
-                            } else {
-                                return {
-                                    banned: false,
-                                    reason: 'Бан истек',
-                                    error: false
-                                };
-                            }
-                        } else {
-                            return { banned: false, reason: 'Не забанен', error: false };
-                        }
-                    }
-                } catch (proxyError) {
-                    console.warn(`[QuickSearch] Proxy ${i + 1} failed:`, proxyError.message);
-                    continue;
+            const response = await fetch(apiUrl, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
                 }
+            });
+            
+            if (!response.ok) {
+                console.error('[QuickSearch] Fear API error:', response.status, response.statusText);
+                return { 
+                    banned: false, 
+                    reason: `Ошибка API (${response.status})`, 
+                    error: true 
+                };
             }
             
-            // Если все прокси не сработали, попробуем прямой запрос
-            try {
-                console.log('[QuickSearch] Trying direct request to Fear API');
-                const response = await fetch(fearApiUrl, {
-                    method: 'GET',
-                    mode: 'no-cors',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-                
-                // no-cors не позволяет читать ответ, но можно проверить что запрос прошел
-                return { banned: false, reason: 'Проверка выполнена', error: false };
-                
-            } catch (directError) {
-                console.warn('[QuickSearch] Direct request failed:', directError.message);
-            }
+            const data = await response.json();
+            console.log('[QuickSearch] Fear API response:', data);
             
-            // Если ничего не работает, возвращаем заглушку
-            return { banned: false, reason: 'Проверка недоступна', error: true };
+            // Check if any active bans found
+            if (data && data.punishments && Array.isArray(data.punishments) && data.punishments.length > 0) {
+                const ban = data.punishments[0];
+                const status = ban.status; // 1 = active, 0 = expired
+                
+                if (status === 1) {
+                    return {
+                        banned: true,
+                        reason: ban.reason || 'Забанен',
+                        error: false
+                    };
+                } else {
+                    return {
+                        banned: false,
+                        reason: 'Бан истек',
+                        error: false
+                    };
+                }
+            } else {
+                return { banned: false, reason: 'Не забанен', error: false };
+            }
             
         } catch (error) {
             console.error('[QuickSearch] Fear API error:', error);

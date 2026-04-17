@@ -1,0 +1,76 @@
+/**
+ * Vercel Serverless Function for Fear API Proxy
+ * Handles CORS and authentication for Fear Project API
+ */
+
+export default async function handler(req, res) {
+    // Enable CORS
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+        res.status(200).end();
+        return;
+    }
+    
+    // Only allow GET requests
+    if (req.method !== 'GET') {
+        res.status(405).json({ error: 'Method not allowed' });
+        return;
+    }
+    
+    try {
+        const { q, page = 1, limit = 10, type = 1 } = req.query;
+        
+        if (!q) {
+            res.status(400).json({ error: 'Missing Steam ID parameter' });
+            return;
+        }
+        
+        // Validate Steam ID format
+        const steamIdPattern = /^7656119\d{10}$/;
+        if (!steamIdPattern.test(q)) {
+            res.status(400).json({ error: 'Invalid Steam ID format' });
+            return;
+        }
+        
+        // Build Fear API URL
+        const fearApiUrl = `https://api.fearproject.ru/punishments/search?q=${encodeURIComponent(q)}&page=${page}&limit=${limit}&type=${type}`;
+        
+        console.log('[Fear API] Request:', fearApiUrl);
+        
+        // Make request to Fear API
+        const response = await fetch(fearApiUrl, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'User-Agent': 'Fear-Protection-Check/1.0'
+            }
+        });
+        
+        if (!response.ok) {
+            console.error('[Fear API] Error:', response.status, response.statusText);
+            res.status(response.status).json({ 
+                error: 'Fear API error', 
+                status: response.status,
+                message: response.statusText 
+            });
+            return;
+        }
+        
+        const data = await response.json();
+        console.log('[Fear API] Success:', data);
+        
+        // Return the data
+        res.status(200).json(data);
+        
+    } catch (error) {
+        console.error('[Fear API] Exception:', error);
+        res.status(500).json({ 
+            error: 'Internal server error', 
+            message: error.message 
+        });
+    }
+}
