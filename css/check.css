@@ -1,0 +1,205 @@
+/**
+ * Check Page Styles
+ */
+
+/* ========== BODY OVERRIDE ========== */
+body {
+    overflow: auto !important;
+    height: auto !important;
+    min-height: 100vh !important;
+}
+
+.container {
+    overflow: visible !important;
+    height: auto !important;
+    min-height: auto !important;
+}
+
+/* ========== NAVIGATION ========== */
+.header-nav {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    position: relative;
+    z-index: 10;
+}
+
+.nav-link {
+    background: transparent;
+    border: 1px solid rgba(220, 38, 38, 0.4);
+    color: #E5E7EB;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 24px;
+    border-radius: 40px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    white-space: nowrap;
+    position: relative;
+    z-index: 10;
+}
+
+.nav-link:hover {
+    background: rgba(220, 38, 38, 0.15);
+    border-color: rgba(220, 38, 38, 0.6);
+    color: #DC2626;
+}
+
+.nav-link.active {
+    background: linear-gradient(135deg, #DC2626 0%, #FF0000 100%);
+    border-color: #DC2626;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.5);
+}
+
+/* ========== CHECK MAIN ========== */
+.check-main {
+    flex: 1;
+    margin-bottom: 30px;
+}
+
+.check-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    width: 100%;
+}
+
+.check-section {
+    background: rgba(26, 11, 46, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(220, 38, 38, 0.25);
+    border-radius: 24px;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    min-height: 600px;
+    max-height: calc(100vh - 200px);
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.check-section:hover {
+    border-color: rgba(220, 38, 38, 0.4);
+    box-shadow: 0 12px 48px rgba(220, 38, 38, 0.2);
+}
+
+/* ========== PLAYERS LIST IN CHECK SECTIONS ========== */
+.check-section .players-list {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-right: 8px;
+    min-height: 0;
+}
+
+.check-section .players-list::-webkit-scrollbar {
+    width: 5px;
+}
+
+.check-section .players-list::-webkit-scrollbar-track {
+    background: rgba(30, 27, 46, 0.5);
+    border-radius: 10px;
+}
+
+.check-section .players-list::-webkit-scrollbar-thumb {
+    background: #DC2626;
+    border-radius: 10px;
+}
+
+.check-section .players-list::-webkit-scrollbar-thumb:hover {
+    background: #EF4444;
+}
+
+/* ========== QUICK SEARCH CONTAINER PAGE ========== */
+.quick-search-container-page {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 20px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+}
+
+.quick-search-container-page::-webkit-scrollbar {
+    width: 5px;
+}
+
+.quick-search-container-page::-webkit-scrollbar-track {
+    background: rgba(30, 27, 46, 0.5);
+    border-radius: 10px;
+}
+
+.quick-search-container-page::-webkit-scrollbar-thumb {
+    background: #DC2626;
+    border-radius: 10px;
+}
+
+.quick-search-container-page::-webkit-scrollbar-thumb:hover {
+    background: #EF4444;
+}
+
+/* ========== CONFIG CHECKER CONTAINER ========== */
+.config-checker-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+}
+
+.config-checker-container::-webkit-scrollbar {
+    width: 5px;
+}
+
+.config-checker-container::-webkit-scrollbar-track {
+    background: rgba(30, 27, 46, 0.5);
+    border-radius: 10px;
+}
+
+.config-checker-container::-webkit-scrollbar-thumb {
+    background: #DC2626;
+    border-radius: 10px;
+}
+
+.config-checker-container::-webkit-scrollbar-thumb:hover {
+    background: #EF4444;
+}
+
+.quick-search-container-page .quick-search-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.quick-search-container-page .quick-search-input {
+    width: 100%;
+}
+
+.quick-search-container-page .quick-search-button {
+    width: 100%;
+    justify-content: center;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 1200px) {
+    .check-container {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+}
+
+@media (max-width: 600px) {
+    .nav-link {
+        font-size: 12px;
+        padding: 8px 16px;
+    }
+}

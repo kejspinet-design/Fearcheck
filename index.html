@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fear Protection - Проверка игрока</title>
+    <link rel="icon" type="image/x-icon" href="app.ico">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS Imports -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/check.css">
+</head>
+<body>
+    <!-- Container -->
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <!-- Logo and Title -->
+                <div class="header-title-section">
+                    <h1 class="logo-container">
+                        <img src="app.ico" alt="Fear Protection" style="width: 44px; height: 44px; border-radius: 8px;">
+                        <span class="logo-text">Fear Protection - Проверка игроков</span>
+                    </h1>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Main Content -->
+        <main class="check-main">
+            <!-- Two-Column Grid Layout -->
+            <div class="check-container" style="grid-template-columns: 1fr 1fr;">
+                <!-- Left Column: Config.vdf Checker -->
+                <div class="check-section">
+                    <div class="section-header">
+                        <h2>Проверка config.vdf</h2>
+                        <span class="section-count" id="configCheckCount">0</span>
+                    </div>
+                    <div class="config-checker-container">
+                        <div class="config-upload-area" id="configUploadArea">
+                            <div class="upload-icon">📁</div>
+                            <p class="upload-text">Перетащите config.vdf сюда</p>
+                            <p class="upload-subtext">или</p>
+                            <label for="configFileInput" class="upload-button">Выбрать файл</label>
+                            <input type="file" id="configFileInput" accept=".vdf,.cfg" style="display: none;">
+                            <p class="upload-hint">Поддерживаются файлы: config.vdf, config.cfg</p>
+                        </div>
+                        <div class="players-list" id="config-check-column" style="display: none;">
+                            <!-- Checked players will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Column: Quick Search -->
+                <div class="check-section">
+                    <div class="section-header">
+                        <h2>Проверка по Steam ID</h2>
+                    </div>
+                    <div class="quick-search-container-page">
+                        <div class="quick-search-form">
+                            <input 
+                                type="text" 
+                                id="quickSearchInput" 
+                                class="quick-search-input" 
+                                placeholder="Введите Steam ID (например: 76561199881908264)"
+                                pattern="[0-9]{17}"
+                            >
+                            <button id="quickSearchButton" class="quick-search-button">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <path d="m21 21-4.35-4.35"></path>
+                                </svg>
+                                Проверить
+                            </button>
+                        </div>
+                        <div id="quickSearchResult" class="quick-search-result" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- JavaScript Modules -->
+    <script src="js/APIClient.js"></script>
+    <script src="js/ModalManager.js"></script>
+    <script src="js/ConfigChecker.js"></script>
+    <script src="js/QuickSearch.js"></script>
+    <script src="js/CheckPage.js"></script>
+</body>
+</html>
