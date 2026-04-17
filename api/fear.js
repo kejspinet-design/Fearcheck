@@ -24,7 +24,10 @@ export default async function handler(req, res) {
     try {
         const { q, page = 1, limit = 10, type = 1 } = req.query;
         
+        console.log('[Fear API] Received request:', { q, page, limit, type });
+        
         if (!q) {
+            console.log('[Fear API] Missing Steam ID parameter');
             res.status(400).json({ error: 'Missing Steam ID parameter' });
             return;
         }
@@ -32,6 +35,7 @@ export default async function handler(req, res) {
         // Validate Steam ID format
         const steamIdPattern = /^7656119\d{10}$/;
         if (!steamIdPattern.test(q)) {
+            console.log('[Fear API] Invalid Steam ID format:', q);
             res.status(400).json({ error: 'Invalid Steam ID format' });
             return;
         }
@@ -39,7 +43,7 @@ export default async function handler(req, res) {
         // Build Fear API URL
         const fearApiUrl = `https://api.fearproject.ru/punishments/search?q=${encodeURIComponent(q)}&page=${page}&limit=${limit}&type=${type}`;
         
-        console.log('[Fear API] Request:', fearApiUrl);
+        console.log('[Fear API] Requesting:', fearApiUrl);
         
         // Make request to Fear API
         const response = await fetch(fearApiUrl, {
@@ -50,18 +54,22 @@ export default async function handler(req, res) {
             }
         });
         
+        console.log('[Fear API] Response status:', response.status);
+        
         if (!response.ok) {
-            console.error('[Fear API] Error:', response.status, response.statusText);
+            const errorText = await response.text();
+            console.error('[Fear API] Error response:', errorText);
             res.status(response.status).json({ 
                 error: 'Fear API error', 
                 status: response.status,
-                message: response.statusText 
+                message: response.statusText,
+                details: errorText
             });
             return;
         }
         
         const data = await response.json();
-        console.log('[Fear API] Success:', data);
+        console.log('[Fear API] Success data:', data);
         
         // Return the data
         res.status(200).json(data);
@@ -70,7 +78,8 @@ export default async function handler(req, res) {
         console.error('[Fear API] Exception:', error);
         res.status(500).json({ 
             error: 'Internal server error', 
-            message: error.message 
+            message: error.message,
+            stack: error.stack
         });
     }
 }

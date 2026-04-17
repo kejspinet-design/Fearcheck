@@ -11,6 +11,7 @@
         .error { background: #f8d7da; border-color: #f5c6cb; }
         button { padding: 10px 20px; margin: 5px; }
         input { padding: 8px; margin: 5px; width: 200px; }
+        pre { white-space: pre-wrap; word-wrap: break-word; }
     </style>
 </head>
 <body>
@@ -18,38 +19,73 @@
     
     <div>
         <input type="text" id="steamId" placeholder="Steam ID" value="76561199881908264">
-        <button onclick="testFearAPI()">Test Fear API</button>
+        <button onclick="testAPI()">Test /api/test</button>
+        <button onclick="testFearAPI()">Test /api/fear</button>
         <button onclick="testDirectAPI()">Test Direct API</button>
+        <button onclick="clearResults()">Clear Results</button>
     </div>
     
     <div id="results"></div>
 
     <script>
-        async function testFearAPI() {
-            const steamId = document.getElementById('steamId').value;
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        async function testAPI() {
             const resultsDiv = document.getElementById('results');
             
             try {
-                resultsDiv.innerHTML += '<div class="result">Testing serverless function...</div>';
+                resultsDiv.innerHTML += '<div class="result">Testing /api/test...</div>';
                 
-                const response = await fetch(`/api/fear?q=${steamId}&page=1&limit=10&type=1`);
+                const response = await fetch('/api/test?param=hello');
                 const data = await response.json();
                 
                 if (response.ok) {
                     resultsDiv.innerHTML += `<div class="result success">
-                        <strong>Serverless API Success:</strong><br>
+                        <strong>Test API Success:</strong><br>
                         <pre>${JSON.stringify(data, null, 2)}</pre>
                     </div>`;
                 } else {
                     resultsDiv.innerHTML += `<div class="result error">
-                        <strong>Serverless API Error:</strong><br>
+                        <strong>Test API Error:</strong><br>
                         Status: ${response.status}<br>
                         <pre>${JSON.stringify(data, null, 2)}</pre>
                     </div>`;
                 }
             } catch (error) {
                 resultsDiv.innerHTML += `<div class="result error">
-                    <strong>Serverless API Exception:</strong><br>
+                    <strong>Test API Exception:</strong><br>
+                    ${error.message}
+                </div>`;
+            }
+        }
+        
+        async function testFearAPI() {
+            const steamId = document.getElementById('steamId').value;
+            const resultsDiv = document.getElementById('results');
+            
+            try {
+                resultsDiv.innerHTML += '<div class="result">Testing /api/fear...</div>';
+                
+                const response = await fetch(`/api/fear?q=${steamId}&page=1&limit=10&type=1`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultsDiv.innerHTML += `<div class="result success">
+                        <strong>Fear API Success:</strong><br>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>`;
+                } else {
+                    resultsDiv.innerHTML += `<div class="result error">
+                        <strong>Fear API Error:</strong><br>
+                        Status: ${response.status}<br>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>`;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML += `<div class="result error">
+                    <strong>Fear API Exception:</strong><br>
                     ${error.message}
                 </div>`;
             }
