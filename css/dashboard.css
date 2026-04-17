@@ -204,15 +204,15 @@ body::before {
         filter: drop-shadow(0 0 16px rgba(37, 99, 235, 1)) drop-shadow(0 0 32px rgba(37, 99, 235, 0.6));
     }
 }
-        filter: drop-shadow(0 0 12px rgba(249, 115, 22, 0.8)) drop-shadow(0 0 24px rgba(249, 115, 22, 0.4));
+        filter: drop-shadow(0 0 12px rgba(37, 99, 235, 0.8)) drop-shadow(0 0 24px rgba(37, 99, 235, 0.4));
     }
     50% {
-        filter: drop-shadow(0 0 16px rgba(249, 115, 22, 1)) drop-shadow(0 0 32px rgba(249, 115, 22, 0.6));
+        filter: drop-shadow(0 0 16px rgba(37, 99, 235, 1)) drop-shadow(0 0 32px rgba(37, 99, 235, 0.6));
     }
 }
 
 .logo-text {
-    background: linear-gradient(135deg, #F97316 0%, #F43F5E 50%, #A855F7 100%);
+    background: linear-gradient(135deg, #2563EB 0%, #3B82F6 50%, #A855F7 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -901,10 +901,10 @@ body::before {
 .uma-ban-info {
     margin: 8px 0;
     padding: 8px;
-    background: linear-gradient(135deg, rgba(255, 87, 34, 0.1) 0%, rgba(255, 152, 0, 0.05) 100%);
-    border: 1px solid rgba(255, 87, 34, 0.3);
+    background: linear-gradient(135deg, rgba(29, 78, 216, 0.1) 0%, rgba(255, 152, 0, 0.05) 100%);
+    border: 1px solid rgba(29, 78, 216, 0.3);
     border-radius: 8px;
-    border-left: 3px solid #FF5722;
+    border-left: 3px solid #1D4ED8;
 }
 
 .uma-ban-badge {
@@ -916,7 +916,7 @@ body::before {
 .uma-ban-label {
     font-size: 10px;
     font-weight: 700;
-    color: #FF5722;
+    color: #1D4ED8;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -1458,16 +1458,16 @@ body::before {
 }
 
 .footer-link:hover {
-    background: #F97316;
-    border-color: #F97316;
+    background: #2563EB;
+    border-color: #2563EB;
     color: #0F0C1F;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
 }
 
 .footer-link:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.3);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
 }
 
 .footer-version {
@@ -1611,7 +1611,7 @@ body.loading::after {
 
 .modal-container {
     background: linear-gradient(135deg, rgba(26, 11, 46, 0.98) 0%, rgba(15, 5, 32, 0.98) 100%);
-    border: 1px solid rgba(249, 115, 22, 0.3);
+    border: 1px solid rgba(37, 99, 235, 0.3);
     border-radius: 20px;
     max-width: 700px;
     width: 100%;
@@ -1619,7 +1619,7 @@ body.loading::after {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 100px rgba(249, 115, 22, 0.15);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 100px rgba(37, 99, 235, 0.15);
     animation: modalSlideIn 0.3s ease;
     position: relative;
 }
@@ -1640,7 +1640,7 @@ body.loading::after {
     justify-content: space-between;
     align-items: center;
     padding: 24px 28px;
-    border-bottom: 1px solid rgba(249, 115, 22, 0.2);
+    border-bottom: 1px solid rgba(37, 99, 235, 0.2);
     background: rgba(26, 11, 46, 0.5);
 }
 
@@ -1649,7 +1649,7 @@ body.loading::after {
     font-weight: 700;
     color: #F1F1F1;
     margin: 0;
-    background: linear-gradient(135deg, #F97316 0%, #F43F5E 50%, #A855F7 100%);
+    background: linear-gradient(135deg, #2563EB 0%, #3B82F6 50%, #A855F7 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -1657,7 +1657,7 @@ body.loading::after {
 
 .modal-close {
     background: transparent;
-    border: 1px solid rgba(249, 115, 22, 0.3);
+    border: 1px solid rgba(37, 99, 235, 0.3);
     color: #9CA3AF;
     width: 36px;
     height: 36px;
@@ -1671,9 +1671,9 @@ body.loading::after {
 }
 
 .modal-close:hover {
-    background: rgba(249, 115, 22, 0.15);
-    border-color: #F97316;
-    color: #F97316;
+    background: rgba(37, 99, 235, 0.15);
+    border-color: #2563EB;
+    color: #2563EB;
     transform: rotate(90deg);
 }
 
@@ -1691,7 +1691,7 @@ body.loading::after {
     overflow-y: auto;
     flex: 1;
     scrollbar-width: thin;
-    scrollbar-color: #F97316 #1E1B2E;
+    scrollbar-color: #2563EB #1E1B2E;
 }
 
 .modal-body::-webkit-scrollbar {
@@ -1704,7 +1704,7 @@ body.loading::after {
 }
 
 .modal-body::-webkit-scrollbar-thumb {
-    background: #F97316;
+    background: #2563EB;
     border-radius: 10px;
 }
 
@@ -1760,7 +1760,7 @@ body.loading::after {
     content: '→';
     position: absolute;
     left: 0;
-    color: #F97316;
+    color: #2563EB;
     font-weight: 600;
 }
 
@@ -1770,7 +1770,7 @@ body.loading::after {
 }
 
 .modal-section a {
-    color: #F97316;
+    color: #2563EB;
     text-decoration: none;
     font-weight: 500;
     transition: all 0.2s ease;
@@ -1784,7 +1784,7 @@ body.loading::after {
 
 .modal-footer-note {
     padding-top: 20px;
-    border-top: 1px solid rgba(249, 115, 22, 0.2);
+    border-top: 1px solid rgba(37, 99, 235, 0.2);
     margin-top: 32px;
 }
 
@@ -1840,7 +1840,7 @@ body.loading::after {
     align-items: center;
     justify-content: center;
     padding: 40px 20px;
-    border: 2px dashed rgba(249, 115, 22, 0.3);
+    border: 2px dashed rgba(37, 99, 235, 0.3);
     border-radius: 16px;
     background: rgba(26, 11, 46, 0.4);
     transition: all 0.3s ease;
@@ -1849,14 +1849,14 @@ body.loading::after {
 }
 
 .config-upload-area:hover {
-    border-color: rgba(249, 115, 22, 0.6);
+    border-color: rgba(37, 99, 235, 0.6);
     background: rgba(26, 11, 46, 0.6);
     transform: translateY(-2px);
 }
 
 .config-upload-area.drag-over {
-    border-color: #F97316;
-    background: rgba(249, 115, 22, 0.15);
+    border-color: #2563EB;
+    background: rgba(37, 99, 235, 0.15);
     transform: scale(1.02);
 }
 
@@ -1880,7 +1880,7 @@ body.loading::after {
 }
 
 .upload-button {
-    background: linear-gradient(135deg, #F97316 0%, #F43F5E 100%);
+    background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
     color: #fff;
     padding: 12px 32px;
     border-radius: 40px;
@@ -1889,12 +1889,12 @@ body.loading::after {
     cursor: pointer;
     transition: all 0.2s ease;
     border: none;
-    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
 .upload-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.5);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
 }
 
 .upload-button:active {
@@ -1919,8 +1919,8 @@ body.loading::after {
 .processing-spinner {
     width: 48px;
     height: 48px;
-    border: 4px solid rgba(249, 115, 22, 0.2);
-    border-top-color: #F97316;
+    border: 4px solid rgba(37, 99, 235, 0.2);
+    border-top-color: #2563EB;
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-bottom: 20px;
@@ -2043,7 +2043,7 @@ body.loading::after {
     background: rgba(26, 11, 46, 0.7);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(249, 115, 22, 0.25);
+    border: 1px solid rgba(37, 99, 235, 0.25);
     border-radius: 20px;
     padding: 28px 32px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
@@ -2067,7 +2067,7 @@ body.loading::after {
 .quick-search-input {
     flex: 1;
     background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(249, 115, 22, 0.3);
+    border: 1px solid rgba(37, 99, 235, 0.3);
     border-radius: 12px;
     padding: 14px 20px;
     font-size: 15px;
@@ -2078,9 +2078,9 @@ body.loading::after {
 
 .quick-search-input:focus {
     outline: none;
-    border-color: #F97316;
+    border-color: #2563EB;
     background: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
 }
 
 .quick-search-input::placeholder {
@@ -2088,7 +2088,7 @@ body.loading::after {
 }
 
 .quick-search-button {
-    background: linear-gradient(135deg, #F97316 0%, #F43F5E 100%);
+    background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
     border: none;
     border-radius: 12px;
     padding: 14px 32px;
@@ -2100,12 +2100,12 @@ body.loading::after {
     display: flex;
     align-items: center;
     gap: 8px;
-    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
 .quick-search-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.5);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
 }
 
 .quick-search-button:active {
@@ -2133,8 +2133,8 @@ body.loading::after {
 .quick-search-loading .processing-spinner {
     width: 40px;
     height: 40px;
-    border: 3px solid rgba(249, 115, 22, 0.2);
-    border-top-color: #F97316;
+    border: 3px solid rgba(37, 99, 235, 0.2);
+    border-top-color: #2563EB;
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 0 auto 16px;
