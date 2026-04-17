@@ -47,10 +47,10 @@ body {
 }
 
 .nav-link.active {
-    background: linear-gradient(135deg, #DC2626 0%, #FF0000 100%);
-    border-color: #DC2626;
+    background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+    border-color: #2563EB;
     color: #fff;
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.5);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.5);
 }
 
 /* ========== CHECK MAIN ========== */
