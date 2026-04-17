@@ -94,13 +94,13 @@ class QuickSearch {
      */
     async checkFearBan(steamId) {
         try {
-            const response = await fetch(`${this.apiClient.config.fearApiBase}/punishments/search?q=${steamId}&page=1&limit=10&type=1`, {
+            // Прямой запрос к Fear API
+            const response = await fetch(`https://api.fearproject.ru/punishments/search?q=${steamId}&page=1&limit=10&type=1`, {
                 method: 'GET',
-                mode: 'cors',
-                credentials: 'include',
                 headers: {
                     'Accept': 'application/json',
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfaWQiOiI3NjU2MTE5OTUyNDc4MDMyNyIsImlhdCI6MTc3NjI2MzY4MiwiZXhwIjoxNzc4ODU1NjgyfQ.TdgSNRkzoVN2a7ysy4QPNcv7S_wFQ9WpiPwcb6C2D84'
                 }
             });
             
@@ -110,6 +110,7 @@ class QuickSearch {
             }
             
             const data = await response.json();
+            console.log('[QuickSearch] Fear API response:', data);
             
             // Check if any active bans found
             if (data && data.punishments && Array.isArray(data.punishments) && data.punishments.length > 0) {
