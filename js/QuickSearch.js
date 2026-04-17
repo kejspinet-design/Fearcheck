@@ -65,15 +65,14 @@ class QuickSearch {
         this.showLoading();
         
         try {
-            // Check all three sources in parallel
-            const [fearResult, umaResult, vacResult] = await Promise.all([
+            // Check Fear and UMA in parallel
+            const [fearResult, umaResult] = await Promise.all([
                 this.checkFearBan(steamId),
-                this.checkUmaBan(steamId),
-                this.checkVACBan(steamId)
+                this.checkUmaBan(steamId)
             ]);
             
             // Render results
-            this.renderResults(steamId, fearResult, umaResult, vacResult);
+            this.renderResults(steamId, fearResult, umaResult);
             
         } catch (error) {
             console.error('[QuickSearch] Search error:', error);
@@ -237,49 +236,6 @@ class QuickSearch {
     }
 
     /**
-     * Check VAC ban status via Steam API
-     */
-    async checkVACBan(steamId) {
-        try {
-            const bans = await this.apiClient.fetchPlayerBans([steamId]);
-            
-            if (bans && bans.length > 0) {
-                const banData = bans[0];
-                const vacBanned = banData.NumberOfVACBans > 0;
-                const gameBanned = banData.NumberOfGameBans > 0;
-                const daysSinceBan = banData.DaysSinceLastBan || 0;
-                
-                if (vacBanned || gameBanned) {
-                    let reason = '';
-                    if (vacBanned) {
-                        reason = `VAC бан (${banData.NumberOfVACBans})`;
-                    }
-                    if (gameBanned) {
-                        if (reason) reason += ', ';
-                        reason += `Game бан (${banData.NumberOfGameBans})`;
-                    }
-                    if (daysSinceBan > 0) {
-                        reason += ` - ${daysSinceBan} дн. назад`;
-                    }
-                    
-                    return {
-                        banned: true,
-                        reason: reason,
-                        error: false
-                    };
-                } else {
-                    return { banned: false, reason: 'Нет банов', error: false };
-                }
-            } else {
-                return { banned: false, reason: 'Нет данных', error: true };
-            }
-        } catch (error) {
-            console.error('[QuickSearch] VAC check error:', error);
-            return { banned: false, reason: 'Ошибка проверки', error: true };
-        }
-    }
-
-    /**
      * Show loading state
      */
     showLoading() {
@@ -313,9 +269,9 @@ class QuickSearch {
     /**
      * Render search results
      */
-    renderResults(steamId, fearResult, umaResult, vacResult) {
+    renderResults(steamId, fearResult, umaResult) {
         // Determine overall status
-        const isBanned = fearResult.banned || umaResult.banned || vacResult.banned;
+        const isBanned = fearResult.banned || umaResult.banned;
         
         this.resultContainer.style.display = 'block';
         this.resultContainer.innerHTML = `
@@ -337,12 +293,6 @@ class QuickSearch {
                         <div class="quick-search-detail-label">UMA.SU</div>
                         <div class="quick-search-detail-value ${umaResult.banned ? 'banned' : 'clean'}">
                             ${umaResult.banned ? '❌ ' + umaResult.reason : '✅ ' + umaResult.reason}
-                        </div>
-                    </div>
-                    <div class="quick-search-detail-item">
-                        <div class="quick-search-detail-label">Steam VAC</div>
-                        <div class="quick-search-detail-value ${vacResult.banned ? 'banned' : 'clean'}">
-                            ${vacResult.banned ? '❌ ' + vacResult.reason : '✅ ' + vacResult.reason}
                         </div>
                     </div>
                 </div>
