@@ -348,8 +348,8 @@ class ConfigChecker {
      */
     async checkFearBan(steamId) {
         try {
-            // Use proxy endpoint with correct path
-            const response = await fetch(`/api/fear/punishments/search?q=${encodeURIComponent(steamId)}&page=1&limit=10&type=1`, {
+            // Use Vercel serverless function
+            const response = await fetch(`/api/fear?q=${encodeURIComponent(steamId)}&page=1&limit=10&type=1`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json'

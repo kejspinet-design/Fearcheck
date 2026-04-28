@@ -97,7 +97,8 @@ class QuickSearch {
             console.log('[QuickSearch] Checking Fear API for:', steamId);
             
             // Use proxy endpoint with correct path
-            const apiUrl = `/api/fear/punishments/search?q=${encodeURIComponent(steamId)}&page=1&limit=10&type=1`;
+            // Use Vercel serverless function
+            const apiUrl = `/api/fear?q=${encodeURIComponent(steamId)}&page=1&limit=10&type=1`;
             
             console.log('[QuickSearch] Requesting:', apiUrl);
             
