@@ -112,8 +112,7 @@ class ConfigChecker {
             
         } catch (error) {
             console.error('[ConfigChecker] Error processing file:', error);
-            alert('Ошибка при обработке файла');
-            this.showUploadArea();
+            this.showError('Ошибка при обработке файла');
         }
     }
 
@@ -422,6 +421,29 @@ class ConfigChecker {
         this.resultsColumn.style.display = 'none';
         this.resultsColumn.innerHTML = '';
         this.updateCount(0);
+    }
+
+    /**
+     * Show error message with Discord support link
+     */
+    showError(message) {
+        this.uploadArea.style.display = 'none';
+        this.resultsColumn.style.display = 'flex';
+        this.resultsColumn.innerHTML = `
+            <div style="background: linear-gradient(135deg, #ff4757 0%, #ff6348 100%); color: white; padding: 30px; border-radius: 15px; text-align: center; box-shadow: 0 8px 20px rgba(255, 71, 87, 0.3); max-width: 600px; margin: 20px auto;">
+                <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
+                <h2 style="margin: 0 0 15px 0; font-size: 24px; font-weight: bold;">${message}</h2>
+                <p style="margin: 20px 0; font-size: 16px; line-height: 1.6;">
+                    Извините, у нас ошибка! Откройте консоль (F12), заскриньте ошибки и отправьте нашему разработчику в Discord сервер.
+                </p>
+                <a href="https://discord.gg/QcBKPYUFYS" target="_blank" style="display: inline-block; background: white; color: #ff4757; padding: 15px 40px; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 18px; margin-top: 10px; transition: transform 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.2);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    🎮 Открыть Discord
+                </a>
+                <button onclick="location.reload()" style="display: block; width: 100%; background: rgba(255,255,255,0.2); color: white; border: 2px solid white; padding: 12px; border-radius: 10px; font-size: 16px; font-weight: bold; margin-top: 20px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                    🔄 Перезагрузить страницу
+                </button>
+            </div>
+        `;
     }
 
     /**
