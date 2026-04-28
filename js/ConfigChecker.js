@@ -169,50 +169,56 @@ class ConfigChecker {
         // Start timer
         const startTime = performance.now();
         
-        // Process Fear API and UMA.SU in PARALLEL
-        console.time('[ConfigChecker] Total API time');
-        const [fearResults, umaResults] = await Promise.all([
-            this.checkFearBansBatch(uniqueSteamIds, (progress) => {
-                this.showProgress(progress, uniqueSteamIds.length, 'Fear API');
-            }),
-            this.checkUmaBansBatch(uniqueSteamIds, 1, (progress) => {
-                this.showProgress(progress, uniqueSteamIds.length, 'UMA.SU');
-            })
-        ]);
-        console.timeEnd('[ConfigChecker] Total API time');
-        
-        // Calculate total time
-        const endTime = performance.now();
-        const totalTime = ((endTime - startTime) / 1000).toFixed(3); // seconds with milliseconds
-        
-        console.info(`[ConfigChecker] Total check time: ${totalTime}s`);
-        
-        // Combine results
-        for (const steamId of uniqueSteamIds) {
-            const fearResult = fearResults[steamId] || { banned: false, reason: 'Ошибка проверки' };
-            const umaResult = umaResults[steamId] || { banned: false, reason: 'Ошибка проверки' };
+        try {
+            // Process Fear API and UMA.SU in PARALLEL
+            console.time('[ConfigChecker] Total API time');
+            const [fearResults, umaResults] = await Promise.all([
+                this.checkFearBansBatch(uniqueSteamIds, (progress) => {
+                    this.showProgress(progress, uniqueSteamIds.length, 'Fear API');
+                }),
+                this.checkUmaBansBatch(uniqueSteamIds, 1, (progress) => {
+                    this.showProgress(progress, uniqueSteamIds.length, 'UMA.SU');
+                })
+            ]);
+            console.timeEnd('[ConfigChecker] Total API time');
             
-            const result = {
-                steamId: steamId,
-                fearBanned: fearResult.banned,
-                fearReason: fearResult.reason,
-                umaBanned: umaResult.banned,
-                umaReason: umaResult.reason,
-                isBanned: fearResult.banned || umaResult.banned
-            };
+            // Calculate total time
+            const endTime = performance.now();
+            const totalTime = ((endTime - startTime) / 1000).toFixed(3); // seconds with milliseconds
             
-            cache.set(steamId, result);
+            console.info(`[ConfigChecker] Total check time: ${totalTime}s`);
+            
+            // Combine results
+            for (const steamId of uniqueSteamIds) {
+                const fearResult = fearResults[steamId] || { banned: false, reason: 'Ошибка проверки' };
+                const umaResult = umaResults[steamId] || { banned: false, reason: 'Ошибка проверки' };
+                
+                const result = {
+                    steamId: steamId,
+                    fearBanned: fearResult.banned,
+                    fearReason: fearResult.reason,
+                    umaBanned: umaResult.banned,
+                    umaReason: umaResult.reason,
+                    isBanned: fearResult.banned || umaResult.banned
+                };
+                
+                cache.set(steamId, result);
+            }
+            
+            // Map all Steam IDs (including duplicates) to results
+            for (const steamId of steamIds) {
+                results.push(cache.get(steamId));
+            }
+            
+            // Store total time for display
+            this.totalCheckTime = totalTime;
+            
+            return results;
+            
+        } catch (error) {
+            console.error('[ConfigChecker] Critical error during check:', error);
+            throw error; // Re-throw to be caught by handleFile
         }
-        
-        // Map all Steam IDs (including duplicates) to results
-        for (const steamId of steamIds) {
-            results.push(cache.get(steamId));
-        }
-        
-        // Store total time for display
-        this.totalCheckTime = totalTime;
-        
-        return results;
     }
 
     /**
@@ -424,26 +430,63 @@ class ConfigChecker {
     }
 
     /**
-     * Show error message with Discord support link
+     * Show error message with Discord support link (MODAL)
      */
     showError(message) {
-        this.uploadArea.style.display = 'none';
-        this.resultsColumn.style.display = 'flex';
-        this.resultsColumn.innerHTML = `
-            <div style="background: linear-gradient(135deg, #ff4757 0%, #ff6348 100%); color: white; padding: 30px; border-radius: 15px; text-align: center; box-shadow: 0 8px 20px rgba(255, 71, 87, 0.3); max-width: 600px; margin: 20px auto;">
-                <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
-                <h2 style="margin: 0 0 15px 0; font-size: 24px; font-weight: bold;">${message}</h2>
-                <p style="margin: 20px 0; font-size: 16px; line-height: 1.6;">
-                    Извините, у нас ошибка! Откройте консоль (F12), заскриньте ошибки и отправьте нашему разработчику в Discord сервер.
+        // Create modal overlay
+        const modal = document.createElement('div');
+        modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10000; animation: fadeIn 0.3s;';
+        
+        // Create modal content
+        modal.innerHTML = `
+            <style>
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                @keyframes slideIn {
+                    from { transform: translateY(-50px); opacity: 0; }
+                    to { transform: translateY(0); opacity: 1; }
+                }
+            </style>
+            <div style="background: linear-gradient(135deg, #ff4757 0%, #ff6348 100%); color: white; padding: 40px; border-radius: 20px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.5); max-width: 600px; width: 90%; animation: slideIn 0.3s;">
+                <div style="font-size: 64px; margin-bottom: 20px;">⚠️</div>
+                <h2 style="margin: 0 0 20px 0; font-size: 28px; font-weight: bold;">${message}</h2>
+                <p style="margin: 20px 0; font-size: 18px; line-height: 1.8; background: rgba(0,0,0,0.2); padding: 20px; border-radius: 10px;">
+                    Извините, у нас ошибка!<br>
+                    Откройте консоль (<strong>F12</strong>), заскриньте ошибки<br>
+                    и отправьте нашему разработчику в Discord сервер.
                 </p>
-                <a href="https://discord.gg/QcBKPYUFYS" target="_blank" style="display: inline-block; background: white; color: #ff4757; padding: 15px 40px; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 18px; margin-top: 10px; transition: transform 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.2);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <a href="https://discord.gg/QcBKPYUFYS" target="_blank" style="display: inline-block; background: white; color: #ff4757; padding: 18px 50px; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 20px; margin: 10px; transition: all 0.3s; box-shadow: 0 6px 15px rgba(0,0,0,0.3);" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.4)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 6px 15px rgba(0,0,0,0.3)'">
                     🎮 Открыть Discord
                 </a>
-                <button onclick="location.reload()" style="display: block; width: 100%; background: rgba(255,255,255,0.2); color: white; border: 2px solid white; padding: 12px; border-radius: 10px; font-size: 16px; font-weight: bold; margin-top: 20px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                <button onclick="this.closest('div[style*=fixed]').remove(); location.reload()" style="display: block; width: 100%; background: rgba(255,255,255,0.2); color: white; border: 2px solid white; padding: 15px; border-radius: 12px; font-size: 18px; font-weight: bold; margin-top: 20px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
                     🔄 Перезагрузить страницу
+                </button>
+                <button onclick="this.closest('div[style*=fixed]').remove()" style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 24px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'; this.style.transform='rotate(90deg)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'; this.style.transform='rotate(0deg)'">
+                    ×
                 </button>
             </div>
         `;
+        
+        // Add to body
+        document.body.appendChild(modal);
+        
+        // Close on overlay click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+        
+        // Close on Escape key
+        const escapeHandler = (e) => {
+            if (e.key === 'Escape') {
+                modal.remove();
+                document.removeEventListener('keydown', escapeHandler);
+            }
+        };
+        document.addEventListener('keydown', escapeHandler);
     }
 
     /**
