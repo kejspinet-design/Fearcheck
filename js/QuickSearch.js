@@ -96,8 +96,8 @@ class QuickSearch {
         try {
             console.log('[QuickSearch] Checking Fear API for:', steamId);
             
-            // Use our Vercel serverless function
-            const apiUrl = `/api/fear?q=${encodeURIComponent(steamId)}&page=1&limit=10&type=1`;
+            // Use proxy endpoint with correct path
+            const apiUrl = `/api/fear/punishments/search?q=${encodeURIComponent(steamId)}&page=1&limit=10&type=1`;
             
             console.log('[QuickSearch] Requesting:', apiUrl);
             
@@ -149,100 +149,33 @@ class QuickSearch {
     }
 
     /**
-     * Check UMA.SU ban status via WebSocket
+     * Check UMA.SU ban status via server proxy
      */
     async checkUmaBan(steamId) {
-        return new Promise((resolve) => {
-            try {
-                const ws = new WebSocket('wss://yooma.su/api');
-                
-                const timeout = setTimeout(() => {
-                    ws.close();
-                    resolve({ banned: false, reason: 'Таймаут соединения', error: true });
-                }, 10000);
-                
-                let requestSent = false;
-                
-                ws.onopen = () => {
-                    console.info('[QuickSearch] UMA.SU WebSocket connected');
+        try {
+            const response = await fetch(`/api/uma/check/${encodeURIComponent(steamId)}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                console.error('[QuickSearch] UMA proxy error:', response.status, response.statusText);
+                return { 
+                    banned: false, 
+                    reason: `Ошибка API (${response.status})`, 
+                    error: true 
                 };
-                
-                ws.onmessage = (event) => {
-                    try {
-                        const data = JSON.parse(event.data);
-                        
-                        // Server sends get_type first
-                        if (data.type === 'get_type' && !requestSent) {
-                            requestSent = true;
-                            
-                            const request = {
-                                type: 'get_punishments',
-                                page: 1,
-                                punish_type: 0,
-                                search: steamId
-                            };
-                            
-                            ws.send(JSON.stringify(request));
-                            return;
-                        }
-                        
-                        // Ignore page count response
-                        if (data.type === 'get_punishments_pages') {
-                            return;
-                        }
-                        
-                        // Check punishments response
-                        if (data.type === 'get_punishments' && data.punishments) {
-                            clearTimeout(timeout);
-                            
-                            if (Array.isArray(data.punishments) && data.punishments.length > 0) {
-                                const ban = data.punishments[0];
-                                const expires = ban.expires;
-                                const now = Math.floor(Date.now() / 1000);
-                                
-                                if (expires > now) {
-                                    resolve({
-                                        banned: true,
-                                        reason: ban.reason || 'Забанен',
-                                        error: false
-                                    });
-                                } else {
-                                    resolve({
-                                        banned: false,
-                                        reason: 'Бан истек',
-                                        error: false
-                                    });
-                                }
-                            } else {
-                                resolve({ banned: false, reason: 'Не забанен', error: false });
-                            }
-                            
-                            ws.close();
-                        }
-                    } catch (error) {
-                        console.error('[QuickSearch] UMA.SU parse error:', error);
-                        clearTimeout(timeout);
-                        resolve({ banned: false, reason: 'Ошибка парсинга', error: true });
-                        ws.close();
-                    }
-                };
-                
-                ws.onerror = (error) => {
-                    clearTimeout(timeout);
-                    console.error('[QuickSearch] UMA.SU WebSocket error:', error);
-                    resolve({ banned: false, reason: 'Ошибка соединения', error: true });
-                    ws.close();
-                };
-                
-                ws.onclose = () => {
-                    clearTimeout(timeout);
-                };
-                
-            } catch (error) {
-                console.error('[QuickSearch] UMA.SU error:', error);
-                resolve({ banned: false, reason: 'Ошибка проверки', error: true });
             }
-        });
+            
+            const data = await response.json();
+            return data;
+            
+        } catch (error) {
+            console.error('[QuickSearch] UMA proxy error:', error);
+            return { banned: false, reason: 'Ошибка проверки', error: true };
+        }
     }
 
     /**

@@ -153,38 +153,165 @@ class ConfigChecker {
     }
 
     /**
-     * Check bans for Steam IDs using Fear API and UMA.SU API
+     * Check bans for Steam IDs using Fear API and UMA.SU API (OPTIMIZED v3 - PARALLEL)
      */
     async checkBans(steamIds) {
         const results = [];
+        const cache = new Map(); // Cache for duplicate Steam IDs
         
+        // Remove duplicates and use cache
+        const uniqueSteamIds = [...new Set(steamIds)];
+        
+        console.info(`[ConfigChecker] Processing ${uniqueSteamIds.length} unique Steam IDs (${steamIds.length} total)`);
+        
+        // Show progress
+        this.showProgress(0, uniqueSteamIds.length);
+        
+        // Start timer
+        const startTime = performance.now();
+        
+        // Process Fear API and UMA.SU in PARALLEL
+        console.time('[ConfigChecker] Total API time');
+        const [fearResults, umaResults] = await Promise.all([
+            this.checkFearBansBatch(uniqueSteamIds, (progress) => {
+                this.showProgress(progress, uniqueSteamIds.length, 'Fear API');
+            }),
+            this.checkUmaBansBatch(uniqueSteamIds, 1, (progress) => {
+                this.showProgress(progress, uniqueSteamIds.length, 'UMA.SU');
+            })
+        ]);
+        console.timeEnd('[ConfigChecker] Total API time');
+        
+        // Calculate total time
+        const endTime = performance.now();
+        const totalTime = ((endTime - startTime) / 1000).toFixed(3); // seconds with milliseconds
+        
+        console.info(`[ConfigChecker] Total check time: ${totalTime}s`);
+        
+        // Combine results
+        for (const steamId of uniqueSteamIds) {
+            const fearResult = fearResults[steamId] || { banned: false, reason: 'Ошибка проверки' };
+            const umaResult = umaResults[steamId] || { banned: false, reason: 'Ошибка проверки' };
+            
+            const result = {
+                steamId: steamId,
+                fearBanned: fearResult.banned,
+                fearReason: fearResult.reason,
+                umaBanned: umaResult.banned,
+                umaReason: umaResult.reason,
+                isBanned: fearResult.banned || umaResult.banned
+            };
+            
+            cache.set(steamId, result);
+        }
+        
+        // Map all Steam IDs (including duplicates) to results
         for (const steamId of steamIds) {
+            results.push(cache.get(steamId));
+        }
+        
+        // Store total time for display
+        this.totalCheckTime = totalTime;
+        
+        return results;
+    }
+
+    /**
+     * Show progress indicator
+     */
+    showProgress(current, total, stage = '') {
+        const percent = Math.round((current / total) * 100);
+        const stageText = stage ? ` (${stage})` : '';
+        
+        this.resultsColumn.innerHTML = `
+            <div class="config-processing">
+                <div class="processing-spinner"></div>
+                <p class="processing-text">Проверяем игроков${stageText}...</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${percent}%"></div>
+                </div>
+                <p class="processing-subtext">${current} / ${total} (${percent}%)</p>
+            </div>
+        `;
+    }
+
+    /**
+     * Check Fear bans in batches (OPTIMIZED v2 - FASTER)
+     */
+    async checkFearBansBatch(steamIds, progressCallback) {
+        const results = {};
+        const BATCH_SIZE = 50; // Increased from 20 to 50 for faster processing
+        
+        // Process in parallel batches
+        const batches = [];
+        for (let i = 0; i < steamIds.length; i += BATCH_SIZE) {
+            batches.push(steamIds.slice(i, i + BATCH_SIZE));
+        }
+        
+        console.info(`[ConfigChecker] Checking Fear API in ${batches.length} batches of ${BATCH_SIZE}`);
+        
+        let processed = 0;
+        
+        // Process all batches in parallel
+        const batchPromises = batches.map(async (batch) => {
+            const batchResult = await this.processFearBatch(batch);
+            processed += batch.length;
+            if (progressCallback) progressCallback(processed);
+            return batchResult;
+        });
+        
+        const batchResults = await Promise.all(batchPromises);
+        
+        // Combine results
+        batchResults.forEach(batchResult => {
+            Object.assign(results, batchResult);
+        });
+        
+        return results;
+    }
+
+    /**
+     * Process single Fear API batch
+     */
+    async processFearBatch(steamIds) {
+        const results = {};
+        
+        // Process each Steam ID in parallel within batch
+        const promises = steamIds.map(async (steamId) => {
             try {
-                // Check Fear bans
-                const fearBan = await this.checkFearBan(steamId);
-                
-                // Check UMA.SU bans
-                const umaBan = await this.checkUmaBan(steamId);
-                
-                results.push({
-                    steamId: steamId,
-                    fearBanned: fearBan.banned,
-                    fearReason: fearBan.reason,
-                    umaBanned: umaBan.banned,
-                    umaReason: umaBan.reason,
-                    isBanned: fearBan.banned || umaBan.banned
-                });
-                
+                const result = await this.checkFearBan(steamId);
+                results[steamId] = result;
             } catch (error) {
-                console.error(`[ConfigChecker] Error checking ${steamId}:`, error);
-                results.push({
-                    steamId: steamId,
-                    fearBanned: false,
-                    fearReason: 'Ошибка проверки',
-                    umaBanned: false,
-                    umaReason: 'Ошибка проверки',
-                    isBanned: false
-                });
+                console.error(`[ConfigChecker] Error checking Fear for ${steamId}:`, error);
+                results[steamId] = { banned: false, reason: 'Ошибка проверки' };
+            }
+        });
+        
+        await Promise.all(promises);
+        return results;
+    }
+
+    /**
+     * Check UMA bans sequentially (STABLE - avoids WebSocket connection issues)
+     */
+    async checkUmaBansBatch(steamIds, batchSize = 1, progressCallback) {
+        const results = {};
+        
+        console.info(`[ConfigChecker] Checking UMA.SU sequentially (${steamIds.length} IDs)`);
+        
+        let processed = 0;
+        
+        // Process sequentially to avoid WebSocket connection issues
+        for (const steamId of steamIds) {
+            const result = await this.checkUmaBanOptimized(steamId);
+            results[steamId] = result;
+            
+            processed++;
+            if (progressCallback) progressCallback(processed);
+            
+            // Small delay between requests to avoid overwhelming the server
+            if (processed < steamIds.length) {
+                await new Promise(resolve => setTimeout(resolve, 100));
             }
         }
         
@@ -192,12 +319,38 @@ class ConfigChecker {
     }
 
     /**
+     * Optimized UMA.SU check via server proxy (STABLE)
+     */
+    async checkUmaBanOptimized(steamId) {
+        try {
+            const response = await fetch(`/api/uma/check/${encodeURIComponent(steamId)}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                console.warn(`[ConfigChecker] UMA proxy returned ${response.status} for ${steamId}`);
+                return { banned: false, reason: 'Ошибка API' };
+            }
+            
+            const data = await response.json();
+            return data;
+            
+        } catch (error) {
+            console.error('[ConfigChecker] UMA proxy error:', error);
+            return { banned: false, reason: 'Ошибка проверки' };
+        }
+    }
+
+    /**
      * Check Fear ban status
      */
     async checkFearBan(steamId) {
         try {
-            // Use our Vercel serverless function
-            const response = await fetch(`/api/fear?q=${encodeURIComponent(steamId)}&page=1&limit=10&type=1`, {
+            // Use proxy endpoint with correct path
+            const response = await fetch(`/api/fear/punishments/search?q=${encodeURIComponent(steamId)}&page=1&limit=10&type=1`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json'
@@ -240,110 +393,10 @@ class ConfigChecker {
     }
 
     /**
-     * Check UMA.SU ban status via WebSocket
+     * Check UMA.SU ban status via WebSocket (LEGACY - used for single checks)
      */
     async checkUmaBan(steamId) {
-        return new Promise((resolve) => {
-            try {
-                // Create WebSocket connection
-                const ws = new WebSocket('wss://yooma.su/api');
-                
-                // Set timeout for connection
-                const timeout = setTimeout(() => {
-                    ws.close();
-                    resolve({ banned: false, reason: 'Таймаут соединения' });
-                }, 10000);
-                
-                let requestSent = false;
-                
-                ws.onopen = () => {
-                    console.info('[ConfigChecker] UMA.SU WebSocket connected');
-                };
-                
-                ws.onmessage = (event) => {
-                    try {
-                        const data = JSON.parse(event.data);
-                        
-                        console.info('[ConfigChecker] UMA.SU response:', data);
-                        
-                        // If server sends get_type, respond and then send our request
-                        if (data.type === 'get_type' && !requestSent) {
-                            requestSent = true;
-                            
-                            // Send request to get punishments with search parameter
-                            const request = {
-                                type: 'get_punishments',
-                                page: 1,
-                                punish_type: 0,
-                                search: steamId
-                            };
-                            
-                            console.info('[ConfigChecker] Sending UMA.SU request:', request);
-                            ws.send(JSON.stringify(request));
-                            return;
-                        }
-                        
-                        // Ignore get_punishments_pages response (just page count)
-                        if (data.type === 'get_punishments_pages') {
-                            console.info('[ConfigChecker] UMA.SU pages count:', data.count);
-                            return;
-                        }
-                        
-                        // Check if this is the punishments response
-                        if (data.type === 'get_punishments' && data.punishments) {
-                            clearTimeout(timeout);
-                            
-                            // Check if punishments array exists and has items
-                            if (Array.isArray(data.punishments) && data.punishments.length > 0) {
-                                // Found ban(s) - since we searched by steamid, all results are for this user
-                                const ban = data.punishments[0];
-                                const reason = ban.reason || 'Забанен';
-                                const expires = ban.expires;
-                                const now = Math.floor(Date.now() / 1000);
-                                
-                                // Check if ban is still active
-                                if (expires > now) {
-                                    resolve({
-                                        banned: true,
-                                        reason: reason
-                                    });
-                                } else {
-                                    resolve({
-                                        banned: false,
-                                        reason: 'Бан истек'
-                                    });
-                                }
-                            } else {
-                                // No bans found
-                                resolve({ banned: false, reason: 'Не забанен' });
-                            }
-                            
-                            ws.close();
-                        }
-                    } catch (error) {
-                        console.error('[ConfigChecker] Error parsing UMA.SU response:', error);
-                        clearTimeout(timeout);
-                        resolve({ banned: false, reason: 'Ошибка парсинга' });
-                        ws.close();
-                    }
-                };
-                
-                ws.onerror = (error) => {
-                    clearTimeout(timeout);
-                    console.error('[ConfigChecker] UMA.SU WebSocket error:', error);
-                    resolve({ banned: false, reason: 'Ошибка соединения' });
-                    ws.close();
-                };
-                
-                ws.onclose = () => {
-                    clearTimeout(timeout);
-                };
-                
-            } catch (error) {
-                console.warn('[ConfigChecker] UMA.SU check failed:', error);
-                resolve({ banned: false, reason: 'Ошибка проверки' });
-            }
-        });
+        return this.checkUmaBanOptimized(steamId);
     }
 
     /**
