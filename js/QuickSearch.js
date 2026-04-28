@@ -153,7 +153,7 @@ class QuickSearch {
      */
     async checkUmaBan(steamId) {
         try {
-            const response = await fetch(`/api/uma/check/${encodeURIComponent(steamId)}`, {
+            const response = await fetch(`/api/uma?steamId=${encodeURIComponent(steamId)}`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json'

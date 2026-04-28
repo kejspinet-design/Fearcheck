@@ -6,6 +6,9 @@
   "functions": {
     "api/fear.js": {
       "maxDuration": 10
+    },
+    "api/uma.js": {
+      "maxDuration": 10
     }
   },
   "headers": [
