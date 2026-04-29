@@ -170,16 +170,11 @@ class ConfigChecker {
         const startTime = performance.now();
         
         try {
-            // Process Fear API and UMA.SU in PARALLEL
+            // Process Fear API only
             console.time('[ConfigChecker] Total API time');
-            const [fearResults, umaResults] = await Promise.all([
-                this.checkFearBansBatch(uniqueSteamIds, (progress) => {
-                    this.showProgress(progress, uniqueSteamIds.length, 'Fear API');
-                }),
-                this.checkUmaBansBatch(uniqueSteamIds, 1, (progress) => {
-                    this.showProgress(progress, uniqueSteamIds.length, 'UMA.SU');
-                })
-            ]);
+            const fearResults = await this.checkFearBansBatch(uniqueSteamIds, (progress) => {
+                this.showProgress(progress, uniqueSteamIds.length, 'Fear API');
+            });
             console.timeEnd('[ConfigChecker] Total API time');
             
             // Calculate total time
@@ -191,15 +186,12 @@ class ConfigChecker {
             // Combine results
             for (const steamId of uniqueSteamIds) {
                 const fearResult = fearResults[steamId] || { banned: false, reason: 'Ошибка проверки' };
-                const umaResult = umaResults[steamId] || { banned: false, reason: 'Ошибка проверки' };
                 
                 const result = {
                     steamId: steamId,
                     fearBanned: fearResult.banned,
                     fearReason: fearResult.reason,
-                    umaBanned: umaResult.banned,
-                    umaReason: umaResult.reason,
-                    isBanned: fearResult.banned || umaResult.banned
+                    isBanned: fearResult.banned
                 };
                 
                 cache.set(steamId, result);
@@ -354,8 +346,8 @@ class ConfigChecker {
      */
     async checkFearBan(steamId) {
         try {
-            // Use Vercel serverless function
-            const response = await fetch(`/api/fear?q=${encodeURIComponent(steamId)}&page=1&limit=10&type=1`, {
+            // Use server proxy
+            const response = await fetch(`/api/fear/punishments/search?q=${encodeURIComponent(steamId)}&page=1&limit=10&type=1`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json'
@@ -544,12 +536,6 @@ class ConfigChecker {
                     <span class="ban-detail-label">Fear:</span>
                     <span class="ban-detail-value ${result.fearBanned ? 'banned' : 'clean'}">
                         ${result.fearBanned ? '❌ ' + result.fearReason : '✅ Не забанен'}
-                    </span>
-                </div>
-                <div class="ban-detail-row">
-                    <span class="ban-detail-label">UMA.SU:</span>
-                    <span class="ban-detail-value ${result.umaBanned ? 'banned' : 'clean'}">
-                        ${result.umaBanned ? '❌ ' + result.umaReason : '✅ Не забанен'}
                     </span>
                 </div>
             </div>
