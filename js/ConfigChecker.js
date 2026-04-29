@@ -289,59 +289,6 @@ class ConfigChecker {
     }
 
     /**
-     * Check UMA bans sequentially (STABLE - avoids WebSocket connection issues)
-     */
-    async checkUmaBansBatch(steamIds, batchSize = 1, progressCallback) {
-        const results = {};
-        
-        console.info(`[ConfigChecker] Checking UMA.SU sequentially (${steamIds.length} IDs)`);
-        
-        let processed = 0;
-        
-        // Process sequentially to avoid WebSocket connection issues
-        for (const steamId of steamIds) {
-            const result = await this.checkUmaBanOptimized(steamId);
-            results[steamId] = result;
-            
-            processed++;
-            if (progressCallback) progressCallback(processed);
-            
-            // Small delay between requests to avoid overwhelming the server
-            if (processed < steamIds.length) {
-                await new Promise(resolve => setTimeout(resolve, 100));
-            }
-        }
-        
-        return results;
-    }
-
-    /**
-     * Optimized UMA.SU check via server proxy (STABLE)
-     */
-    async checkUmaBanOptimized(steamId) {
-        try {
-            const response = await fetch(`/api/uma?steamId=${encodeURIComponent(steamId)}`, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json'
-                }
-            });
-            
-            if (!response.ok) {
-                console.warn(`[ConfigChecker] UMA proxy returned ${response.status} for ${steamId}`);
-                return { banned: false, reason: 'Ошибка API' };
-            }
-            
-            const data = await response.json();
-            return data;
-            
-        } catch (error) {
-            console.error('[ConfigChecker] UMA proxy error:', error);
-            return { banned: false, reason: 'Ошибка проверки' };
-        }
-    }
-
-    /**
      * Check Fear ban status
      */
     async checkFearBan(steamId) {
@@ -387,13 +334,6 @@ class ConfigChecker {
             console.warn('[ConfigChecker] Fear API check failed:', error);
             return { banned: false, reason: 'Ошибка проверки' };
         }
-    }
-
-    /**
-     * Check UMA.SU ban status via WebSocket (LEGACY - used for single checks)
-     */
-    async checkUmaBan(steamId) {
-        return this.checkUmaBanOptimized(steamId);
     }
 
     /**

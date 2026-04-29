@@ -65,14 +65,11 @@ class QuickSearch {
         this.showLoading();
         
         try {
-            // Check Fear and UMA in parallel
-            const [fearResult, umaResult] = await Promise.all([
-                this.checkFearBan(steamId),
-                this.checkUmaBan(steamId)
-            ]);
+            // Check Fear only
+            const fearResult = await this.checkFearBan(steamId);
             
             // Render results
-            this.renderResults(steamId, fearResult, umaResult);
+            this.renderResults(steamId, fearResult);
             
         } catch (error) {
             console.error('[QuickSearch] Search error:', error);
@@ -150,36 +147,6 @@ class QuickSearch {
     }
 
     /**
-     * Check UMA.SU ban status via server proxy
-     */
-    async checkUmaBan(steamId) {
-        try {
-            const response = await fetch(`/api/uma?steamId=${encodeURIComponent(steamId)}`, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json'
-                }
-            });
-            
-            if (!response.ok) {
-                console.error('[QuickSearch] UMA proxy error:', response.status, response.statusText);
-                return { 
-                    banned: false, 
-                    reason: `Ошибка API (${response.status})`, 
-                    error: true 
-                };
-            }
-            
-            const data = await response.json();
-            return data;
-            
-        } catch (error) {
-            console.error('[QuickSearch] UMA proxy error:', error);
-            return { banned: false, reason: 'Ошибка проверки', error: true };
-        }
-    }
-
-    /**
      * Show loading state
      */
     showLoading() {
@@ -213,9 +180,9 @@ class QuickSearch {
     /**
      * Render search results
      */
-    renderResults(steamId, fearResult, umaResult) {
+    renderResults(steamId, fearResult) {
         // Determine overall status
-        const isBanned = fearResult.banned || umaResult.banned;
+        const isBanned = fearResult.banned;
         
         this.resultContainer.style.display = 'block';
         this.resultContainer.innerHTML = `
@@ -231,12 +198,6 @@ class QuickSearch {
                         <div class="quick-search-detail-label">Fear Project</div>
                         <div class="quick-search-detail-value ${fearResult.banned ? 'banned' : 'clean'}">
                             ${fearResult.banned ? '❌ ' + fearResult.reason : '✅ ' + fearResult.reason}
-                        </div>
-                    </div>
-                    <div class="quick-search-detail-item">
-                        <div class="quick-search-detail-label">UMA.SU</div>
-                        <div class="quick-search-detail-value ${umaResult.banned ? 'banned' : 'clean'}">
-                            ${umaResult.banned ? '❌ ' + umaResult.reason : '✅ ' + umaResult.reason}
                         </div>
                     </div>
                 </div>
