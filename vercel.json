@@ -6,6 +6,7 @@
   "functions": {
     "api/fear.js": {
       "maxDuration": 10
+    }
   },
   "headers": [
     {
