@@ -17,8 +17,8 @@ body {
 
 /* ========== CHECK SECTIONS ========== */
 .check-section {
-    min-height: 600px;
-    max-height: calc(100vh - 180px);
+    min-height: 0;
+    height: 100%;
     overflow: hidden;
     display: flex;
     flex-direction: column;
