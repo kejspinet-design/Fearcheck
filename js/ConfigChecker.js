@@ -152,7 +152,7 @@ class ConfigChecker {
     }
 
     /**
-     * Check bans for Steam IDs using Fear API and UMA.SU API (OPTIMIZED v3 - PARALLEL)
+     * Check bans for Steam IDs using Fear API (OPTIMIZED v3 - PARALLEL)
      */
     async checkBans(steamIds) {
         const results = [];
