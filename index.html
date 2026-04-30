@@ -17,10 +17,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- CSS Imports -->
-    <link rel="stylesheet" href="css/base.css?v=5">
-    <link rel="stylesheet" href="css/style.css?v=5">
-    <link rel="stylesheet" href="css/dashboard.css?v=5">
-    <link rel="stylesheet" href="css/check.css?v=5">
+    <link rel="stylesheet" href="css/base.css?v=6">
+    <link rel="stylesheet" href="css/style.css?v=6">
+    <link rel="stylesheet" href="css/dashboard.css?v=6">
+    <link rel="stylesheet" href="css/check.css?v=6">
 </head>
 <body>
     <!-- Container -->
@@ -93,6 +93,30 @@
     </div>
     
     <!-- JavaScript Modules -->
+    <script>
+        // Global copy to clipboard function
+        window.copyToClipboard = function(text, button) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Visual feedback
+                const originalHTML = button.innerHTML;
+                button.classList.add('copied');
+                button.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Скопировано!
+                `;
+                
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    button.innerHTML = originalHTML;
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Ошибка копирования');
+            });
+        };
+    </script>
     <script src="js/APIClient.js"></script>
     <script src="js/ModalManager.js"></script>
     <script src="js/ConfigChecker.js"></script>
