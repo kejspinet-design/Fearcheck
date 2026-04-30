@@ -294,7 +294,7 @@ class ConfigChecker {
     async checkFearBan(steamId) {
         try {
             // Use server proxy
-            const response = await fetch(`/api/fear/punishments/search?q=${encodeURIComponent(steamId)}&page=1&limit=10&type=1`, {
+            const response = await fetch(`/api/fear?q=${encodeURIComponent(steamId)}&page=1&limit=10&type=1`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json'
