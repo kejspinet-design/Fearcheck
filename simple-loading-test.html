@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Простой тест загрузочного экрана</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        
+        .test-container {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: 2px solid #ccc;
+            margin-top: 20px;
+        }
+        
+        .logs {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Простой тест загрузочного экрана</h1>
+        
+        <div>
+            <button onclick="loadIframe()">Загрузить страницу</button>
+            <button onclick="clearLogs()">Очистить логи</button>
+            <button onclick="checkVisibility()">Проверить видимость</button>
+        </div>
+        
+        <iframe id="testFrame" src="about:blank"></iframe>
+        
+        <h3>Логи консоли:</h3>
+        <div id="logs" class="logs"></div>
+    </div>
+    
+    <script>
+        const logsElement = document.getElementById('logs');
+        const testFrame = document.getElementById('testFrame');
+        
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            logsElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logsElement.scrollTop = logsElement.scrollHeight;
+        }
+        
+        function clearLogs() {
+            logsElement.innerHTML = '';
+        }
+        
+        function loadIframe() {
+            log('Загрузка страницы в iframe...');
+            testFrame.src = '/';
+            
+            // Очищаем старые логи
+            setTimeout(() => {
+                logsElement.innerHTML = '';
+            }, 100);
+        }
+        
+        function checkVisibility() {
+            try {
+                const iframeDoc = testFrame.contentDocument || testFrame.contentWindow.document;
+                const loadingScreen = iframeDoc.getElementById('loadingScreen');
+                const mainContainer = iframeDoc.getElementById('mainContainer');
+                
+                if (!loadingScreen) {
+                    log('❌ Loading screen не найден');
+                    return;
+                }
+                
+                if (!mainContainer) {
+                    log('❌ Main container не найден');
+                    return;
+                }
+                
+                const loadingStyle = window.getComputedStyle(loadingScreen);
+                const mainStyle = window.getComputedStyle(mainContainer);
+                
+                log('=== Проверка состояния ===');
+                log(`Loading screen display: ${loadingStyle.display}`);
+                log(`Loading screen visibility: ${loadingStyle.visibility}`);
+                log(`Loading screen opacity: ${loadingStyle.opacity}`);
+                log(`Main container display: ${mainStyle.display}`);
+                log(`Loading screen position: ${loadingStyle.position}`);
+                log(`Loading screen z-index: ${loadingStyle.zIndex}`);
+                log(`Loading screen width: ${loadingStyle.width}`);
+                log(`Loading screen height: ${loadingStyle.height}`);
+                log(`Loading screen background: ${loadingStyle.background.substring(0, 50)}...`);
+                
+                // Проверка видимости
+                const isVisible = loadingStyle.display !== 'none' && 
+                                 loadingStyle.visibility !== 'hidden' && 
+                                 parseFloat(loadingStyle.opacity) > 0;
+                
+                if (isVisible) {
+                    log('✅ Loading screen ВИДЕН');
+                } else {
+                    log('❌ Loading screen НЕ ВИДЕН');
+                }
+                
+            } catch (error) {
+                log(`❌ Ошибка проверки: ${error.message}`);
+            }
+        }
+        
+        // Автоматическая проверка каждые 2 секунды
+        setInterval(() => {
+            if (testFrame.src !== 'about:blank') {
+                checkVisibility();
+            }
+        }, 2000);
+        
+        // Автоматически загружаем страницу при открытии
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                loadIframe();
+            }, 1000);
+        });
+        
+        log('Тест запущен. Нажмите "Загрузить страницу" для начала тестирования.');
+    </script>
+</body>
+</html>
