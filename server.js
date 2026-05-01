@@ -40,14 +40,18 @@ if (process.env.NODE_ENV !== 'production') {
         }
     }));
 
-    // Proxy for Fear Player API (skinchanger/player) to get avatar and nickname
+    // Proxy for Fear Player API (profile/{steamid}) to get avatar and nickname
     app.use('/api/player', createProxyMiddleware({
         target: 'https://api.fearproject.ru',
         changeOrigin: true,
         pathRewrite: (path, req) => {
-            // Remove /api/player prefix and keep query string
-            const newPath = path.replace('/api/player', '/skinchanger/player');
-            return newPath;
+            // Extract steamid from query parameters
+            const steamid = req.query.steamid;
+            if (steamid) {
+                return `/profile/${steamid}`;
+            }
+            // Fallback to original path if no steamid
+            return path.replace('/api/player', '/profile');
         },
         onProxyReq: (proxyReq, req, res) => {
             console.log(`Proxying player request: ${req.method} ${req.url}`);

@@ -282,10 +282,9 @@ class ConfigChecker {
             
             const data = await response.json();
             
-            // Extract nickname and avatar from response (they are in profile object)
-            const profile = data.profile || {};
-            const nickname = (profile.name && profile.name !== 'undefined') ? profile.name : null;
-            const avatar = profile.avatar || profile.avatar_full || null;
+            // Extract nickname and avatar from response (new format from /profile/{steamid})
+            const nickname = (data.name && data.name !== 'undefined') ? data.name : null;
+            const avatar = data.avatar_full || data.avatar || null;
             
             return { nickname, avatar };
         } catch (error) {

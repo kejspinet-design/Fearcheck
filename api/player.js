@@ -40,8 +40,8 @@ export default async function handler(req, res) {
             return;
         }
         
-        // Build Fear API URL for player data
-        const fearApiUrl = `https://api.fearproject.ru/skinchanger/player?steamid=${encodeURIComponent(steamid)}&mode=${mode}`;
+        // Build Fear API URL for player data - using profile endpoint
+        const fearApiUrl = `https://api.fearproject.ru/profile/${encodeURIComponent(steamid)}`;
         
         console.log('[Player API] Requesting:', fearApiUrl);
         
@@ -71,7 +71,7 @@ export default async function handler(req, res) {
         const data = await response.json();
         console.log('[Player API] Success data:', JSON.stringify(data, null, 2));
         
-        // Return the data
+        // Return the data directly (fetchPlayerData expects this format)
         res.status(200).json(data);
         
     } catch (error) {
