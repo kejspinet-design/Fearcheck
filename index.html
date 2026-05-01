@@ -21,10 +21,40 @@
     <link rel="stylesheet" href="css/style.css?v=20260430004">
     <link rel="stylesheet" href="css/dashboard.css?v=20260430004">
     <link rel="stylesheet" href="css/check.css?v=20260430004">
+    <link rel="stylesheet" href="css/loading.css?v=20260430005">
 </head>
 <body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-content">
+            <div class="loading-icon">
+                <img src="./9574.ico" alt="Fear Protection">
+            </div>
+            <h1 class="loading-title">Добро пожаловать</h1>
+            <p class="loading-subtitle">Fear Protection - система проверки игроков на баны<br>Загрузите файл config.vdf для начала проверки</p>
+            <div class="loading-spinner"></div>
+            <div class="loading-progress">
+                <div class="loading-progress-bar"></div>
+            </div>
+            <div class="loading-stats">
+                <div class="loading-stat">
+                    <div class="loading-stat-value" id="loadingPlayers">0</div>
+                    <div class="loading-stat-label">Игроков проверено</div>
+                </div>
+                <div class="loading-stat">
+                    <div class="loading-stat-value" id="loadingTime">0с</div>
+                    <div class="loading-stat-label">Время проверки</div>
+                </div>
+                <div class="loading-stat">
+                    <div class="loading-stat-value" id="loadingBans">0</div>
+                    <div class="loading-stat-label">Найдено банов</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Container -->
-    <div class="container">
+    <div class="container" style="display: none;" id="mainContainer">
         <!-- Header -->
         <header class="header">
             <div class="header-content">
@@ -95,5 +125,79 @@
     <script src="js/ModalManager.js?v=20260430003"></script>
     <script src="js/ConfigChecker.js?v=20260430003"></script>
     <script src="js/CheckPage.js?v=20260430003"></script>
+    
+    <script>
+        // Loading screen management
+        window.addEventListener('DOMContentLoaded', () => {
+            const loadingScreen = document.getElementById('loadingScreen');
+            const mainContainer = document.getElementById('mainContainer');
+            
+            // Simulate loading process
+            let progress = 0;
+            const loadingInterval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(loadingInterval);
+                    
+                    // Hide loading screen and show main content
+                    setTimeout(() => {
+                        loadingScreen.classList.add('hidden');
+                        mainContainer.style.display = 'block';
+                        
+                        // Initialize page after loading
+                        setTimeout(() => {
+                            const checkPage = new CheckPage();
+                        }, 100);
+                    }, 500);
+                }
+                
+                // Update loading stats
+                document.getElementById('loadingPlayers').textContent = Math.floor(progress / 10);
+                document.getElementById('loadingTime').textContent = (progress / 20).toFixed(1) + 'с';
+                document.getElementById('loadingBans').textContent = Math.floor(progress / 33);
+            }, 100);
+            
+            // Handle avatar loading errors globally
+            document.addEventListener('error', function(e) {
+                if (e.target.tagName === 'IMG' && e.target.classList.contains('player-avatar')) {
+                    console.log('Avatar failed to load:', e.target.src);
+                    e.target.style.display = 'none';
+                    
+                    // Create placeholder
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'player-avatar-placeholder';
+                    placeholder.textContent = '👤';
+                    placeholder.style.cssText = 'width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 20px;';
+                    
+                    e.target.parentNode.insertBefore(placeholder, e.target);
+                    e.target.remove();
+                }
+            }, true);
+        });
+        
+        // Global copy to clipboard function
+        window.copyToClipboard = function(text, button) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Visual feedback
+                const originalHTML = button.innerHTML;
+                button.classList.add('copied');
+                button.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Скопировано!
+                `;
+                
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    button.innerHTML = originalHTML;
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Ошибка копирования');
+            });
+        };
+    </script>
 </body>
 </html>

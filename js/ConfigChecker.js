@@ -268,6 +268,8 @@ class ConfigChecker {
             // Use proxy endpoint for player data
             const apiUrl = `/api/player?steamid=${steamId}&mode=public`;
             
+            console.log(`[ConfigChecker] Fetching player data for ${steamId}`);
+            
             const response = await fetch(apiUrl, {
                 method: 'GET',
                 headers: {
@@ -277,19 +279,62 @@ class ConfigChecker {
             
             if (!response.ok) {
                 console.warn(`[ConfigChecker] Player API returned ${response.status} for ${steamId}`);
-                return { nickname: null, avatar: null };
+                return { 
+                    nickname: null, 
+                    avatar: null,
+                    steamId: steamId
+                };
             }
             
             const data = await response.json();
+            console.log(`[ConfigChecker] Player data for ${steamId}:`, {
+                hasName: !!data.name,
+                hasAvatarFull: !!data.avatar_full,
+                hasAvatar: !!data.avatar,
+                hasAvatarMedium: !!data.avatar_medium
+            });
             
             // Extract nickname and avatar from response (new format from /profile/{steamid})
             const nickname = (data.name && data.name !== 'undefined') ? data.name : null;
-            const avatar = data.avatar_full || data.avatar || null;
             
-            return { nickname, avatar };
+            // Try multiple avatar sources with priority
+            const avatar = data.avatar_full || data.avatar_medium || data.avatar || null;
+            
+            // If no avatar from API, generate a fallback based on Steam ID
+            let finalAvatar = avatar;
+            if (!finalAvatar) {
+                // Generate a deterministic color based on Steam ID
+                const colors = [
+                    '#667eea', '#764ba2', '#f093fb', '#f5576c',
+                    '#4facfe', '#00f2fe', '#43e97b', '#38f9d7',
+                    '#fa709a', '#fee140', '#a8edea', '#fed6e3'
+                ];
+                const colorIndex = parseInt(steamId.slice(-2)) % colors.length;
+                const color = colors[colorIndex];
+                
+                // Create SVG placeholder avatar
+                finalAvatar = `data:image/svg+xml;base64,${btoa(`
+                    <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="32" cy="32" r="32" fill="${color}"/>
+                        <text x="32" y="38" text-anchor="middle" fill="white" font-family="Inter, sans-serif" font-size="24">👤</text>
+                    </svg>
+                `)}`;
+            }
+            
+            return { 
+                nickname, 
+                avatar: finalAvatar,
+                steamId: steamId,
+                hasRealAvatar: !!avatar // Track if we have real avatar or placeholder
+            };
         } catch (error) {
             console.warn(`[ConfigChecker] Player data fetch failed for ${steamId}:`, error);
-            return { nickname: null, avatar: null };
+            return { 
+                nickname: null, 
+                avatar: null,
+                steamId: steamId,
+                hasRealAvatar: false
+            };
         }
     }
 
@@ -369,15 +414,31 @@ class ConfigChecker {
         const card = document.createElement('div');
         card.className = `ban-status-card ${result.isBanned ? 'banned' : 'clean'}`;
         
-        // Build avatar HTML if available
-        const avatarHtml = result.avatar 
-            ? `<img src="${result.avatar}" alt="Avatar" class="player-avatar" onerror="this.style.display='none'">`
-            : '<div class="player-avatar-placeholder">👤</div>';
+        // Build avatar HTML with better error handling
+        let avatarHtml;
+        if (result.avatar) {
+            // Check if avatar is a data URL (placeholder) or real URL
+            const isDataUrl = result.avatar.startsWith('data:');
+            avatarHtml = `<img src="${result.avatar}" alt="Avatar" class="player-avatar" 
+                onerror="if (!this.hasError) { this.hasError = true; this.style.display='none'; 
+                const placeholder = document.createElement('div'); 
+                placeholder.className='player-avatar-placeholder'; 
+                placeholder.textContent='👤'; 
+                placeholder.style.cssText='width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 20px;';
+                this.parentNode.insertBefore(placeholder, this); }">`;
+            
+            // Add data-url class for styling if needed
+            if (isDataUrl) {
+                avatarHtml = avatarHtml.replace('class="player-avatar"', 'class="player-avatar avatar-placeholder"');
+            }
+        } else {
+            avatarHtml = '<div class="player-avatar-placeholder">👤</div>';
+        }
         
         // Build nickname HTML if available
         const nicknameHtml = result.nickname 
             ? `<span class="player-nickname">${this.escapeHtml(result.nickname)}</span>`
-            : '';
+            : `<span class="player-nickname missing">Steam ID: ${result.steamId.substring(0, 8)}...</span>`;
         
         card.innerHTML = `
             <div class="ban-status-header">
