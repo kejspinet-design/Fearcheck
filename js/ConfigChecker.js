@@ -423,8 +423,7 @@ class ConfigChecker {
                 onerror="if (!this.hasError) { this.hasError = true; this.style.display='none'; 
                 const placeholder = document.createElement('div'); 
                 placeholder.className='player-avatar-placeholder'; 
-                placeholder.textContent='👤'; 
-                placeholder.style.cssText='width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 20px;';
+                placeholder.textContent='👤';
                 this.parentNode.insertBefore(placeholder, this); }">`;
             
             // Add data-url class for styling if needed
