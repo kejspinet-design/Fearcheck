@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ConfigChecker class for parsing config.vdf and checking bans
  */
 class ConfigChecker {
@@ -152,55 +152,55 @@ class ConfigChecker {
     }
 
     /**
-     * Check bans for Steam IDs using Fear API (OPTIMIZED v3 - PARALLEL)
+     * Check bans for Steam IDs using Fear API
      */
     async checkBans(steamIds) {
         const results = [];
-        const cache = new Map(); // Cache for duplicate Steam IDs
-        
-        // Remove duplicates and use cache
-        const uniqueSteamIds = [...new Set(steamIds)];
-        
-        console.info(`[ConfigChecker] Processing ${uniqueSteamIds.length} unique Steam IDs (${steamIds.length} total)`);
-        
-        // Show progress
-        this.showProgress(0, uniqueSteamIds.length);
         
         // Start timer
         const startTime = performance.now();
         
         try {
-            // Process Fear API only
-            console.time('[ConfigChecker] Total API time');
-            const fearResults = await this.checkFearBansBatch(uniqueSteamIds, (progress) => {
-                this.showProgress(progress, uniqueSteamIds.length, 'Fear API');
-            });
-            console.timeEnd('[ConfigChecker] Total API time');
+            // Check Fear API and fetch player data for each Steam ID
+            for (const steamId of steamIds) {
+                try {
+                    // Check ban status and fetch player data in parallel
+                    const [fearBan, playerData] = await Promise.all([
+                        this.checkFearBan(steamId),
+                        this.fetchPlayerData(steamId)
+                    ]);
+                    
+                    results.push({
+                        steamId: steamId,
+                        fearBanned: fearBan.banned,
+                        fearReason: fearBan.reason,
+                        umaBanned: false,
+                        umaReason: 'Не проверяется',
+                        isBanned: fearBan.banned,
+                        nickname: playerData.nickname,
+                        avatar: playerData.avatar
+                    });
+                    
+                } catch (error) {
+                    console.error(`[ConfigChecker] Error checking ${steamId}:`, error);
+                    results.push({
+                        steamId: steamId,
+                        fearBanned: false,
+                        fearReason: 'Ошибка проверки',
+                        umaBanned: false,
+                        umaReason: 'Ошибка проверки',
+                        isBanned: false,
+                        nickname: null,
+                        avatar: null
+                    });
+                }
+            }
             
             // Calculate total time
             const endTime = performance.now();
-            const totalTime = ((endTime - startTime) / 1000).toFixed(3); // seconds with milliseconds
+            const totalTime = ((endTime - startTime) / 1000).toFixed(3);
             
             console.info(`[ConfigChecker] Total check time: ${totalTime}s`);
-            
-            // Combine results
-            for (const steamId of uniqueSteamIds) {
-                const fearResult = fearResults[steamId] || { banned: false, reason: 'Ошибка проверки' };
-                
-                const result = {
-                    steamId: steamId,
-                    fearBanned: fearResult.banned,
-                    fearReason: fearResult.reason,
-                    isBanned: fearResult.banned
-                };
-                
-                cache.set(steamId, result);
-            }
-            
-            // Map all Steam IDs (including duplicates) to results
-            for (const steamId of steamIds) {
-                results.push(cache.get(steamId));
-            }
             
             // Store total time for display
             this.totalCheckTime = totalTime;
@@ -209,83 +209,8 @@ class ConfigChecker {
             
         } catch (error) {
             console.error('[ConfigChecker] Critical error during check:', error);
-            throw error; // Re-throw to be caught by handleFile
+            throw error;
         }
-    }
-
-    /**
-     * Show progress indicator
-     */
-    showProgress(current, total, stage = '') {
-        const percent = Math.round((current / total) * 100);
-        const stageText = stage ? ` (${stage})` : '';
-        
-        this.resultsColumn.innerHTML = `
-            <div class="config-processing">
-                <div class="processing-spinner"></div>
-                <p class="processing-text">Проверяем игроков${stageText}...</p>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: ${percent}%"></div>
-                </div>
-                <p class="processing-subtext">${current} / ${total} (${percent}%)</p>
-            </div>
-        `;
-    }
-
-    /**
-     * Check Fear bans in batches (OPTIMIZED v2 - FASTER)
-     */
-    async checkFearBansBatch(steamIds, progressCallback) {
-        const results = {};
-        const BATCH_SIZE = 50; // Increased from 20 to 50 for faster processing
-        
-        // Process in parallel batches
-        const batches = [];
-        for (let i = 0; i < steamIds.length; i += BATCH_SIZE) {
-            batches.push(steamIds.slice(i, i + BATCH_SIZE));
-        }
-        
-        console.info(`[ConfigChecker] Checking Fear API in ${batches.length} batches of ${BATCH_SIZE}`);
-        
-        let processed = 0;
-        
-        // Process all batches in parallel
-        const batchPromises = batches.map(async (batch) => {
-            const batchResult = await this.processFearBatch(batch);
-            processed += batch.length;
-            if (progressCallback) progressCallback(processed);
-            return batchResult;
-        });
-        
-        const batchResults = await Promise.all(batchPromises);
-        
-        // Combine results
-        batchResults.forEach(batchResult => {
-            Object.assign(results, batchResult);
-        });
-        
-        return results;
-    }
-
-    /**
-     * Process single Fear API batch
-     */
-    async processFearBatch(steamIds) {
-        const results = {};
-        
-        // Process each Steam ID in parallel within batch
-        const promises = steamIds.map(async (steamId) => {
-            try {
-                const result = await this.checkFearBan(steamId);
-                results[steamId] = result;
-            } catch (error) {
-                console.error(`[ConfigChecker] Error checking Fear for ${steamId}:`, error);
-                results[steamId] = { banned: false, reason: 'Ошибка проверки' };
-            }
-        });
-        
-        await Promise.all(promises);
-        return results;
     }
 
     /**
@@ -293,8 +218,10 @@ class ConfigChecker {
      */
     async checkFearBan(steamId) {
         try {
-            // Use server proxy
-            const response = await fetch(`/api/fear?q=${encodeURIComponent(steamId)}&page=1&limit=10&type=1`, {
+            // Use relative path to API endpoint
+            const apiUrl = `/api/fear?q=${encodeURIComponent(steamId)}&page=1&limit=10&type=1`;
+            
+            const response = await fetch(apiUrl, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json'
@@ -303,22 +230,20 @@ class ConfigChecker {
             
             if (!response.ok) {
                 console.warn(`[ConfigChecker] Fear API returned ${response.status} for ${steamId}`);
-                return { banned: false, reason: 'Ошибка API' };
+                return { banned: false, reason: 'Не забанен' };
             }
             
             const data = await response.json();
             
             // Check if any bans found in punishments array
             if (data && data.punishments && Array.isArray(data.punishments) && data.punishments.length > 0) {
-                // Found ban(s)
-                const ban = data.punishments[0]; // Get first ban
-                const reason = ban.reason || 'Забанен';
-                const status = ban.status; // 1 = active, 0 = expired
+                const ban = data.punishments[0];
+                const status = ban.status;
                 
                 if (status === 1) {
                     return {
                         banned: true,
-                        reason: reason
+                        reason: ban.reason || 'Забанен'
                     };
                 } else {
                     return {
@@ -327,12 +252,45 @@ class ConfigChecker {
                     };
                 }
             } else {
-                // No bans found
                 return { banned: false, reason: 'Не забанен' };
             }
         } catch (error) {
             console.warn('[ConfigChecker] Fear API check failed:', error);
             return { banned: false, reason: 'Ошибка проверки' };
+        }
+    }
+
+    /**
+     * Fetch player data (nickname and avatar) from Fear API
+     */
+    async fetchPlayerData(steamId) {
+        try {
+            // Use proxy endpoint for player data
+            const apiUrl = `/api/player?steamid=${steamId}&mode=public`;
+            
+            const response = await fetch(apiUrl, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                console.warn(`[ConfigChecker] Player API returned ${response.status} for ${steamId}`);
+                return { nickname: null, avatar: null };
+            }
+            
+            const data = await response.json();
+            
+            // Extract nickname and avatar from response (they are in profile object)
+            const profile = data.profile || {};
+            const nickname = (profile.name && profile.name !== 'undefined') ? profile.name : null;
+            const avatar = profile.avatar || profile.avatar_full || null;
+            
+            return { nickname, avatar };
+        } catch (error) {
+            console.warn(`[ConfigChecker] Player data fetch failed for ${steamId}:`, error);
+            return { nickname: null, avatar: null };
         }
     }
 
@@ -359,6 +317,128 @@ class ConfigChecker {
         this.resultsColumn.style.display = 'none';
         this.resultsColumn.innerHTML = '';
         this.updateCount(0);
+    }
+
+    /**
+     * Render check results
+     */
+    renderResults(results) {
+        this.resultsColumn.innerHTML = '';
+        this.resultsColumn.style.display = 'flex';
+        this.uploadArea.style.display = 'none';
+        
+        // Count banned players
+        const bannedCount = results.filter(r => r.isBanned).length;
+        this.updateCount(bannedCount);
+        
+        // Add timer display at the top
+        if (this.totalCheckTime) {
+            const timerDiv = document.createElement('div');
+            timerDiv.style.cssText = 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; font-size: 18px; font-weight: bold; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);';
+            timerDiv.innerHTML = `⏱️ Время проверки: ${this.totalCheckTime}с`;
+            this.resultsColumn.appendChild(timerDiv);
+        }
+        
+        // Sort: banned first
+        results.sort((a, b) => {
+            if (a.isBanned && !b.isBanned) return -1;
+            if (!a.isBanned && b.isBanned) return 1;
+            return 0;
+        });
+        
+        // Render each result
+        results.forEach(result => {
+            const card = this.createResultCard(result);
+            this.resultsColumn.appendChild(card);
+        });
+        
+        // Add reset button
+        const resetButton = document.createElement('button');
+        resetButton.className = 'upload-button';
+        resetButton.textContent = 'Проверить другой файл';
+        resetButton.style.marginTop = '20px';
+        resetButton.style.alignSelf = 'center';
+        resetButton.onclick = () => this.showUploadArea();
+        
+        this.resultsColumn.appendChild(resetButton);
+    }
+
+    /**
+     * Create result card element with avatar, nickname, and action buttons
+     */
+    createResultCard(result) {
+        const card = document.createElement('div');
+        card.className = `ban-status-card ${result.isBanned ? 'banned' : 'clean'}`;
+        
+        // Build avatar HTML if available
+        const avatarHtml = result.avatar 
+            ? `<img src="${result.avatar}" alt="Avatar" class="player-avatar" onerror="this.style.display='none'">`
+            : '<div class="player-avatar-placeholder">👤</div>';
+        
+        // Build nickname HTML if available
+        const nicknameHtml = result.nickname 
+            ? `<span class="player-nickname">${this.escapeHtml(result.nickname)}</span>`
+            : '';
+        
+        card.innerHTML = `
+            <div class="ban-status-header">
+                <div class="player-info">
+                    ${avatarHtml}
+                    <div class="player-details">
+                        ${nicknameHtml}
+                        <span class="ban-status-steamid">${result.steamId}</span>
+                    </div>
+                </div>
+                <span class="ban-status-badge ${result.isBanned ? 'banned' : 'clean'}">
+                    ${result.isBanned ? '🚫 Забанен' : '✅ Чист'}
+                </span>
+            </div>
+            <div class="ban-status-details">
+                <div class="ban-detail-row">
+                    <span class="ban-detail-label">Fear:</span>
+                    <span class="ban-detail-value ${result.fearBanned ? 'banned' : 'clean'}">
+                        ${result.fearBanned ? '❌ ' + result.fearReason : '✅ Не забанен'}
+                    </span>
+                </div>
+            </div>
+            <div class="card-actions">
+                <a href="https://fearproject.ru/profile/${result.steamId}" target="_blank" class="action-btn action-btn-profile">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    Профиль Fear
+                </a>
+                <button class="action-btn action-btn-copy" onclick="window.copyToClipboard('${result.steamId}', this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    Скопировать ID
+                </button>
+            </div>
+        `;
+        
+        return card;
+    }
+
+    /**
+     * Escape HTML to prevent XSS
+     */
+    escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    /**
+     * Update count badge
+     */
+    updateCount(count) {
+        if (this.countElement) {
+            this.countElement.textContent = count;
+        }
     }
 
     /**
@@ -419,93 +499,5 @@ class ConfigChecker {
             }
         };
         document.addEventListener('keydown', escapeHandler);
-    }
-
-    /**
-     * Render check results
-     */
-    renderResults(results) {
-        this.resultsColumn.innerHTML = '';
-        this.resultsColumn.style.display = 'flex';
-        this.uploadArea.style.display = 'none';
-        
-        // Count banned players
-        const bannedCount = results.filter(r => r.isBanned).length;
-        this.updateCount(bannedCount);
-        
-        // Sort: banned first
-        results.sort((a, b) => {
-            if (a.isBanned && !b.isBanned) return -1;
-            if (!a.isBanned && b.isBanned) return 1;
-            return 0;
-        });
-        
-        // Render each result
-        results.forEach(result => {
-            const card = this.createResultCard(result);
-            this.resultsColumn.appendChild(card);
-        });
-        
-        // Add reset button
-        const resetButton = document.createElement('button');
-        resetButton.className = 'upload-button';
-        resetButton.textContent = 'Проверить другой файл';
-        resetButton.style.marginTop = '20px';
-        resetButton.style.alignSelf = 'center';
-        resetButton.onclick = () => this.showUploadArea();
-        
-        this.resultsColumn.appendChild(resetButton);
-    }
-
-    /**
-     * Create result card element
-     */
-    createResultCard(result) {
-        const card = document.createElement('div');
-        card.className = `ban-status-card ${result.isBanned ? 'banned' : 'clean'}`;
-        
-        card.innerHTML = `
-            <div class="ban-status-header">
-                <span class="ban-status-steamid">${result.steamId}</span>
-                <span class="ban-status-badge ${result.isBanned ? 'banned' : 'clean'}">
-                    ${result.isBanned ? '🚫 Забанен' : '✅ Чист'}
-                </span>
-            </div>
-            <div class="ban-status-details">
-                <div class="ban-detail-row">
-                    <span class="ban-detail-label">Fear:</span>
-                    <span class="ban-detail-value ${result.fearBanned ? 'banned' : 'clean'}">
-                        ${result.fearBanned ? '❌ ' + result.fearReason : '✅ Не забанен'}
-                    </span>
-                </div>
-            </div>
-            <div class="card-actions">
-                <a href="https://fearproject.ru/profile/${result.steamId}" target="_blank" class="action-btn action-btn-profile">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="12" cy="7" r="4"></circle>
-                    </svg>
-                    Профиль Fear
-                </a>
-                <button class="action-btn action-btn-copy" onclick="window.copyToClipboard('${result.steamId}', this)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
-                    Скопировать ID
-                </button>
-            </div>
-        `;
-        
-        return card;
-    }
-
-    /**
-     * Update count badge
-     */
-    updateCount(count) {
-        if (this.countElement) {
-            this.countElement.textContent = count;
-        }
     }
 }

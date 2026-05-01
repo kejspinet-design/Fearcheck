@@ -123,17 +123,25 @@ class QuickSearch {
                 const ban = data.punishments[0];
                 const status = ban.status; // 1 = active, 0 = expired
                 
+                // Extract player data from ban (nickname and avatar)
+                const nickname = (ban.name && ban.name !== 'undefined') ? ban.name : null;
+                const avatar = ban.avatar || null;
+                
                 if (status === 1) {
                     return {
                         banned: true,
                         reason: ban.reason || 'Забанен',
-                        error: false
+                        error: false,
+                        nickname: nickname,
+                        avatar: avatar
                     };
                 } else {
                     return {
                         banned: false,
                         reason: 'Бан истек',
-                        error: false
+                        error: false,
+                        nickname: nickname,
+                        avatar: avatar
                     };
                 }
             } else {
@@ -178,17 +186,33 @@ class QuickSearch {
     }
 
     /**
-     * Render search results
+     * Render search results with avatar and nickname from Fear API
      */
     renderResults(steamId, fearResult) {
         // Determine overall status
         const isBanned = fearResult.banned;
         
+        // Build avatar HTML if available
+        const avatarHtml = fearResult.avatar 
+            ? `<img src="${fearResult.avatar}" alt="Avatar" class="player-avatar" onerror="this.style.display='none'">`
+            : '';
+        
+        // Build nickname HTML if available
+        const nicknameHtml = fearResult.nickname 
+            ? `<span class="player-nickname">${this.escapeHtml(fearResult.nickname)}</span>`
+            : '';
+        
         this.resultContainer.style.display = 'block';
         this.resultContainer.innerHTML = `
             <div class="quick-search-card ${isBanned ? 'banned' : 'clean'}">
                 <div class="quick-search-header">
-                    <span class="quick-search-steamid">${steamId}</span>
+                    <div class="player-info">
+                        ${avatarHtml}
+                        <div class="player-details">
+                            ${nicknameHtml}
+                            <span class="quick-search-steamid">${steamId}</span>
+                        </div>
+                    </div>
                     <span class="quick-search-status ${isBanned ? 'banned' : 'clean'}">
                         ${isBanned ? '🚫 Забанен' : '✅ Чист'}
                     </span>
@@ -224,5 +248,15 @@ class QuickSearch {
         this.searchButton.disabled = false;
         
         console.info('[QuickSearch] Results rendered');
+    }
+
+    /**
+     * Escape HTML to prevent XSS
+     */
+    escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 }

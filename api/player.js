@@ -1,6 +1,6 @@
 /**
- * Vercel Serverless Function for Fear API Proxy
- * Handles CORS and authentication for Fear Project API
+ * Vercel Serverless Function for Fear Player API Proxy
+ * Fetches player nickname and avatar from Fear Project API
  */
 
 export default async function handler(req, res) {
@@ -22,28 +22,28 @@ export default async function handler(req, res) {
     }
     
     try {
-        const { q, page = 1, limit = 10, type = 1 } = req.query;
+        const { steamid, mode = 'public' } = req.query;
         
-        console.log('[Fear API] Received request:', { q, page, limit, type });
+        console.log('[Player API] Received request:', { steamid, mode });
         
-        if (!q) {
-            console.log('[Fear API] Missing Steam ID parameter');
+        if (!steamid) {
+            console.log('[Player API] Missing Steam ID parameter');
             res.status(400).json({ error: 'Missing Steam ID parameter' });
             return;
         }
         
         // Validate Steam ID format
         const steamIdPattern = /^7656119\d{10}$/;
-        if (!steamIdPattern.test(q)) {
-            console.log('[Fear API] Invalid Steam ID format:', q);
+        if (!steamIdPattern.test(steamid)) {
+            console.log('[Player API] Invalid Steam ID format:', steamid);
             res.status(400).json({ error: 'Invalid Steam ID format' });
             return;
         }
         
-        // Build Fear API URL
-        const fearApiUrl = `https://api.fearproject.ru/punishments/search?q=${encodeURIComponent(q)}&page=${page}&limit=${limit}&type=${type}`;
+        // Build Fear API URL for player data
+        const fearApiUrl = `https://api.fearproject.ru/skinchanger/player?steamid=${encodeURIComponent(steamid)}&mode=${mode}`;
         
-        console.log('[Fear API] Requesting:', fearApiUrl);
+        console.log('[Player API] Requesting:', fearApiUrl);
         
         // Make request to Fear API
         const response = await fetch(fearApiUrl, {
@@ -54,11 +54,11 @@ export default async function handler(req, res) {
             }
         });
         
-        console.log('[Fear API] Response status:', response.status);
+        console.log('[Player API] Response status:', response.status);
         
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('[Fear API] Error response:', errorText);
+            console.error('[Player API] Error response:', errorText);
             res.status(response.status).json({ 
                 error: 'Fear API error', 
                 status: response.status,
@@ -69,13 +69,13 @@ export default async function handler(req, res) {
         }
         
         const data = await response.json();
-        console.log('[Fear API] Success data:', JSON.stringify(data, null, 2));
+        console.log('[Player API] Success data:', JSON.stringify(data, null, 2));
         
         // Return the data
         res.status(200).json(data);
         
     } catch (error) {
-        console.error('[Fear API] Exception:', error);
+        console.error('[Player API] Exception:', error);
         res.status(500).json({ 
             error: 'Internal server error', 
             message: error.message,

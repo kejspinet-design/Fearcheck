@@ -1,6 +1,6 @@
 # Fear Protection - Страница Проверки (Standalone)
 
-Это упрощенная автономная версия страницы проверки игроков из Fear Protection Dashboard.
+Оптимизированная автономная версия страницы проверки игроков из Fear Protection Dashboard.
 
 ## ✨ Что изменено
 
@@ -9,42 +9,56 @@
 - ❌ Убран футер
 - ✅ Оставлена проверка config.vdf
 - ✅ Оставлена проверка по Steam ID
-- ✅ Упрощенный интерфейс (2 колонки вместо 3)
+- ✅ Упрощенный интерфейс (1 колонка вместо 3)
+
+## 🚀 Быстрый старт
+
+### Локальный запуск
+
+```bash
+# Windows (CMD)
+start-local.bat
+
+# Windows (PowerShell)
+.\start-local.ps1
+
+# Linux/Mac
+chmod +x start-local.sh
+./start-local.sh
+```
+
+Или вручную:
+```bash
+npm install
+npm start
+```
+
+Откройте браузер: http://localhost:3002
+
+### Деплой на Vercel
+
+```bash
+npm install -g vercel
+vercel
+```
+
+Или перетащите папку на https://vercel.com
 
 ## 📁 Содержимое
 
 - `index.html` - Главная страница проверки
-- `app.ico` - Иконка сайта
+- `app.ico`, `9574.ico` - Иконки сайта
 - `css/` - Все стили
 - `js/` - JavaScript модули:
   - `APIClient.js` - Клиент для API запросов
   - `ModalManager.js` - Управление модальными окнами
   - `ConfigChecker.js` - Проверка config.vdf файлов
-  - `QuickSearch.js` - Быстрый поиск по Steam ID
   - `CheckPage.js` - Основная логика страницы
-
-## 🚀 Как использовать
-
-### Вариант 1: Через прокси сервер (рекомендуется)
-
-1. Скопируйте `proxy-server.js` из основной папки
-2. Скопируйте `package.json` из основной папки
-3. Запустите сервер:
-   ```bash
-   node proxy-server.js
-   ```
-4. Откройте http://localhost:3000/check-page-standalone/
-
-### Вариант 2: Напрямую через браузер
-
-1. Просто откройте `index.html` в браузере
-2. **Внимание**: API запросы могут не работать из-за CORS
-
-### Вариант 3: Через Live Server (VS Code)
-
-1. Установите расширение "Live Server" в VS Code
-2. Правый клик на `index.html` → "Open with Live Server"
-3. Страница откроется автоматически
+- `api/` - Serverless функции для Vercel:
+  - `fear.js` - API для проверки банов
+  - `player.js` - API для получения данных игрока
+- `vercel.json` - Конфигурация Vercel
+- `package.json` - Зависимости Node.js
 
 ## 🔧 Функции
 
@@ -62,22 +76,11 @@
   - Возраст аккаунта
   - Уровень риска
 
-### 3. История проверок
-- Все проверки сохраняются в истории
-- Можно быстро вернуться к предыдущим результатам
-
 ## 📝 Примечания
 
-- Для работы с API требуется прокси сервер
+- Для работы с API требуется прокси сервер (уже настроен)
 - Steam API ключ уже встроен в код
 - Все данные обрабатываются на клиенте
-
-## 🔗 Интеграция в другой проект
-
-Эту папку можно скопировать в любой другой проект. Просто убедитесь что:
-1. Прокси сервер запущен (если используете API)
-2. Пути к файлам корректны
-3. Все зависимости подключены
 
 ## 🚀 Деплой
 
@@ -90,13 +93,6 @@ cd check-page-standalone
 vercel
 ```
 
-### Быстрый деплой на Netlify:
-```bash
-npm install -g netlify-cli
-cd check-page-standalone
-netlify deploy --prod
-```
-
 ### Или просто перетащите папку на:
 - https://vercel.com (Drag & Drop)
 - https://netlify.com (Drag & Drop)
@@ -105,7 +101,8 @@ netlify deploy --prod
 ## 📦 Зависимости
 
 - Google Fonts (Inter) - загружается автоматически
-- Нет других внешних зависимостей
+- Express.js - для локального сервера
+- http-proxy-middleware - для проксирования API
 
 ## 🎨 Кастомизация
 
@@ -117,3 +114,9 @@ netlify deploy --prod
 ## 📄 Лицензия
 
 Свободное использование для любых целей.
+
+## 🔗 Ссылки
+
+- Основной проект: https://fearproject.ru
+- Discord поддержка: https://discord.gg/QcBKPYUFYS
+- Инструкции по исправлению: [INSTRUCTIONS.md](INSTRUCTIONS.md)

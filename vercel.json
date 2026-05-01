@@ -3,8 +3,21 @@
   "public": true,
   "cleanUrls": true,
   "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/api/fear",
+      "destination": "/api/fear.js"
+    },
+    {
+      "source": "/api/player",
+      "destination": "/api/player.js"
+    }
+  ],
   "functions": {
     "api/fear.js": {
+      "maxDuration": 10
+    },
+    "api/player.js": {
       "maxDuration": 10
     }
   },

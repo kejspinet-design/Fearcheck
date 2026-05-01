@@ -6,7 +6,7 @@ class APIClient {
     constructor(config) {
         // Auto-detect environment (local vs production)
         const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
-        const baseUrl = isProduction ? window.location.origin : 'http://localhost:3000';
+        const baseUrl = window.location.origin;
         
         this.config = {
             fearApiBase: config.fearApiBase || `${baseUrl}/api/fear`,

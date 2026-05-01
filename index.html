@@ -6,10 +6,10 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Fear Protection - Проверка игрока</title>
-    <link rel="icon" type="image/x-icon" href="/app.ico">
-    <link rel="shortcut icon" type="image/x-icon" href="/app.ico">
-    <link rel="apple-touch-icon" href="/app.ico">
+    <title>Fear Protection - Проверка config.vdf</title>
+    <link rel="icon" href="./9574.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="./9574.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="./9574.ico">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,8 +31,8 @@
                 <!-- Logo and Title -->
                 <div class="header-title-section">
                     <h1 class="logo-container">
-                        <img src="app.ico" alt="Fear Protection" style="width: 44px; height: 44px; border-radius: 8px;">
-                        <span class="logo-text">Fear Protection - Проверка игроков</span>
+                        <img src="./9574.ico" alt="Fear Protection" style="width: 44px; height: 44px; border-radius: 8px;">
+                        <span class="logo-text">Fear Protection - Проверка config.vdf</span>
                     </h1>
                 </div>
             </div>
@@ -40,9 +40,9 @@
         
         <!-- Main Content -->
         <main class="check-main">
-            <!-- Two-Column Grid Layout -->
-            <div class="check-container" style="grid-template-columns: 1fr 1fr;">
-                <!-- Left Column: Config.vdf Checker -->
+            <!-- Single Column Grid Layout -->
+            <div class="check-container" style="grid-template-columns: 1fr; max-width: 800px; margin: 0 auto;">
+                <!-- Config.vdf Checker -->
                 <div class="check-section">
                     <div class="section-header">
                         <h2>Проверка config.vdf</h2>
@@ -60,32 +60,6 @@
                         <div class="players-list" id="config-check-column" style="display: none;">
                             <!-- Checked players will be rendered here -->
                         </div>
-                    </div>
-                </div>
-                
-                <!-- Right Column: Quick Search -->
-                <div class="check-section">
-                    <div class="section-header">
-                        <h2>Проверка по Steam ID</h2>
-                    </div>
-                    <div class="quick-search-container-page">
-                        <div class="quick-search-form">
-                            <input 
-                                type="text" 
-                                id="quickSearchInput" 
-                                class="quick-search-input" 
-                                placeholder="Введите Steam ID (например: 76561199881908264)"
-                                pattern="[0-9]{17}"
-                            >
-                            <button id="quickSearchButton" class="quick-search-button">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="11" cy="11" r="8"></circle>
-                                    <path d="m21 21-4.35-4.35"></path>
-                                </svg>
-                                Проверить
-                            </button>
-                        </div>
-                        <div id="quickSearchResult" class="quick-search-result" style="display: none;"></div>
                     </div>
                 </div>
             </div>
@@ -120,7 +94,6 @@
     <script src="js/APIClient.js?v=20260430003"></script>
     <script src="js/ModalManager.js?v=20260430003"></script>
     <script src="js/ConfigChecker.js?v=20260430003"></script>
-    <script src="js/QuickSearch.js?v=20260430003"></script>
     <script src="js/CheckPage.js?v=20260430003"></script>
 </body>
 </html>
