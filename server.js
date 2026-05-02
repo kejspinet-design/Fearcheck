@@ -15,7 +15,7 @@ app.use((req, res, next) => {
 
 // Serve main page with loading screen (BEFORE static middleware!)
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index-fixed.html'));
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Serve static files

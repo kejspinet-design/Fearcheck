@@ -5,10 +5,6 @@
   "trailingSlash": false,
   "rewrites": [
     {
-      "source": "/",
-      "destination": "/index-fixed.html"
-    },
-    {
       "source": "/api/fear",
       "destination": "/api/fear.js"
     },
