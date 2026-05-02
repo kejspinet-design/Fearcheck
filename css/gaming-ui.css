@@ -48,6 +48,83 @@ body {
     min-height: 100vh;
 }
 
+/* АНИМИРОВАННЫЙ ФОН */
+.animated-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    pointer-events: none;
+}
+
+/* Летающие точки */
+.floating-dots {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.dot {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    animation: float 15s infinite linear;
+}
+
+.dot:nth-child(1) { left: 10%; animation-delay: 0s; animation-duration: 20s; }
+.dot:nth-child(2) { left: 20%; animation-delay: 2s; animation-duration: 18s; }
+.dot:nth-child(3) { left: 30%; animation-delay: 4s; animation-duration: 22s; }
+.dot:nth-child(4) { left: 40%; animation-delay: 6s; animation-duration: 16s; }
+.dot:nth-child(5) { left: 50%; animation-delay: 8s; animation-duration: 24s; }
+.dot:nth-child(6) { left: 60%; animation-delay: 10s; animation-duration: 19s; }
+.dot:nth-child(7) { left: 70%; animation-delay: 12s; animation-duration: 21s; }
+.dot:nth-child(8) { left: 80%; animation-delay: 14s; animation-duration: 17s; }
+.dot:nth-child(9) { left: 90%; animation-delay: 16s; animation-duration: 23s; }
+.dot:nth-child(10) { left: 15%; animation-delay: 18s; animation-duration: 25s; }
+
+@keyframes float {
+    0% {
+        transform: translateY(100vh) translateX(0px);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100px) translateX(50px);
+        opacity: 0;
+    }
+}
+
+/* Красное мерцание снизу */
+.red-glow {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(to top, rgba(220, 38, 38, 0.3) 0%, rgba(220, 38, 38, 0.1) 50%, transparent 100%);
+    animation: redPulse 4s ease-in-out infinite;
+}
+
+@keyframes redPulse {
+    0%, 100% {
+        opacity: 0.3;
+        transform: scaleY(1);
+    }
+    50% {
+        opacity: 0.6;
+        transform: scaleY(1.1);
+    }
+}
+
 /* Звездный фон */
 body::before {
     content: '';

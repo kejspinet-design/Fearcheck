@@ -13,6 +13,16 @@ app.use((req, res, next) => {
     next();
 });
 
+// Serve splash screen first (BEFORE static middleware!)
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Serve main page (основной сайт с красно-чёрным дизайном)
+app.get('/main', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index-fixed.html'));
+});
+
 // Serve static files
 app.use(express.static(__dirname));
 
@@ -65,14 +75,24 @@ if (process.env.NODE_ENV !== 'production') {
     console.log('Running in production mode - using serverless functions');
 }
 
-// Serve main page
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
 // Serve test page
 app.get('/test', (req, res) => {
     res.sendFile(path.join(__dirname, 'test.html'));
+});
+
+// Serve loading test page
+app.get('/test-loading', (req, res) => {
+    res.sendFile(path.join(__dirname, 'test-loading.html'));
+});
+
+// Serve simple loading test page
+app.get('/simple', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index-simple.html'));
+});
+
+// Serve test simple page
+app.get('/test-simple', (req, res) => {
+    res.sendFile(path.join(__dirname, 'test-simple.html'));
 });
 
 // Health check endpoint

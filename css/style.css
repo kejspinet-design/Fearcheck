@@ -98,6 +98,85 @@ body {
     overflow: auto; /* Разрешаем скролл */
     line-height: 1.6;
     min-height: 100vh; /* Минимальная высота вместо фиксированной */
+    position: relative;
+}
+
+/* АНИМИРОВАННЫЙ ФОН */
+.animated-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    pointer-events: none;
+}
+
+/* Летающие точки */
+.floating-dots {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.dot {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    animation: float 15s infinite linear;
+}
+
+.dot:nth-child(1) { left: 10%; animation-delay: 0s; animation-duration: 20s; }
+.dot:nth-child(2) { left: 20%; animation-delay: 2s; animation-duration: 18s; }
+.dot:nth-child(3) { left: 30%; animation-delay: 4s; animation-duration: 22s; }
+.dot:nth-child(4) { left: 40%; animation-delay: 6s; animation-duration: 16s; }
+.dot:nth-child(5) { left: 50%; animation-delay: 8s; animation-duration: 24s; }
+.dot:nth-child(6) { left: 60%; animation-delay: 10s; animation-duration: 19s; }
+.dot:nth-child(7) { left: 70%; animation-delay: 12s; animation-duration: 21s; }
+.dot:nth-child(8) { left: 80%; animation-delay: 14s; animation-duration: 17s; }
+.dot:nth-child(9) { left: 90%; animation-delay: 16s; animation-duration: 23s; }
+.dot:nth-child(10) { left: 15%; animation-delay: 18s; animation-duration: 25s; }
+
+@keyframes float {
+    0% {
+        transform: translateY(100vh) translateX(0px);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100px) translateX(50px);
+        opacity: 0;
+    }
+}
+
+/* Красное мерцание снизу */
+.red-glow {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(to top, rgba(220, 38, 38, 0.3) 0%, rgba(220, 38, 38, 0.1) 50%, transparent 100%);
+    animation: redPulse 4s ease-in-out infinite;
+}
+
+@keyframes redPulse {
+    0%, 100% {
+        opacity: 0.3;
+        transform: scaleY(1);
+    }
+    50% {
+        opacity: 0.6;
+        transform: scaleY(1.1);
+    }
+}
 }
 
 /* Секция рекламы */
@@ -133,13 +212,7 @@ div[style*="position: fixed"][class*="ad"]:not(.ad-section) {
 }
 
 /* Скрываем fixed элементы внизу страницы, которые могут быть рекламой */
-body > div[style*="position: fixed"][style*="bottom"]:not(.modal):not(.toast):not(.ad-section):not(#ad-container),
-body > div[style*="position: fixed"][style*="top"]:not(.modal):not(.toast):not(.ad-section):not(#ad-container) {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-}
+/* ОТКЛЮЧЕНО - мешает загрузочному экрану */
 
 /* Скрываем элементы sticky-resolution вне контейнера */
 body > div.▶:not(.ad-section):not(#ad-container) {
@@ -147,12 +220,7 @@ body > div.▶:not(.ad-section):not(#ad-container) {
 }
 
 /* Скрываем все fixed div'ы вне контейнера, которые содержат iframe */
-body > div[style*="position: fixed"]:not(.modal):not(.toast):not(.ad-section):not(#ad-container):not(.ad-block-modal):not(#adBlockModal) {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-}
+/* ОТКЛЮЧЕНО - мешает загрузочному экрану */
 
 /* Исключаем элементы внутри нашего контейнера */
 #ad-container [style*="position: fixed"],
@@ -1298,7 +1366,6 @@ body > div[style*="position: fixed"]:not(.modal):not(.toast):not(.ad-section):no
     border: 1px solid var(--border-color);
     border-radius: 10px;
     padding: 8px;
-    transition: opacity 0.3s ease, transform 0.3s ease, max-height 0.3s ease, margin-bottom 0.3s ease, padding 0.3s ease;
     position: relative;
     overflow: hidden;
     width: 100%;
@@ -1306,23 +1373,22 @@ body > div[style*="position: fixed"]:not(.modal):not(.toast):not(.ad-section):no
     box-sizing: border-box;
     display: block;
     flex-shrink: 0;
-    margin: 0 0 4px 0;
+    margin: 0 0 8px 0;
     box-shadow: 0 2px 8px var(--shadow);
-    /* Начальное состояние для анимации появления */
-    opacity: 0;
-    transform: translateY(-10px);
-    max-height: 0;
-    margin-bottom: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-    animation: cardFadeIn 0.3s ease forwards;
-    /* Оптимизация для плавной анимации */
-    will-change: transform, opacity, max-height, margin-bottom, padding;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
+    /* ОТКЛЮЧАЕМ АНИМАЦИИ ПОЯВЛЕНИЯ */
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    max-height: none !important;
+    margin-bottom: 8px !important;
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    /* Оставляем только hover эффекты */
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 /* Анимация появления карточки */
+/* АНИМАЦИИ КАРТОЧЕК ОТКЛЮЧЕНЫ ДЛЯ ПРЕДОТВРАЩЕНИЯ МИГАНИЯ */
+/*
 @keyframes cardFadeIn {
     from {
         opacity: 0;
@@ -1341,15 +1407,19 @@ body > div[style*="position: fixed"]:not(.modal):not(.toast):not(.ad-section):no
         padding-bottom: 8px;
     }
 }
+*/
 
-/* Плавное скрытие карточки */
+/* Плавное скрытие карточки - ОТКЛЮЧЕНО */
 .player-card.card-hide {
-    animation: cardFadeOut 0.3s ease forwards;
+    /* animation: cardFadeOut 0.3s ease forwards; */
     pointer-events: none;
     overflow: hidden;
+    display: none; /* Просто скрываем без анимации */
 }
 
 /* Анимация исчезновения карточки */
+/* АНИМАЦИЯ ИСЧЕЗНОВЕНИЯ ОТКЛЮЧЕНА */
+/*
 @keyframes cardFadeOut {
     from {
         opacity: 1;
@@ -1368,6 +1438,7 @@ body > div[style*="position: fixed"]:not(.modal):not(.toast):not(.ad-section):no
         padding-bottom: 0;
     }
 }
+*/
 
 /* Плавное появление карточки при показе */
 .player-card.card-show {

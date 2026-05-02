@@ -9,93 +9,162 @@
             margin: 0;
             padding: 0;
             font-family: 'Inter', sans-serif;
-        }
-        
-        .test-info {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.8);
+            background: #000;
             color: white;
-            padding: 20px;
-            border-radius: 10px;
-            z-index: 10000;
-            max-width: 300px;
         }
         
-        iframe {
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: 100vh;
-            border: none;
+            height: 100%;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        
+        .loading-content {
+            text-align: center;
+        }
+        
+        .loading-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+            background: #667eea;
+            border-radius: 25px;
+            box-shadow: 0 0 40px rgba(102, 126, 234, 0.5);
+            animation: pulse 2s infinite;
+        }
+        
+        .loading-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: white;
+            margin: 0 0 15px 0;
+            text-shadow: 0 0 20px rgba(102, 126, 234, 0.7);
+        }
+        
+        .loading-subtitle {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.8);
+            margin: 0 0 40px 0;
+            max-width: 500px;
+            line-height: 1.6;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .loading-spinner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 4px solid rgba(102, 126, 234, 0.3);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s linear infinite;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+            }
+            70% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 20px rgba(102, 126, 234, 0);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+            }
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .main-content {
+            display: none;
+            padding: 20px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <div class="test-info">
-        <h3>Тест загрузочного экрана</h3>
-        <p>Откройте консоль (F12) для проверки:</p>
-        <ul>
-            <li>1. Должен быть виден загрузочный экран</li>
-            <li>2. Должна быть анимация спиннера</li>
-            <li>3. Должна быть анимация прогресс-бара</li>
-            <li>4. Через 3-5 секунд должен появиться основной контент</li>
-        </ul>
-        <button onclick="location.reload()">Перезагрузить</button>
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-content">
+            <div class="loading-icon"></div>
+            <h1 class="loading-title">Добро пожаловать</h1>
+            <p class="loading-subtitle">Тест загрузочного экрана<br>Это должно быть видно сразу</p>
+            <div class="loading-spinner"></div>
+        </div>
     </div>
     
-    <iframe src="/"></iframe>
+    <div class="main-content" id="mainContent">
+        <h1>Основной контент</h1>
+        <p>Загрузочный экран должен был скрыться через 3 секунды</p>
+        <button onclick="showLoading()">Показать загрузочный экран снова</button>
+    </div>
     
     <script>
-        // Проверка через iframe
-        const iframe = document.querySelector('iframe');
-        
-        iframe.onload = function() {
-            console.log('Iframe загружен');
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM загружен');
             
-            try {
-                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                const loadingScreen = iframeDoc.getElementById('loadingScreen');
-                const mainContainer = iframeDoc.getElementById('mainContainer');
+            const loadingScreen = document.getElementById('loadingScreen');
+            const mainContent = document.getElementById('mainContent');
+            
+            // Ждем 3 секунды, потом показываем основной контент
+            setTimeout(function() {
+                console.log('3 секунды прошли, скрываем загрузочный экран');
                 
-                console.log('Loading screen found:', !!loadingScreen);
-                console.log('Main container found:', !!mainContainer);
-                console.log('Loading screen display:', loadingScreen ? loadingScreen.style.display : 'N/A');
-                console.log('Main container display:', mainContainer ? mainContainer.style.display : 'N/A');
+                // Скрываем загрузочный экран
+                loadingScreen.classList.add('hidden');
                 
-                // Проверка через 1 секунду
-                setTimeout(() => {
-                    console.log('После 1 секунды:');
-                    console.log('Loading screen display:', loadingScreen ? loadingScreen.style.display : 'N/A');
-                    console.log('Main container display:', mainContainer ? mainContainer.style.display : 'N/A');
-                }, 1000);
+                // Показываем основной контент
+                mainContent.style.display = 'block';
                 
-                // Проверка через 3 секунды
-                setTimeout(() => {
-                    console.log('После 3 секунд:');
-                    console.log('Loading screen display:', loadingScreen ? loadingScreen.style.display : 'N/A');
-                    console.log('Main container display:', mainContainer ? mainContainer.style.display : 'N/A');
-                    console.log('Loading screen classList:', loadingScreen ? loadingScreen.classList.toString() : 'N/A');
-                }, 3000);
-                
-                // Проверка через 6 секунд
-                setTimeout(() => {
-                    console.log('После 6 секунд:');
-                    console.log('Loading screen display:', loadingScreen ? loadingScreen.style.display : 'N/A');
-                    console.log('Main container display:', mainContainer ? mainContainer.style.display : 'N/A');
-                    console.log('Loading screen classList:', loadingScreen ? loadingScreen.classList.toString() : 'N/A');
-                }, 6000);
-                
-            } catch (error) {
-                console.error('Ошибка проверки:', error);
-            }
-        };
+            }, 3000); // 3 секунды
+        });
         
-        // Если iframe не загрузился за 5 секунд
-        setTimeout(() => {
-            if (!iframe.contentDocument) {
-                console.error('Iframe не загрузился за 5 секунд');
-            }
-        }, 5000);
+        function showLoading() {
+            const loadingScreen = document.getElementById('loadingScreen');
+            const mainContent = document.getElementById('mainContent');
+            
+            mainContent.style.display = 'none';
+            loadingScreen.classList.remove('hidden');
+            
+            setTimeout(function() {
+                loadingScreen.classList.add('hidden');
+                mainContent.style.display = 'block';
+            }, 3000);
+        }
+        
+        console.log('Страница загружена');
     </script>
 </body>
 </html>

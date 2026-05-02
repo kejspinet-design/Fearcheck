@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Fear Protection - Проверка config.vdf</title>
+    <link rel="icon" href="./9574.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="./9574.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="./9574.ico">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Предзагрузка критических ресурсов -->
+    <link rel="preload" href="css/base.css?v=20260430004" as="style">
+    <link rel="preload" href="css/style.css?v=20260430004" as="style">
+    <link rel="preload" href="css/dashboard.css?v=20260430004" as="style">
+    <link rel="preload" href="css/check.css?v=20260430004" as="style">
+    <link rel="preload" href="js/APIClient.js?v=20260430003" as="script">
+    <link rel="preload" href="js/CheckPage.js?v=20260430003" as="script">
+    
+    <!-- CSS Imports -->
+    <link rel="stylesheet" href="css/base.css?v=20260430004">
+    <link rel="stylesheet" href="css/style.css?v=20260430004">
+    <link rel="stylesheet" href="css/dashboard.css?v=20260430004">
+    <link rel="stylesheet" href="css/check.css?v=20260430004">
+</head>
+<body>
+    <!-- АНИМИРОВАННЫЙ ФОН -->
+    <div class="animated-background">
+        <div class="floating-dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+        <div class="red-glow"></div>
+    </div>
+    
+    <!-- ЗАГРУЗОЧНЫЙ ЭКРАН с inline стилями -->
+    <div id="loadingScreen" style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: black;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    ">
+        <div style="text-align: center;">
+            <!-- Иконка -->
+            <div style="
+                width: 120px;
+                height: 120px;
+                margin: 0 auto 30px;
+            ">
+                <img src="./9574.ico" alt="Fear Protection" style="
+                    width: 100%;
+                    height: 100%;
+                    border-radius: 25px;
+                    box-shadow: 0 0 40px rgba(102, 126, 234, 0.5);
+                    animation: pulse 2s infinite;
+                ">
+            </div>
+            
+            <!-- Надпись "Добро пожаловать" -->
+            <h1 style="
+                font-size: 36px;
+                font-weight: 700;
+                color: white;
+                margin: 0 0 15px 0;
+                text-shadow: 0 0 20px rgba(102, 126, 234, 0.7);
+            ">Добро пожаловать</h1>
+            
+            <!-- Описание -->
+            <p style="
+                font-size: 18px;
+                color: rgba(255, 255, 255, 0.8);
+                margin: 0 0 40px 0;
+                max-width: 500px;
+                line-height: 1.6;
+            ">Fear Protection - система проверки игроков на баны<br>Загрузите файл config.vdf для начала проверки</p>
+            
+            <!-- Кружок загрузки -->
+            <div style="
+                width: 60px;
+                height: 60px;
+                margin: 0 auto;
+                position: relative;
+            ">
+                <div style="
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    border: 4px solid rgba(102, 126, 234, 0.3);
+                    border-radius: 50%;
+                    border-top-color: #667eea;
+                    animation: spin 1s linear infinite;
+                    box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+                "></div>
+            </div>
+        </div>
+        
+        <!-- Анимации прямо в HTML -->
+        <style>
+            @keyframes pulse {
+                0% {
+                    transform: scale(1);
+                    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+                }
+                70% {
+                    transform: scale(1.05);
+                    box-shadow: 0 0 0 20px rgba(102, 126, 234, 0);
+                }
+                100% {
+                    transform: scale(1);
+                    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+                }
+            }
+            
+            @keyframes spin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+        </style>
+    </div>
+    
+    <!-- Основной контент -->
+    <div class="container" id="mainContainer">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <!-- Logo and Title -->
+                <div class="header-title-section">
+                    <h1 class="logo-container">
+                        <img src="./9574.ico" alt="Fear Protection" style="width: 44px; height: 44px; border-radius: 8px;">
+                        <span class="logo-text">Fear Protection - Проверка config.vdf</span>
+                    </h1>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Main Content -->
+        <main class="check-main">
+            <!-- Single Column Grid Layout -->
+            <div class="check-container" style="grid-template-columns: 1fr; max-width: 800px; margin: 0 auto;">
+                <!-- Config.vdf Checker -->
+                <div class="check-section">
+                    <div class="section-header">
+                        <h2>Проверка config.vdf</h2>
+                        <span class="section-count" id="configCheckCount">0</span>
+                    </div>
+                    <div class="config-checker-container">
+                        <div class="config-upload-area" id="configUploadArea">
+                            <div class="upload-icon">📁</div>
+                            <p class="upload-text">Перетащите config.vdf сюда</p>
+                            <p class="upload-subtext">или</p>
+                            <label for="configFileInput" class="upload-button">Выбрать файл</label>
+                            <input type="file" id="configFileInput" accept=".vdf,.cfg" style="display: none;">
+                            <p class="upload-hint">Поддерживаются файлы: config.vdf, config.cfg</p>
+                        </div>
+                        <div class="players-list" id="config-check-column" style="display: none;">
+                            <!-- Checked players will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- JavaScript Modules -->
+    <script src="js/APIClient.js?v=20260430003"></script>
+    <script src="js/ModalManager.js?v=20260430003"></script>
+    <script src="js/ConfigChecker.js?v=20260430003"></script>
+    <script src="js/CheckPage.js?v=20260430003"></script>
+    
+    <script>
+        // ПРОСТОЙ и надежный скрипт
+        console.log('Страница загружается...');
+        
+        // Ждем полной загрузки DOM
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM загружен');
+            
+            const loadingScreen = document.getElementById('loadingScreen');
+            const mainContainer = document.getElementById('mainContainer');
+            
+            // Убедимся, что элементы существуют
+            if (!loadingScreen) {
+                console.error('Загрузочный экран не найден!');
+                return;
+            }
+            
+            if (!mainContainer) {
+                console.error('Основной контейнер не найден!');
+                return;
+            }
+            
+            console.log('Элементы найдены, ждем 3 секунды...');
+            
+            // Ждем 3 секунды, потом показываем основной контент
+            setTimeout(function() {
+                console.log('3 секунды прошли, скрываем загрузочный экран');
+                
+                // Просто скрываем загрузочный экран
+                loadingScreen.style.display = 'none';
+                
+                console.log('Основной контент показан');
+                
+                // Инициализируем CheckPage для работы с config.vdf
+                setTimeout(function() {
+                    console.log('Инициализация CheckPage...');
+                    try {
+                        const checkPage = new CheckPage();
+                        console.log('CheckPage успешно инициализирован');
+                    } catch (error) {
+                        console.error('Ошибка инициализации CheckPage:', error);
+                    }
+                }, 100); // Небольшая задержка чтобы контент успел отрисоваться
+                
+            }, 3000); // 3 секунды
+        });
+        
+        // Глобальная функция копирования
+        window.copyToClipboard = function(text, button) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalHTML = button.innerHTML;
+                button.classList.add('copied');
+                button.innerHTML = 'Скопировано!';
+                
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    button.innerHTML = originalHTML;
+                }, 2000);
+            }).catch(err => {
+                console.error('Ошибка копирования:', err);
+                alert('Ошибка копирования');
+            });
+        };
+        
+        console.log('Скрипты загружены');
+    </script>
+</body>
+</html>
