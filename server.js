@@ -13,13 +13,8 @@ app.use((req, res, next) => {
     next();
 });
 
-// Serve splash screen first (BEFORE static middleware!)
+// Serve main page with loading screen (BEFORE static middleware!)
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// Serve main page (основной сайт с красно-чёрным дизайном)
-app.get('/main', (req, res) => {
     res.sendFile(path.join(__dirname, 'index-fixed.html'));
 });
 
