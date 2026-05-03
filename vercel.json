@@ -5,12 +5,20 @@
   "trailingSlash": false,
   "rewrites": [
     {
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
       "source": "/api/fear",
       "destination": "/api/fear.js"
     },
     {
       "source": "/api/player",
       "destination": "/api/player.js"
+    },
+    {
+      "source": "/api/reports",
+      "destination": "/api/reports.js"
     }
   ],
   "functions": {
@@ -18,6 +26,9 @@
       "maxDuration": 10
     },
     "api/player.js": {
+      "maxDuration": 10
+    },
+    "api/reports.js": {
       "maxDuration": 10
     }
   },
