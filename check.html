@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fear Protection - Проверка config.vdf</title>
+    <link rel="icon" href="./9574.ico" type="image/x-icon">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/base.css?v=2">
+    <link rel="stylesheet" href="css/style.css?v=2">
+    <link rel="stylesheet" href="css/dashboard.css?v=2">
+    <link rel="stylesheet" href="css/check.css?v=2">
+    <link rel="stylesheet" href="css/easter-egg.css">
+    
+    <style>
+        /* Allow scroll */
+        body {
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            height: auto !important;
+            min-height: 100vh !important;
+            background: #1a1d29;
+        }
+        
+        .container {
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            height: auto !important;
+            min-height: 100vh !important;
+        }
+        
+        /* HEADER OVERRIDE - FORCE STYLES */
+        .header {
+            background: rgba(10, 10, 15, 0.05) !important;
+            backdrop-filter: blur(15px) !important;
+            -webkit-backdrop-filter: blur(15px) !important;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.05) !important;
+            padding: 1.5rem 2.5rem !important;
+            box-shadow: none !important;
+        }
+
+        .header-content {
+            max-width: 1800px !important;
+            margin: 0 auto !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 3rem !important;
+        }
+
+        .logo-container {
+            display: inline-block !important;
+            position: relative !important;
+            padding-left: 44px !important;
+            font-size: 1.5rem !important;
+            font-weight: 700 !important;
+            color: white !important;
+            line-height: 1 !important;
+        }
+
+        .logo-container img {
+            position: absolute !important;
+            left: 0 !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            width: 32px !important;
+            height: 32px !important;
+            border-radius: 8px !important;
+            display: block !important;
+        }
+
+        .logo-text {
+            background: linear-gradient(135deg, #dc2626 0%, #f87171 50%, #dc2626 100%) !important;
+            background-size: 200% auto !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            font-size: 1.5rem !important;
+            font-weight: 700 !important;
+            line-height: 1 !important;
+            display: inline-block !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- АНИМИРОВАННЫЙ ФОН -->
+    <div class="animated-background">
+        <div class="floating-dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+        <div class="red-glow"></div>
+    </div>
+    
+    <!-- Основной контент -->
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-container">
+                    <img src="./9574.ico" alt="Fear Protection">
+                    <span class="logo-text">Fear Protection</span>
+                </div>
+                
+                <!-- Navigation -->
+                <nav style="display: flex; gap: 15px;">
+                    <a href="anticheat.html" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">Игроки</a>
+                    <a href="check.html" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: 2px solid #667eea; color: white; padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">Проверка</a>
+                    <a href="rules.html" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">Правила</a>
+                    <a href="tracking.html" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">Отслеживание</a>
+                    <a href="watermelon.html" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">Арбуз</a>
+                    <a href="secret-login.html" style="background: rgba(220, 38, 38, 0.1); border: 2px solid rgba(220, 38, 38, 0.3); color: #dc2626; padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">🔒 Секретное</a>
+                </nav>
+            </div>
+        </header>
+        
+        <!-- Main Content -->
+        <main class="check-main">
+            <div class="check-container" style="display: grid; grid-template-columns: 1fr 1fr; max-width: 1600px; margin: 0 auto; gap: 32px;">
+                <!-- Config.vdf Checker - Fear Only -->
+                <div class="check-section">
+                    <div class="section-header">
+                        <h2>Проверка config.vdf (Fear Protection)</h2>
+                        <span class="section-count" id="configCheckCount">0</span>
+                    </div>
+                    <div class="config-checker-container">
+                        <div class="config-upload-area" id="configUploadArea">
+                            <div class="upload-icon">📁</div>
+                            <p class="upload-text">Перетащите config.vdf сюда</p>
+                            <p class="upload-subtext">или</p>
+                            <label for="configFileInput" class="upload-button">Выбрать файл</label>
+                            <input type="file" id="configFileInput" accept=".vdf,.cfg" style="display: none;">
+                            <p class="upload-hint">Поддерживаются файлы: config.vdf, config.cfg</p>
+                        </div>
+                        <div class="players-list" id="config-check-column" style="display: none;"></div>
+                    </div>
+                </div>
+                
+                <!-- Config.vdf Checker - Fear + yooma.su -->
+                <div class="check-section">
+                    <div class="section-header">
+                        <h2>Проверка config.vdf (Fear + yooma.su)</h2>
+                        <span class="section-count" id="configCheckCountUMA">0</span>
+                    </div>
+                    <div class="config-checker-container">
+                        <div class="config-upload-area" id="configUploadAreaUMA">
+                            <div class="upload-icon">📁</div>
+                            <p class="upload-text">Перетащите config.vdf сюда</p>
+                            <p class="upload-subtext">или</p>
+                            <label for="configFileInputUMA" class="upload-button">Выбрать файл</label>
+                            <input type="file" id="configFileInputUMA" accept=".vdf,.cfg" style="display: none;">
+                            <p class="upload-hint">Поддерживаются файлы: config.vdf, config.cfg</p>
+                        </div>
+                        <div class="players-list" id="config-check-column-uma" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Easter Egg Modal -->
+    <div class="easter-egg-modal" id="easterEggModal">
+        <div class="easter-egg-content">
+            <img src="./538a2b7db66b5418.gif" alt="Easter Egg" class="easter-egg-gif">
+            <div class="easter-egg-text">🎉 Поздравляю, ты нашёл пасхалку! 🎉</div>
+            <button class="easter-egg-close" onclick="closeEasterEgg()">Закрыть</button>
+        </div>
+    </div>
+    
+    <audio id="easterEggAudio" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- JavaScript -->
+    <script src="js/APIClient.js"></script>
+    <script src="js/ModalManager.js"></script>
+    <script src="js/ConfigChecker.js"></script>
+    <script src="js/ConfigCheckerUMA.js"></script>
+    <script src="js/easter-egg.js"></script>
+    
+    <script>
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            const apiClient = new APIClient({
+                steamApiKey: '4CE8017CEC2702E4A9200A4BAD93513E',
+                accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfaWQiOiI3NjU2MTE5OTUyNDc4MDMyNyIsImlhdCI6MTc3NzM5ODgxOSwiZXhwIjoxNzc5OTkwODE5fQ.AtLE7FB0gUzNbQCRERNjEqOGKX-Ij27pZIiTrJWFSBA',
+                cookieDomain: '.fearproject.ru'
+            });
+            
+            new ConfigChecker(apiClient);
+            new ConfigCheckerUMA(apiClient);
+        });
+        
+        // Copy to clipboard
+        window.copyToClipboard = function(text, button) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalHTML = button.innerHTML;
+                button.classList.add('copied');
+                button.innerHTML = 'Скопировано!';
+                
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    button.innerHTML = originalHTML;
+                }, 2000);
+            }).catch(err => {
+                console.error('Ошибка копирования:', err);
+                alert('Ошибка копирования');
+            });
+        };
+    </script>
+</body>
+</html>

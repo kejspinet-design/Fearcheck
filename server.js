@@ -30,6 +30,41 @@ app.options('*', (req, res) => {
 if (process.env.NODE_ENV !== 'production') {
     console.log('Running in development mode with proxy');
     
+    // Proxy for Fear Servers API
+    app.use('/api/fear/servers', createProxyMiddleware({
+        target: 'https://api.fearproject.ru',
+        changeOrigin: true,
+        pathRewrite: {
+            '^/api/fear/servers': '/servers'
+        },
+        onProxyReq: (proxyReq, req, res) => {
+            console.log(`Proxying servers request: ${req.method} ${req.url}`);
+        },
+        onError: (err, req, res) => {
+            console.error('Servers proxy error:', err);
+            res.status(500).json({ error: 'Proxy error', message: err.message });
+        }
+    }));
+    
+    // Proxy for Fear Reports API
+    app.use('/api/reports', createProxyMiddleware({
+        target: 'https://api.fearproject.ru',
+        changeOrigin: true,
+        pathRewrite: {
+            '^/api/reports': '/reports/recent'
+        },
+        onProxyReq: (proxyReq, req, res) => {
+            // Add authentication cookies
+            const accessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfaWQiOiI3NjU2MTE5OTUyNDc4MDMyNyIsImlhdCI6MTc3NzgwNzMyNCwiZXhwIjoxNzgwMzk5MzI0fQ.PaLsOYuO-qx0AZcEG-5aQnjdNPUzD2zHFtqVxc4RmNo';
+            proxyReq.setHeader('Cookie', `access_token=${accessToken}; _ym_uid=1766660078200365881; _ym_d=1776260131; __ddg1_=faR8r5N1jJ3rGWxclyQR; __ddgid_=ZqbP2ZyzeZ2XMwTt; __ddgmark_=4RvtV5EigamE7TfU; _ym_isad=2; __ddg9_=104.28.229.14; _ym_visorc=w; __ddg10_=1777818152; __ddg8_=9pZgQJGSwSkScMhK`);
+            console.log(`Proxying reports request: ${req.method} ${req.url}`);
+        },
+        onError: (err, req, res) => {
+            console.error('Reports proxy error:', err);
+            res.status(500).json({ error: 'Proxy error', message: err.message });
+        }
+    }));
+    
     app.use('/api/fear', createProxyMiddleware({
         target: 'https://api.fearproject.ru',
         changeOrigin: true,
@@ -63,6 +98,22 @@ if (process.env.NODE_ENV !== 'production') {
         },
         onError: (err, req, res) => {
             console.error('Player proxy error:', err);
+            res.status(500).json({ error: 'Proxy error', message: err.message });
+        }
+    }));
+
+    // Proxy for Steam API
+    app.use('/api/steam', createProxyMiddleware({
+        target: 'https://api.steampowered.com',
+        changeOrigin: true,
+        pathRewrite: {
+            '^/api/steam': ''
+        },
+        onProxyReq: (proxyReq, req, res) => {
+            console.log(`Proxying Steam API request: ${req.method} ${req.url}`);
+        },
+        onError: (err, req, res) => {
+            console.error('Steam API proxy error:', err);
             res.status(500).json({ error: 'Proxy error', message: err.message });
         }
     }));
@@ -171,8 +222,11 @@ app.listen(PORT, () => {
     console.log(`   /          - Main page`);
     console.log(`   /test      - API test page`);
     console.log(`   /health    - Health check`);
+    console.log(`   /api/fear/servers - Fear Servers API proxy`);
+    console.log(`   /api/reports - Fear Reports API proxy`);
     console.log(`   /api/fear  - Fear API proxy`);
     console.log(`   /api/player - Player API proxy`);
+    console.log(`   /api/steam - Steam API proxy`);
     console.log(`\n💡 Upload a config.vdf file to test the performance!`);
     console.log(`===========================================`);
 });
