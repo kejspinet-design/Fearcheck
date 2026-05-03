@@ -38,8 +38,20 @@ class ConfigCheckerUMA {
     /**
      * Initialize WebSocket connection to yooma.su proxy
      * This keeps connection alive for faster checks
+     * Only works in local development
      */
     initWebSocket() {
+        // Skip WebSocket in production (Vercel or any non-localhost)
+        const isLocalhost = window.location.hostname === 'localhost' || 
+                           window.location.hostname === '127.0.0.1' ||
+                           window.location.hostname === '';
+        
+        if (!isLocalhost) {
+            console.info('[ConfigCheckerUMA] Skipping WebSocket in production environment');
+            this.wsReady = false;
+            return;
+        }
+        
         try {
             console.info('[ConfigCheckerUMA] Connecting to yooma.su WebSocket proxy...');
             
@@ -59,9 +71,9 @@ class ConfigCheckerUMA {
                 console.warn('[ConfigCheckerUMA] WebSocket connection closed, reconnecting in 5s...');
                 this.wsReady = false;
                 
-                // Reconnect after 5 seconds
+                // Reconnect after 5 seconds (only in development)
                 setTimeout(() => {
-                    if (!this.wsReady) {
+                    if (!this.wsReady && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
                         this.initWebSocket();
                     }
                 }, 5000);
@@ -269,6 +281,27 @@ class ConfigCheckerUMA {
      */
     async checkUMABan(steamId) {
         return new Promise((resolve) => {
+            // Check if we're in production
+            const isLocalhost = window.location.hostname === 'localhost' || 
+                               window.location.hostname === '127.0.0.1' ||
+                               window.location.hostname === '';
+            
+            // In production, use API endpoint
+            if (!isLocalhost) {
+                console.info('[ConfigCheckerUMA] Using UMA API endpoint');
+                fetch(`/api/uma?steamid=${steamId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        resolve(data);
+                    })
+                    .catch(error => {
+                        console.error('[ConfigCheckerUMA] UMA API error:', error);
+                        resolve({ banned: false, reason: 'Ошибка API' });
+                    });
+                return;
+            }
+            
+            // In development, use local WebSocket proxy
             try {
                 // Connect to local WebSocket proxy instead of yooma.su directly
                 const ws = new WebSocket('ws://localhost:3003');
@@ -413,8 +446,8 @@ class ConfigCheckerUMA {
      */
     async checkFearBan(steamId) {
         try {
-            // Use relative path to API endpoint
-            const apiUrl = `/api/fear?q=${encodeURIComponent(steamId)}&page=1&limit=10&type=1`;
+            // Use player API endpoint to get ban info
+            const apiUrl = `/api/player?steamid=${encodeURIComponent(steamId)}&mode=public`;
             
             const response = await fetch(apiUrl, {
                 method: 'GET',
@@ -430,25 +463,28 @@ class ConfigCheckerUMA {
             
             const data = await response.json();
             
-            // Check if any bans found in punishments array
-            if (data && data.punishments && Array.isArray(data.punishments) && data.punishments.length > 0) {
-                const ban = data.punishments[0];
-                const status = ban.status;
-                
-                if (status === 1) {
+            // Check banInfo from profile
+            if (data && data.banInfo) {
+                if (data.banInfo.isBanned === true) {
+                    const unbanDate = data.banInfo.unbanTimestamp ? 
+                        new Date(data.banInfo.unbanTimestamp * 1000).toLocaleString('ru-RU') : 
+                        'Навсегда';
+                    
                     return {
                         banned: true,
-                        reason: ban.reason || 'Забанен'
+                        reason: data.banInfo.reason || 'Забанен',
+                        unbanDate: unbanDate
                     };
                 } else {
                     return {
                         banned: false,
-                        reason: 'Бан истек'
+                        reason: 'Не забанен'
                     };
                 }
-            } else {
-                return { banned: false, reason: 'Не забанен' };
             }
+            
+            return { banned: false, reason: 'Не забанен' };
+            
         } catch (error) {
             console.warn('[ConfigChecker] Fear API check failed:', error);
             return { banned: false, reason: 'Ошибка проверки' };
