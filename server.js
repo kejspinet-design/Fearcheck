@@ -66,6 +66,56 @@ if (process.env.NODE_ENV !== 'production') {
             res.status(500).json({ error: 'Proxy error', message: err.message });
         }
     }));
+
+    // Proxy for Yooma.su API to check UMA bans (pages count)
+    app.use('/api/yooma', createProxyMiddleware({
+        target: 'https://yooma.su',
+        changeOrigin: true,
+        pathRewrite: {
+            '^/api/yooma': '/api/public/read/punishments-pages'
+        },
+        onProxyReq: (proxyReq, req, res) => {
+            // Add browser-like headers
+            proxyReq.setHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+            proxyReq.setHeader('Accept', 'application/json, text/plain, */*');
+            proxyReq.setHeader('Accept-Language', 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7');
+            proxyReq.setHeader('Referer', 'https://yooma.su/');
+            proxyReq.setHeader('Origin', 'https://yooma.su');
+            console.log(`Proxying yooma pages request: ${req.method} ${req.url} -> ${proxyReq.path}`);
+        },
+        onProxyRes: (proxyRes, req, res) => {
+            console.log(`Yooma pages response: ${proxyRes.statusCode}`);
+        },
+        onError: (err, req, res) => {
+            console.error('Yooma proxy error:', err);
+            res.status(500).json({ error: 'Proxy error', message: err.message });
+        }
+    }));
+
+    // Proxy for Yooma.su API to get punishment details
+    app.use('/api/yooma-details', createProxyMiddleware({
+        target: 'https://yooma.su',
+        changeOrigin: true,
+        pathRewrite: {
+            '^/api/yooma-details': '/api/public/read/punishments'
+        },
+        onProxyReq: (proxyReq, req, res) => {
+            // Add browser-like headers
+            proxyReq.setHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+            proxyReq.setHeader('Accept', 'application/json, text/plain, */*');
+            proxyReq.setHeader('Accept-Language', 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7');
+            proxyReq.setHeader('Referer', 'https://yooma.su/');
+            proxyReq.setHeader('Origin', 'https://yooma.su');
+            console.log(`Proxying yooma details request: ${req.method} ${req.url} -> ${proxyReq.path}`);
+        },
+        onProxyRes: (proxyRes, req, res) => {
+            console.log(`Yooma details response: ${proxyRes.statusCode}`);
+        },
+        onError: (err, req, res) => {
+            console.error('Yooma details proxy error:', err);
+            res.status(500).json({ error: 'Proxy error', message: err.message });
+        }
+    }));
 } else {
     console.log('Running in production mode - using serverless functions');
 }

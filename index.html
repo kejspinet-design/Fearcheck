@@ -160,12 +160,12 @@
         
         <!-- Main Content -->
         <main class="check-main">
-            <!-- Single Column Grid Layout -->
-            <div class="check-container" style="grid-template-columns: 1fr; max-width: 800px; margin: 0 auto;">
-                <!-- Config.vdf Checker -->
+            <!-- Two Column Grid Layout -->
+            <div class="check-container" style="display: grid; grid-template-columns: 1fr 1fr; max-width: 1600px; margin: 0 auto; gap: 32px;">
+                <!-- Config.vdf Checker - Fear Only (LEFT) -->
                 <div class="check-section">
                     <div class="section-header">
-                        <h2>Проверка config.vdf</h2>
+                        <h2>Проверка config.vdf (Fear Protection)</h2>
                         <span class="section-count" id="configCheckCount">0</span>
                     </div>
                     <div class="config-checker-container">
@@ -182,15 +182,37 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- Config.vdf Checker - Fear + yooma.su (RIGHT) -->
+                <div class="check-section">
+                    <div class="section-header">
+                        <h2>Проверка config.vdf (Fear + yooma.su)</h2>
+                        <span class="section-count" id="configCheckCountUMA">0</span>
+                    </div>
+                    <div class="config-checker-container">
+                        <div class="config-upload-area" id="configUploadAreaUMA">
+                            <div class="upload-icon">📁</div>
+                            <p class="upload-text">Перетащите config.vdf сюда</p>
+                            <p class="upload-subtext">или</p>
+                            <label for="configFileInputUMA" class="upload-button">Выбрать файл</label>
+                            <input type="file" id="configFileInputUMA" accept=".vdf,.cfg" style="display: none;">
+                            <p class="upload-hint">Поддерживаются файлы: config.vdf, config.cfg</p>
+                        </div>
+                        <div class="players-list" id="config-check-column-uma" style="display: none;">
+                            <!-- Checked players will be rendered here -->
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
     </div>
     
     <!-- JavaScript Modules -->
-    <script src="js/APIClient.js?v=20260430003"></script>
-    <script src="js/ModalManager.js?v=20260430003"></script>
-    <script src="js/ConfigChecker.js?v=20260430003"></script>
-    <script src="js/CheckPage.js?v=20260430003"></script>
+    <script src="js/APIClient.js?v=20260430004"></script>
+    <script src="js/ModalManager.js?v=20260430004"></script>
+    <script src="js/ConfigChecker.js?v=20260430004"></script>
+    <script src="js/ConfigCheckerUMA.js?v=20260430004"></script>
+    <script src="js/CheckPage.js?v=20260430004"></script>
     
     <script>
         // ПРОСТОЙ и надежный скрипт
@@ -229,10 +251,23 @@
                 setTimeout(function() {
                     console.log('Инициализация CheckPage...');
                     try {
-                        const checkPage = new CheckPage();
-                        console.log('CheckPage успешно инициализирован');
+                        // Инициализируем APIClient
+                        const apiClient = new APIClient({
+                            steamApiKey: 'E060AF2E30A53F487CD115E1067F9983',
+                            accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfaWQiOiI3NjU2MTE5OTUyNDc4MDMyNyIsImlhdCI6MTc3NzM5ODgxOSwiZXhwIjoxNzc5OTkwODE5fQ.AtLE7FB0gUzNbQCRERNjEqOGKX-Ij27pZIiTrJWFSBA',
+                            cookieDomain: '.fearproject.ru'
+                        });
+                        
+                        // Инициализируем первую секцию (только Fear)
+                        const configChecker = new ConfigChecker(apiClient);
+                        console.log('ConfigChecker (Fear) успешно инициализирован');
+                        
+                        // Инициализируем вторую секцию (Fear + UMA)
+                        const configCheckerUMA = new ConfigCheckerUMA(apiClient);
+                        console.log('ConfigCheckerUMA (Fear + UMA) успешно инициализирован');
+                        
                     } catch (error) {
-                        console.error('Ошибка инициализации CheckPage:', error);
+                        console.error('Ошибка инициализации:', error);
                     }
                 }, 100); // Небольшая задержка чтобы контент успел отрисоваться
                 

@@ -1,35 +1,97 @@
 ﻿/**
- * ConfigChecker class for parsing config.vdf and checking bans
+ * ConfigCheckerUMA class for parsing config.vdf and checking Fear + UMA bans
  */
-class ConfigChecker {
+class ConfigCheckerUMA {
     constructor(apiClient) {
         this.apiClient = apiClient;
         this.uploadArea = null;
         this.fileInput = null;
         this.resultsColumn = null;
         this.countElement = null;
+        this.wsConnection = null; // Persistent WebSocket connection
+        this.wsReady = false;
         
         this.init();
+        this.initWebSocket(); // Connect to yooma.su immediately
     }
 
     /**
      * Initialize config checker
      */
     init() {
-        this.uploadArea = document.getElementById('configUploadArea');
-        this.fileInput = document.getElementById('configFileInput');
-        this.resultsColumn = document.getElementById('config-check-column');
-        this.countElement = document.getElementById('configCheckCount');
+        this.uploadArea = document.getElementById('configUploadAreaUMA');
+        this.fileInput = document.getElementById('configFileInputUMA');
+        this.resultsColumn = document.getElementById('config-check-column-uma');
+        this.countElement = document.getElementById('configCheckCountUMA');
         
         if (!this.uploadArea || !this.fileInput || !this.resultsColumn) {
-            console.error('[ConfigChecker] Required elements not found');
+            console.error('[ConfigCheckerUMA] Required elements not found');
             return;
         }
         
         // Bind events
         this.bindEvents();
         
-        console.info('[ConfigChecker] Initialized');
+        console.info('[ConfigCheckerUMA] Initialized');
+    }
+
+    /**
+     * Initialize WebSocket connection to yooma.su proxy
+     * This keeps connection alive for faster checks
+     */
+    initWebSocket() {
+        try {
+            console.info('[ConfigCheckerUMA] Connecting to yooma.su WebSocket proxy...');
+            
+            this.wsConnection = new WebSocket('ws://localhost:3003');
+            
+            this.wsConnection.onopen = () => {
+                console.info('[ConfigCheckerUMA] ✅ Connected to yooma.su WebSocket proxy');
+                this.wsReady = true;
+            };
+            
+            this.wsConnection.onerror = (error) => {
+                console.error('[ConfigCheckerUMA] ❌ WebSocket connection error:', error);
+                this.wsReady = false;
+            };
+            
+            this.wsConnection.onclose = () => {
+                console.warn('[ConfigCheckerUMA] WebSocket connection closed, reconnecting in 5s...');
+                this.wsReady = false;
+                
+                // Reconnect after 5 seconds
+                setTimeout(() => {
+                    if (!this.wsReady) {
+                        this.initWebSocket();
+                    }
+                }, 5000);
+            };
+            
+            this.wsConnection.onmessage = (event) => {
+                // Handle initial connection messages
+                try {
+                    if (event.data instanceof Blob) {
+                        event.data.text().then(text => {
+                            const data = JSON.parse(text);
+                            if (data.type === 'get_type') {
+                                console.debug('[ConfigCheckerUMA] WebSocket ready for requests');
+                            }
+                        });
+                    } else {
+                        const data = JSON.parse(event.data);
+                        if (data.type === 'get_type') {
+                            console.debug('[ConfigCheckerUMA] WebSocket ready for requests');
+                        }
+                    }
+                } catch (error) {
+                    // Ignore parsing errors for initial messages
+                }
+            };
+            
+        } catch (error) {
+            console.error('[ConfigCheckerUMA] Failed to initialize WebSocket:', error);
+            this.wsReady = false;
+        }
     }
 
     /**
@@ -152,18 +214,19 @@ class ConfigChecker {
     }
 
     /**
-     * Check bans for Steam IDs using Fear API
+     * Check bans for Steam IDs using Fear API + UMA API
      */
     async checkBans(steamIds) {
         const results = [];
         
         try {
-            // Check Fear API and fetch player data for each Steam ID
+            // Check Fear API, UMA API and fetch player data for each Steam ID
             for (const steamId of steamIds) {
                 try {
                     // Check ban status and fetch player data in parallel
-                    const [fearBan, playerData] = await Promise.all([
+                    const [fearBan, umaBan, playerData] = await Promise.all([
                         this.checkFearBan(steamId),
+                        this.checkUMABan(steamId),
                         this.fetchPlayerData(steamId)
                     ]);
                     
@@ -171,15 +234,15 @@ class ConfigChecker {
                         steamId: steamId,
                         fearBanned: fearBan.banned,
                         fearReason: fearBan.reason,
-                        umaBanned: false,
-                        umaReason: 'Не проверяется',
-                        isBanned: fearBan.banned,
+                        umaBanned: umaBan.banned,
+                        umaReason: umaBan.reason,
+                        isBanned: fearBan.banned || umaBan.banned,
                         nickname: playerData.nickname,
                         avatar: playerData.avatar
                     });
                     
                 } catch (error) {
-                    console.error(`[ConfigChecker] Error checking ${steamId}:`, error);
+                    console.error(`[ConfigCheckerUMA] Error checking ${steamId}:`, error);
                     results.push({
                         steamId: steamId,
                         fearBanned: false,
@@ -196,8 +259,152 @@ class ConfigChecker {
             return results;
             
         } catch (error) {
-            console.error('[ConfigChecker] Critical error during check:', error);
+            console.error('[ConfigCheckerUMA] Critical error during check:', error);
             throw error;
+        }
+    }
+
+    /**
+     * Check UMA.SU ban status via WebSocket proxy
+     */
+    async checkUMABan(steamId) {
+        return new Promise((resolve) => {
+            try {
+                // Connect to local WebSocket proxy instead of yooma.su directly
+                const ws = new WebSocket('ws://localhost:3003');
+                
+                const timeout = setTimeout(() => {
+                    ws.close();
+                    resolve({ banned: false, reason: 'Таймаут' });
+                }, 10000);
+                
+                let requestSent = false;
+                
+                ws.onopen = () => {
+                    console.info('[ConfigCheckerUMA] Connected to WebSocket proxy for', steamId);
+                };
+                
+                ws.onmessage = (event) => {
+                    try {
+                        // Handle Blob data
+                        if (event.data instanceof Blob) {
+                            event.data.text().then(text => {
+                                const data = JSON.parse(text);
+                                this.handleUMAMessage(data, ws, steamId, timeout, resolve, requestSent, (sent) => { requestSent = sent; });
+                            }).catch(error => {
+                                console.error('[ConfigCheckerUMA] Error reading Blob:', error);
+                                clearTimeout(timeout);
+                                resolve({ banned: false, reason: 'Ошибка парсинга' });
+                                ws.close();
+                            });
+                        } else {
+                            // Handle text data
+                            const data = JSON.parse(event.data);
+                            this.handleUMAMessage(data, ws, steamId, timeout, resolve, requestSent, (sent) => { requestSent = sent; });
+                        }
+                    } catch (error) {
+                        console.error('[ConfigCheckerUMA] Error parsing response:', error);
+                        clearTimeout(timeout);
+                        resolve({ banned: false, reason: 'Ошибка парсинга' });
+                        ws.close();
+                    }
+                };
+                
+                ws.onerror = (error) => {
+                    clearTimeout(timeout);
+                    console.error('[ConfigCheckerUMA] WebSocket error:', error);
+                    resolve({ banned: false, reason: 'Ошибка соединения' });
+                    ws.close();
+                };
+                
+                ws.onclose = () => {
+                    clearTimeout(timeout);
+                };
+                
+            } catch (error) {
+                console.warn('[ConfigCheckerUMA] Check failed:', error);
+                resolve({ banned: false, reason: 'Ошибка проверки' });
+            }
+        });
+    }
+
+    /**
+     * Handle WebSocket message from yooma.su
+     */
+    handleUMAMessage(data, ws, steamId, timeout, resolve, requestSent, setRequestSent) {
+        try {
+            console.debug('[ConfigCheckerUMA] Received message type:', data.type, 'for', steamId);
+            
+            // Server sends get_type first - respond with our request
+            if (data.type === 'get_type' && !requestSent) {
+                setRequestSent(true);
+                
+                const request = {
+                    type: 'get_punishments',
+                    page: 1,
+                    punish_type: 0, // All punishment types
+                    search: steamId
+                };
+                
+                console.debug('[ConfigCheckerUMA] Sending request:', request);
+                ws.send(JSON.stringify(request));
+                return;
+            }
+            
+            // Ignore page count response
+            if (data.type === 'get_punishments_pages') {
+                console.debug('[ConfigCheckerUMA] Ignoring punishments_pages response');
+                return;
+            }
+            
+            // Check punishments response
+            if (data.type === 'get_punishments' && data.punishments) {
+                clearTimeout(timeout);
+                
+                console.debug('[ConfigCheckerUMA] Received punishments:', data.punishments.length, 'for', steamId);
+                
+                if (Array.isArray(data.punishments) && data.punishments.length > 0) {
+                    // Check each punishment for active bans
+                    for (const punishment of data.punishments) {
+                        const expires = punishment.expires;
+                        const now = Math.floor(Date.now() / 1000);
+                        const reason = punishment.reason || 'Забанен';
+                        
+                        console.debug('[ConfigCheckerUMA] Checking punishment:', {
+                            steamId,
+                            reason,
+                            expires,
+                            now,
+                            isActive: expires > now
+                        });
+                        
+                        // Check if ban is active
+                        if (expires > now) {
+                            console.info('[ConfigCheckerUMA] Active ban found for', steamId, ':', reason);
+                            resolve({
+                                banned: true,
+                                reason: reason
+                            });
+                            ws.close();
+                            return;
+                        }
+                    }
+                    
+                    // No active bans found
+                    console.debug('[ConfigCheckerUMA] No active bans for', steamId);
+                    resolve({ banned: false, reason: 'Не забанен' });
+                } else {
+                    console.debug('[ConfigCheckerUMA] No punishments for', steamId);
+                    resolve({ banned: false, reason: 'Не забанен' });
+                }
+                
+                ws.close();
+            }
+        } catch (error) {
+            console.error('[ConfigCheckerUMA] Error in handleUMAMessage:', error);
+            clearTimeout(timeout);
+            resolve({ banned: false, reason: 'Ошибка обработки' });
+            ws.close();
         }
     }
 
@@ -437,6 +644,12 @@ class ConfigChecker {
                     <span class="ban-detail-label">Fear:</span>
                     <span class="ban-detail-value ${result.fearBanned ? 'banned' : 'clean'}">
                         ${result.fearBanned ? '❌ ' + result.fearReason : '✅ Не забанен'}
+                    </span>
+                </div>
+                <div class="ban-detail-row">
+                    <span class="ban-detail-label">yooma.su:</span>
+                    <span class="ban-detail-value ${result.umaBanned ? 'banned' : 'clean'}">
+                        ${result.umaBanned ? '❌ ' + result.umaReason : '✅ Не забанен'}
                     </span>
                 </div>
             </div>
