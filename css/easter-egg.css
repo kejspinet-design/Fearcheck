@@ -20,6 +20,10 @@
 .easter-egg-content {
     text-align: center;
     animation: scaleIn 0.5s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
 }
 
 @keyframes fadeIn {
@@ -37,7 +41,6 @@
     width: 90%;
     border-radius: 20px;
     box-shadow: 0 0 50px rgba(220, 38, 38, 0.8);
-    margin-bottom: 30px;
 }
 
 .easter-egg-text {
@@ -47,7 +50,6 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    margin-bottom: 20px;
     animation: pulse 2s ease-in-out infinite;
 }
 

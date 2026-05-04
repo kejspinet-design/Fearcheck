@@ -27,7 +27,7 @@ class RulesPage {
             
             rules.forEach(([number, text, punishment]) => {
                 serverRulesHTML += `
-                    <div class="rule-item">
+                    <div class="rule-item" data-category="${category}">
                         <div class="rule-number">${number}</div>
                         <div class="rule-text">${text}</div>
                         ${punishment ? `<div class="rule-punishment"><strong>Наказание:</strong> ${punishment}</div>` : ''}
@@ -114,7 +114,7 @@ class RulesPage {
                     quickNavigation.style.display = 'none';
                 }
                 
-                // Scroll to top
+                // Scroll to top for all sections (including warnings)
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
         });
