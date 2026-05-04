@@ -206,8 +206,8 @@ class ConfigChecker {
      */
     async checkFearBan(steamId) {
         try {
-            // Use relative path to API endpoint
-            const apiUrl = `/api/fear?q=${encodeURIComponent(steamId)}&page=1&limit=10&type=1`;
+            // Use Fear Project API directly
+            const apiUrl = `https://api.fearproject.ru/profile/${encodeURIComponent(steamId)}`;
             
             const response = await fetch(apiUrl, {
                 method: 'GET',
@@ -223,25 +223,28 @@ class ConfigChecker {
             
             const data = await response.json();
             
-            // Check if any bans found in punishments array
-            if (data && data.punishments && Array.isArray(data.punishments) && data.punishments.length > 0) {
-                const ban = data.punishments[0];
-                const status = ban.status;
-                
-                if (status === 1) {
+            // Check banInfo from profile
+            if (data && data.banInfo) {
+                if (data.banInfo.isBanned === true) {
+                    const unbanDate = data.banInfo.unbanTimestamp ? 
+                        new Date(data.banInfo.unbanTimestamp * 1000).toLocaleString('ru-RU') : 
+                        'Навсегда';
+                    
                     return {
                         banned: true,
-                        reason: ban.reason || 'Забанен'
+                        reason: data.banInfo.reason || 'Забанен',
+                        unbanDate: unbanDate
                     };
                 } else {
                     return {
                         banned: false,
-                        reason: 'Бан истек'
+                        reason: 'Не забанен'
                     };
                 }
-            } else {
-                return { banned: false, reason: 'Не забанен' };
             }
+            
+            return { banned: false, reason: 'Не забанен' };
+            
         } catch (error) {
             console.warn('[ConfigChecker] Fear API check failed:', error);
             return { banned: false, reason: 'Ошибка проверки' };
