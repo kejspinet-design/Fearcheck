@@ -124,6 +124,10 @@ class RulesPage {
             item.addEventListener('click', function() {
                 const targetId = this.getAttribute('data-target');
                 
+                // Update active subsection
+                subsections.forEach(s => s.classList.remove('active'));
+                this.classList.add('active');
+                
                 // Make sure server-rules section is active
                 sidebarItems.forEach(i => i.classList.remove('active'));
                 document.querySelector('[data-section="server-rules"]').classList.add('active');
