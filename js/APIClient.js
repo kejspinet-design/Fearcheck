@@ -11,7 +11,7 @@ class APIClient {
         this.config = {
             fearApiBase: config.fearApiBase || `${baseUrl}/api/fear`,
             steamApiKey: config.steamApiKey || 'E060AF2E30A53F487CD115E1067F9983',
-            steamApiBase: config.steamApiBase || 'https://api.steampowered.com',
+            steamApiBase: config.steamApiBase || `${baseUrl}/api/player-summaries`,
             accessToken: config.accessToken,
             cookieDomain: config.cookieDomain || '.fearproject.ru'
         };
@@ -186,7 +186,7 @@ class APIClient {
             for (let i = 0; i < batches.length; i++) {
                 const batch = batches[i];
                 const steamIdsParam = batch.join(',');
-                const url = `${this.config.steamApiBase}/ISteamUser/GetPlayerSummaries/v2/?key=${this.config.steamApiKey}&steamids=${steamIdsParam}&format=json`;
+                const url = `${this.config.steamApiBase}?key=${this.config.steamApiKey}&steamids=${steamIdsParam}&format=json`;
                 
                 try {
                     const response = await fetch(url, {
