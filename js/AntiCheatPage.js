@@ -246,7 +246,7 @@ class AntiCheatPage {
                 <div class="player-info-header">
                     <div class="player-name">${this.escapeHtml(displayName)}</div>
                     <div class="player-steamid">${steamId}</div>
-                    <div class="age-text" data-timecreated="${timecreated}" style="font-size: 11px; color: ${accountAge.isNew ? '#ff4444' : '#44ff44'}; margin-top: 5px;">${accountAge.text}</div>
+                    <div class="age-text" data-timecreated="${timecreated}" style="font-size: 11px; color: white; margin-top: 5px; border: 1px solid ${accountAge.isNew ? '#ff4444' : '#44ff44'}; padding: 2px 6px; border-radius: 4px; display: inline-block;">${accountAge.text}</div>
                 </div>
             </div>
             
