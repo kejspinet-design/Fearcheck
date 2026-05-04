@@ -11,6 +11,7 @@
     justify-content: center;
     align-items: center;
     animation: fadeIn 0.3s ease;
+    overflow: hidden;
 }
 
 .easter-egg-modal.active {
@@ -23,7 +24,11 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 20px;
+    max-width: 90%;
+    max-height: 90vh;
+    overflow: hidden;
 }
 
 @keyframes fadeIn {
@@ -38,9 +43,12 @@
 
 .easter-egg-gif {
     max-width: 500px;
-    width: 90%;
+    max-height: 60vh;
+    width: auto;
+    height: auto;
     border-radius: 20px;
-    box-shadow: 0 0 50px rgba(220, 38, 38, 0.8);
+    box-shadow: 0 0 30px rgba(220, 38, 38, 0.5);
+    object-fit: contain;
 }
 
 .easter-egg-text {
@@ -51,6 +59,8 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
     animation: pulse 2s ease-in-out infinite;
+    text-align: center;
+    width: 100%;
 }
 
 @keyframes pulse {
