@@ -96,6 +96,7 @@ body {
     gap: 12px;
     padding-right: 8px;
     min-height: 0;
+    max-height: calc(100vh - 250px);
 }
 
 .players-list::-webkit-scrollbar {
