@@ -258,12 +258,6 @@ class AntiCheatPage {
                 <div class="age-date">${accountAge.date}</div>
             </div>
             
-            <div class="server-info">
-                <div class="server-label">Сервер:</div>
-                <div class="server-name">${this.escapeHtml(serverName)}</div>
-                <span class="ip-badge">📋 IP</span>
-            </div>
-            
             <div class="stats-grid">
                 <div class="stat-box">
                     <div class="stat-label">Убийства</div>
