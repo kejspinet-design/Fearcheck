@@ -446,8 +446,8 @@ class ConfigCheckerUMA {
      */
     async checkFearBan(steamId) {
         try {
-            // Use player API endpoint to get ban info
-            const apiUrl = `/api/player?steamid=${encodeURIComponent(steamId)}&mode=public`;
+            // Use relative path to API endpoint
+            const apiUrl = `/api/fear?q=${encodeURIComponent(steamId)}&page=1&limit=10&type=1`;
             
             const response = await fetch(apiUrl, {
                 method: 'GET',
@@ -457,36 +457,33 @@ class ConfigCheckerUMA {
             });
             
             if (!response.ok) {
-                console.warn(`[ConfigChecker] Fear API returned ${response.status} for ${steamId}`);
+                console.warn(`[ConfigCheckerUMA] Fear API returned ${response.status} for ${steamId}`);
                 return { banned: false, reason: 'Не забанен' };
             }
             
             const data = await response.json();
             
-            // Check banInfo from profile
-            if (data && data.banInfo) {
-                if (data.banInfo.isBanned === true) {
-                    const unbanDate = data.banInfo.unbanTimestamp ? 
-                        new Date(data.banInfo.unbanTimestamp * 1000).toLocaleString('ru-RU') : 
-                        'Навсегда';
-                    
+            // Check if any bans found in punishments array
+            if (data && data.punishments && Array.isArray(data.punishments) && data.punishments.length > 0) {
+                const ban = data.punishments[0];
+                const status = ban.status;
+                
+                if (status === 1) {
                     return {
                         banned: true,
-                        reason: data.banInfo.reason || 'Забанен',
-                        unbanDate: unbanDate
+                        reason: ban.reason || 'Забанен'
                     };
                 } else {
                     return {
                         banned: false,
-                        reason: 'Не забанен'
+                        reason: 'Бан истек'
                     };
                 }
+            } else {
+                return { banned: false, reason: 'Не забанен' };
             }
-            
-            return { banned: false, reason: 'Не забанен' };
-            
         } catch (error) {
-            console.warn('[ConfigChecker] Fear API check failed:', error);
+            console.warn('[ConfigCheckerUMA] Fear API check failed:', error);
             return { banned: false, reason: 'Ошибка проверки' };
         }
     }
