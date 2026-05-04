@@ -511,7 +511,7 @@ body > div.▶:not(.ad-section):not(#ad-container) {
 
 .header-content {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     flex-wrap: wrap;
     gap: 1rem;
