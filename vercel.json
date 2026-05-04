@@ -19,6 +19,10 @@
     {
       "source": "/api/reports",
       "destination": "/api/reports.js"
+    },
+    {
+      "source": "/api/steam/:path*",
+      "destination": "/api/steam.js"
     }
   ],
   "functions": {
@@ -29,6 +33,9 @@
       "maxDuration": 10
     },
     "api/reports.js": {
+      "maxDuration": 10
+    },
+    "api/steam.js": {
       "maxDuration": 10
     }
   },
