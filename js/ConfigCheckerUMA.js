@@ -446,8 +446,8 @@ class ConfigCheckerUMA {
      */
     async checkFearBan(steamId) {
         try {
-            // Use player API endpoint to get ban info
-            const apiUrl = `/api/player?steamid=${encodeURIComponent(steamId)}&mode=public`;
+            // Use Fear Project API directly
+            const apiUrl = `https://api.fearproject.ru/profile/${encodeURIComponent(steamId)}`;
             
             const response = await fetch(apiUrl, {
                 method: 'GET',
