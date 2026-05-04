@@ -28,7 +28,8 @@
     gap: 20px;
     max-width: 90%;
     max-height: 90vh;
-    overflow: hidden;
+    overflow: visible;
+    padding: 20px;
 }
 
 @keyframes fadeIn {
@@ -52,7 +53,7 @@
 }
 
 .easter-egg-text {
-    font-size: 36px;
+    font-size: 28px;
     font-weight: 700;
     background: linear-gradient(135deg, #dc2626 0%, #f87171 50%, #dc2626 100%);
     -webkit-background-clip: text;
@@ -61,6 +62,9 @@
     animation: pulse 2s ease-in-out infinite;
     text-align: center;
     width: 100%;
+    max-width: 600px;
+    word-wrap: break-word;
+    padding: 0 20px;
 }
 
 @keyframes pulse {
