@@ -282,14 +282,9 @@ class AntiCheatPage {
                 </button>
             </div>
             
-            <div class="copy-buttons">
-                <button class="copy-btn" onclick="window.copyToClipboard('${steamId}', this)">
-                    📋 STEAMID
-                </button>
-                <button class="copy-btn" onclick="window.copyToClipboard('${serverConnect}', this)">
-                    📋 IP
-                </button>
-            </div>
+            <button class="copy-btn" style="width: 100%; margin-bottom: 10px;" onclick="window.copyToClipboard('${steamId}', this)">
+                📋 STEAMID
+            </button>
             
             <button class="connect-btn" onclick="window.location.href='steam://connect/${serverConnect}'">
                 ▶ ПОДКЛЮЧИТЬСЯ
