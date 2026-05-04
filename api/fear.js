@@ -22,17 +22,16 @@ export default async function handler(req, res) {
     }
     
     try {
-        const { action, q, page = 1, limit = 10, type = 1 } = req.query;
+        // Check if this is a servers request
+        const { action } = req.query;
         
-        console.log('[Fear API] Received request:', { action, q, page, limit, type });
-        
-        // Handle servers list request
         if (action === 'servers') {
-            const fearApiUrl = 'https://api.fearproject.ru/servers';
+            console.log('[Fear API] Fetching servers list');
             
-            console.log('[Fear API] Requesting servers:', fearApiUrl);
+            // Fetch servers from Fear API
+            const serversUrl = 'https://api.fearproject.ru/servers';
             
-            const response = await fetch(fearApiUrl, {
+            const response = await fetch(serversUrl, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',
@@ -44,7 +43,7 @@ export default async function handler(req, res) {
             
             if (!response.ok) {
                 const errorText = await response.text();
-                console.error('[Fear API] Servers error response:', errorText);
+                console.error('[Fear API] Servers error:', errorText);
                 res.status(response.status).json({ 
                     error: 'Fear API error', 
                     status: response.status,
@@ -54,13 +53,17 @@ export default async function handler(req, res) {
             }
             
             const data = await response.json();
-            console.log('[Fear API] Servers success');
+            console.log('[Fear API] Servers data received');
             
             res.status(200).json(data);
             return;
         }
         
-        // Handle punishments search request
+        // Otherwise, handle punishments search
+        const { q, page = 1, limit = 10, type = 1 } = req.query;
+        
+        console.log('[Fear API] Received request:', { q, page, limit, type });
+        
         if (!q) {
             console.log('[Fear API] Missing Steam ID parameter');
             res.status(400).json({ error: 'Missing Steam ID parameter' });
@@ -75,19 +78,25 @@ export default async function handler(req, res) {
             return;
         }
         
-        // Build Fear API URL for punishments
+        // Build Fear API URL
         const fearApiUrl = `https://api.fearproject.ru/punishments/search?q=${encodeURIComponent(q)}&page=${page}&limit=${limit}&type=${type}`;
         
         console.log('[Fear API] Requesting:', fearApiUrl);
         
-        // Make request to Fear API
+        // Make request to Fear API with timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 second timeout
+        
         const response = await fetch(fearApiUrl, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
                 'User-Agent': 'Fear-Protection-Check/1.0'
-            }
+            },
+            signal: controller.signal
         });
+        
+        clearTimeout(timeoutId);
         
         console.log('[Fear API] Response status:', response.status);
         

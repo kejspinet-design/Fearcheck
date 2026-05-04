@@ -45,14 +45,20 @@ export default async function handler(req, res) {
         
         console.log('[Player API] Requesting:', fearApiUrl);
         
-        // Make request to Fear API
+        // Make request to Fear API with timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 second timeout
+        
         const response = await fetch(fearApiUrl, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
                 'User-Agent': 'Fear-Protection-Check/1.0'
-            }
+            },
+            signal: controller.signal
         });
+        
+        clearTimeout(timeoutId);
         
         console.log('[Player API] Response status:', response.status);
         

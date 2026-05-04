@@ -9,6 +9,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/api/steam/:path*",
+      "destination": "/api/steam"
+    },
+    {
       "source": "/api/fear",
       "destination": "/api/fear.js"
     },
@@ -21,25 +25,25 @@
       "destination": "/api/reports.js"
     },
     {
-      "source": "/api/steam-summaries",
-      "destination": "/api/player-summaries.js"
+      "source": "/api/uma",
+      "destination": "/api/uma.js"
     }
   ],
   "functions": {
     "api/fear.js": {
-      "maxDuration": 10
+      "maxDuration": 30
     },
     "api/player.js": {
-      "maxDuration": 10
+      "maxDuration": 30
     },
     "api/reports.js": {
-      "maxDuration": 10
+      "maxDuration": 30
     },
     "api/steam.js": {
-      "maxDuration": 10
+      "maxDuration": 30
     },
-    "api/player-summaries.js": {
-      "maxDuration": 10
+    "api/uma.js": {
+      "maxDuration": 15
     }
   },
   "headers": [
