@@ -12,26 +12,26 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- CSS -->
-    <link rel="stylesheet" href="css/base.css?v=2">
-    <link rel="stylesheet" href="css/style.css?v=2">
-    <link rel="stylesheet" href="css/dashboard.css?v=2">
-    <link rel="stylesheet" href="css/check.css?v=2">
-    <link rel="stylesheet" href="css/easter-egg.css">
+    <link rel="stylesheet" href="css/base.css?v=3">
+    <link rel="stylesheet" href="css/style.css?v=3">
+    <link rel="stylesheet" href="css/dashboard.css?v=3">
+    <link rel="stylesheet" href="css/check.css?v=3">
+    
     
     <style>
         /* Allow scroll */
         body {
-            overflow-y: auto !important;
+            overflow-y: hidden !important;
             overflow-x: hidden !important;
-            height: auto !important;
+            height: 100vh !important;
             min-height: 100vh !important;
             background: #1a1d29;
         }
         
         .container {
-            overflow-y: auto !important;
+            overflow-y: hidden !important;
             overflow-x: hidden !important;
-            height: auto !important;
+            height: 100vh !important;
             min-height: 100vh !important;
         }
         
@@ -117,84 +117,52 @@
         /* HEADER OVERRIDE - FORCE STYLES */
         .header {
             background: rgba(10, 10, 15, 0.05) !important;
-            backdrop-filter: blur(15px) !important;
-            -webkit-backdrop-filter: blur(15px) !important;
-            border-bottom: 1px solid rgba(139, 92, 246, 0.05) !important;
             padding: 1.5rem 2.5rem !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border: none !important;
             box-shadow: none !important;
         }
-
-        .header-content {
-            max-width: 1800px !important;
-            margin: 0 auto !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            gap: 3rem !important;
-        }
-
-        .logo-container {
-            display: inline-block !important;
-            position: relative !important;
-            padding-left: 44px !important;
-            font-size: 1.5rem !important;
-            font-weight: 700 !important;
-            color: white !important;
-            line-height: 1 !important;
-        }
-
-        .logo-container img {
-            position: absolute !important;
-            left: 0 !important;
-            top: 50% !important;
-            transform: translateY(-50%) !important;
-            width: 32px !important;
-            height: 32px !important;
-            border-radius: 8px !important;
-            display: block !important;
-        }
-
-        .logo-text {
-            background: linear-gradient(135deg, #dc2626 0%, #f87171 50%, #dc2626 100%) !important;
-            background-size: 200% auto !important;
-            -webkit-background-clip: text !important;
-            -webkit-text-fill-color: transparent !important;
-            background-clip: text !important;
-            font-size: 1.5rem !important;
-            font-weight: 700 !important;
-            line-height: 1 !important;
-            display: inline-block !important;
+        
+        .header::before {
+            display: none !important;
         }
         
         /* Allow scroll on anticheat page - override check.css */
         body {
-            overflow-y: auto !important;
+            overflow-y: hidden !important;
             overflow-x: hidden !important;
-            height: auto !important;
+            height: 100vh !important;
             min-height: 100vh !important;
         }
         
         .container {
-            overflow-y: auto !important;
+            overflow-y: hidden !important;
             overflow-x: hidden !important;
-            height: auto !important;
+            height: 100vh !important;
             min-height: 100vh !important;
         }
         
         /* Players Grid */
         #anticheat-players-list {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
         }
         
-        @media (max-width: 1400px) {
+        @media (max-width: 1600px) {
+            #anticheat-players-list {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        @media (max-width: 1200px) {
             #anticheat-players-list {
                 grid-template-columns: repeat(3, 1fr);
             }
         }
         
-        @media (max-width: 1000px) {
+        @media (max-width: 900px) {
             #anticheat-players-list {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -385,9 +353,9 @@
         }
         
         .action-btn-large {
-            background: transparent;
-            border: 1.5px solid #ff1493;
-            color: #ff1493;
+            background: rgba(60, 60, 60, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.7);
             padding: 12px;
             border-radius: 8px;
             font-size: 12px;
@@ -398,7 +366,8 @@
         }
         
         .action-btn-large:hover {
-            background: rgba(255, 20, 147, 0.1);
+            background: rgba(80, 80, 80, 0.9);
+            border-color: rgba(255, 255, 255, 0.3);
             transform: translateY(-1px);
         }
         
@@ -430,7 +399,7 @@
         }
         
         .connect-btn {
-            background: linear-gradient(90deg, #ff1493 0%, #9c27b0 100%);
+            background: #4a90e2;
             border: none;
             color: white;
             padding: 14px;
@@ -447,8 +416,9 @@
         }
         
         .connect-btn:hover {
+            background: #357abd;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 20, 147, 0.4);
+            box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
         }
     </style>
 </head>
@@ -475,9 +445,9 @@
         <!-- Header -->
         <header class="header">
             <div class="header-content">
-                <div class="logo-container">
-                    <img src="./9574.ico" alt="Fear Protection">
-                    <span class="logo-text">Fear Protection</span>
+                <div class="logo-container" style="display: flex; align-items: center; gap: 12px;">
+                    <img src="./9574.ico" alt="Fear Protection" style="width: 44px; height: 44px;">
+                    <span class="logo-text" style="font-size: 24px; font-weight: 700; color: white;">Fear Protection</span>
                 </div>
                 
                 <!-- Navigation -->
@@ -486,15 +456,14 @@
                     <a href="check.html" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">Проверка</a>
                     <a href="rules.html" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">Правила</a>
                     <a href="tracking.html" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">Отслеживание</a>
-                    <a href="watermelon.html" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">Арбуз</a>
                     <a href="secret-login.html" style="background: rgba(220, 38, 38, 0.1); border: 2px solid rgba(220, 38, 38, 0.3); color: #dc2626; padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">🔒 Секретное</a>
                 </nav>
             </div>
         </header>
         
         <!-- Main Content -->
-        <main class="check-main">
-            <div style="max-width: 1200px; margin: 0 auto;">
+        <main class="check-main" style="max-width: 100%; padding: 0;">
+            <div style="width: 100%; padding: 0 20px;">
                 <div id="anticheat-players-list">
                     <!-- Players will be rendered here -->
                 </div>
@@ -502,23 +471,14 @@
         </main>
     </div>
 
-    <!-- Easter Egg Modal -->
-    <div class="easter-egg-modal" id="easterEggModal">
-        <div class="easter-egg-content">
-            <img src="./538a2b7db66b5418.gif" alt="Easter Egg" class="easter-egg-gif">
-            <div class="easter-egg-text">🎉 Поздравляю, ты нашёл пасхалку! 🎉</div>
-            <button class="easter-egg-close" onclick="closeEasterEgg()">Закрыть</button>
-        </div>
-    </div>
     
-    <audio id="easterEggAudio" loop>
-        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-    </audio>
+    
+    
     
     <!-- JavaScript -->
     <script src="js/APIClient.js"></script>
     <script src="js/AntiCheatPage.js"></script>
-    <script src="js/easter-egg.js"></script>
+    
     
     <script>
         // Initialize

@@ -160,7 +160,7 @@ body::before {
 
 .header-content {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     width: 100%;
     gap: 20px;
@@ -180,11 +180,7 @@ body::before {
     font-size: 28px;
     font-weight: 800;
     letter-spacing: -1px;
-    background: linear-gradient(135deg, #b91c1c 0%, #dc2626 50%, #b91c1c 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    filter: drop-shadow(0 0 20px rgba(185, 28, 28, 0.5));
+    color: white;
     position: relative;
     z-index: 1;
 }
@@ -195,10 +191,7 @@ body::before {
 }
 
 .logo-text {
-    background: linear-gradient(135deg, #b91c1c 0%, #dc2626 50%, #A855F7 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: white;
     position: relative;
     z-index: 1;
 }

@@ -22,6 +22,44 @@ export default async function handler(req, res) {
     }
     
     try {
+        // Check if this is a servers request
+        const { action } = req.query;
+        
+        if (action === 'servers') {
+            console.log('[Fear API] Fetching servers list');
+            
+            // Fetch servers from Fear API
+            const serversUrl = 'https://api.fearproject.ru/servers';
+            
+            const response = await fetch(serversUrl, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'User-Agent': 'Fear-Protection-Check/1.0'
+                }
+            });
+            
+            console.log('[Fear API] Servers response status:', response.status);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('[Fear API] Servers error:', errorText);
+                res.status(response.status).json({ 
+                    error: 'Fear API error', 
+                    status: response.status,
+                    message: response.statusText
+                });
+                return;
+            }
+            
+            const data = await response.json();
+            console.log('[Fear API] Servers data received');
+            
+            res.status(200).json(data);
+            return;
+        }
+        
+        // Otherwise, handle punishments search
         const { q, page = 1, limit = 10, type = 1 } = req.query;
         
         console.log('[Fear API] Received request:', { q, page, limit, type });
@@ -45,14 +83,20 @@ export default async function handler(req, res) {
         
         console.log('[Fear API] Requesting:', fearApiUrl);
         
-        // Make request to Fear API
+        // Make request to Fear API with timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 second timeout
+        
         const response = await fetch(fearApiUrl, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
                 'User-Agent': 'Fear-Protection-Check/1.0'
-            }
+            },
+            signal: controller.signal
         });
+        
+        clearTimeout(timeoutId);
         
         console.log('[Fear API] Response status:', response.status);
         

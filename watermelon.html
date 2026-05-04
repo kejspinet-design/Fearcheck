@@ -12,10 +12,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- CSS -->
-    <link rel="stylesheet" href="css/base.css?v=2">
-    <link rel="stylesheet" href="css/style.css?v=2">
-    <link rel="stylesheet" href="css/dashboard.css?v=2">
-    <link rel="stylesheet" href="css/easter-egg.css">
+    <link rel="stylesheet" href="css/base.css?v=3">
+    <link rel="stylesheet" href="css/style.css?v=3">
+    <link rel="stylesheet" href="css/dashboard.css?v=3">
+    
     
     <style>
         /* Allow scroll */
@@ -116,11 +116,15 @@
         /* HEADER OVERRIDE - FORCE STYLES */
         .header {
             background: rgba(10, 10, 15, 0.05) !important;
-            backdrop-filter: blur(15px) !important;
-            -webkit-backdrop-filter: blur(15px) !important;
-            border-bottom: 1px solid rgba(139, 92, 246, 0.05) !important;
             padding: 1.5rem 2.5rem !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border: none !important;
             box-shadow: none !important;
+        }
+        
+        .header::before {
+            display: none !important;
         }
 
         .header-content {
@@ -225,21 +229,20 @@
     <!-- Основной контент -->
     <div class="container">
         <!-- Header -->
-        <header class="header">
+                <header class="header">
             <div class="header-content">
-                <div class="logo-container">
-                    <img src="./9574.ico" alt="Fear Protection">
-                    <span class="logo-text">Fear Protection</span>
+                <div class="logo-container" style="display: flex; align-items: center; gap: 12px;">
+                    <img src="./9574.ico" alt="Fear Protection" style="width: 44px; height: 44px;">
+                    <span class="logo-text" style="font-size: 24px; font-weight: 700; color: white;">Fear Protection</span>
                 </div>
                 
                 <!-- Navigation -->
                 <nav style="display: flex; gap: 15px;">
-                    <a href="anticheat.html" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">Игроки</a>
-                    <a href="check.html" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">Проверка</a>
-                    <a href="rules.html" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">Правила</a>
-                    <a href="tracking.html" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">Отслеживание</a>
-                    <a href="watermelon.html" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: 2px solid #667eea; color: white; padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">Арбуз</a>
-                    <a href="secret-login.html" style="background: rgba(220, 38, 38, 0.1); border: 2px solid rgba(220, 38, 38, 0.3); color: #dc2626; padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">🔒 Секретное</a>
+                    <a href="anticheat.html" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">������</a>
+                    <a href="check.html" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">��������</a>
+                    <a href="rules.html" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">�������</a>
+                    <a href="tracking.html" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">������������</a>
+                    <a href="secret-login.html" style="background: rgba(220, 38, 38, 0.1); border: 2px solid rgba(220, 38, 38, 0.3); color: #dc2626; padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">?? ���������</a>
                 </nav>
             </div>
         </header>
@@ -253,20 +256,11 @@
         </main>
     </div>
 
-    <!-- Easter Egg Modal -->
-    <div class="easter-egg-modal" id="easterEggModal">
-        <div class="easter-egg-content">
-            <img src="./538a2b7db66b5418.gif" alt="Easter Egg" class="easter-egg-gif">
-            <div class="easter-egg-text">🎉 Поздравляю, ты нашёл пасхалку! 🎉</div>
-            <button class="easter-egg-close" onclick="closeEasterEgg()">Закрыть</button>
-        </div>
-    </div>
     
-    <audio id="easterEggAudio" loop>
-        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-    </audio>
+    
+    
 
     <!-- JavaScript -->
-    <script src="js/easter-egg.js"></script>
+    
 </body>
 </html>

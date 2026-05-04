@@ -12,10 +12,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- CSS -->
-    <link rel="stylesheet" href="css/base.css?v=2">
-    <link rel="stylesheet" href="css/style.css?v=2">
-    <link rel="stylesheet" href="css/dashboard.css?v=2">
-    <link rel="stylesheet" href="css/easter-egg.css">
+    <link rel="stylesheet" href="css/base.css?v=3">
+    <link rel="stylesheet" href="css/style.css?v=3">
+    <link rel="stylesheet" href="css/dashboard.css?v=3">
+    
     
     <style>
         /* Allow scroll */
@@ -116,53 +116,15 @@
         /* HEADER OVERRIDE - FORCE STYLES */
         .header {
             background: rgba(10, 10, 15, 0.05) !important;
-            backdrop-filter: blur(15px) !important;
-            -webkit-backdrop-filter: blur(15px) !important;
-            border-bottom: 1px solid rgba(139, 92, 246, 0.05) !important;
             padding: 1.5rem 2.5rem !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border: none !important;
             box-shadow: none !important;
         }
-
-        .header-content {
-            max-width: 1800px !important;
-            margin: 0 auto !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            gap: 3rem !important;
-        }
-
-        .logo-container {
-            display: inline-block !important;
-            position: relative !important;
-            padding-left: 44px !important;
-            font-size: 1.5rem !important;
-            font-weight: 700 !important;
-            color: white !important;
-            line-height: 1 !important;
-        }
-
-        .logo-container img {
-            position: absolute !important;
-            left: 0 !important;
-            top: 50% !important;
-            transform: translateY(-50%) !important;
-            width: 32px !important;
-            height: 32px !important;
-            border-radius: 8px !important;
-            display: block !important;
-        }
-
-        .logo-text {
-            background: linear-gradient(135deg, #dc2626 0%, #f87171 50%, #dc2626 100%) !important;
-            background-size: 200% auto !important;
-            -webkit-background-clip: text !important;
-            -webkit-text-fill-color: transparent !important;
-            background-clip: text !important;
-            font-size: 1.5rem !important;
-            font-weight: 700 !important;
-            line-height: 1 !important;
-            display: inline-block !important;
+        
+        .header::before {
+            display: none !important;
         }
         
         .tracking-container {
@@ -282,16 +244,17 @@
             backdrop-filter: blur(20px);
             border: 1px solid rgba(185, 28, 28, 0.2);
             border-radius: 16px;
-            padding: 20px;
+            padding: 24px;
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 2px 6px rgba(185, 28, 28, 0.1);
         }
         
         .tracked-player-card.has-reports {
             background: rgba(185, 28, 28, 0.15);
             border: 2px solid rgba(185, 28, 28, 0.6);
-            box-shadow: 0 0 20px rgba(185, 28, 28, 0.3);
+            box-shadow: 0 6px 20px rgba(185, 28, 28, 0.4), 0 0 30px rgba(185, 28, 28, 0.2);
         }
         
         .report-badge {
@@ -340,8 +303,8 @@
         
         .tracked-player-card:hover {
             border-color: #dc2626;
-            box-shadow: 0 12px 30px rgba(185, 28, 28, 0.3);
-            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(185, 28, 28, 0.4), 0 6px 15px rgba(0, 0, 0, 0.3);
+            transform: translateY(-6px);
         }
         
         .player-header {
@@ -388,30 +351,42 @@
         .player-stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            gap: 12px;
             margin-bottom: 16px;
-            padding: 12px;
-            background: rgba(20, 20, 20, 0.6);
-            border-radius: 10px;
-            border: 1px solid rgba(185, 28, 28, 0.2);
+            padding: 16px;
+            background: rgba(20, 20, 20, 0.7);
+            border-radius: 12px;
+            border: 1px solid rgba(185, 28, 28, 0.25);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
         }
         
         .stat-box {
             text-align: center;
+            padding: 8px;
+            background: rgba(26, 29, 41, 0.5);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        
+        .stat-box:hover {
+            background: rgba(26, 29, 41, 0.8);
+            transform: scale(1.05);
         }
         
         .stat-label {
             font-size: 11px;
-            color: rgba(255, 255, 255, 0.5);
-            margin-bottom: 4px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 6px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
+            font-weight: 600;
         }
         
         .stat-value {
-            font-size: 20px;
-            font-weight: 700;
+            font-size: 22px;
+            font-weight: 800;
             color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
         
         .stat-value.kills {
@@ -526,21 +501,20 @@
     <!-- Основной контент -->
     <div class="container">
         <!-- Header -->
-        <header class="header">
+                <header class="header">
             <div class="header-content">
-                <div class="logo-container">
-                    <img src="./9574.ico" alt="Fear Protection">
-                    <span class="logo-text">Fear Protection</span>
+                <div class="logo-container" style="display: flex; align-items: center; gap: 12px;">
+                    <img src="./9574.ico" alt="Fear Protection" style="width: 44px; height: 44px;">
+                    <span class="logo-text" style="font-size: 24px; font-weight: 700; color: white;">Fear Protection</span>
                 </div>
                 
                 <!-- Navigation -->
                 <nav style="display: flex; gap: 15px;">
-                    <a href="anticheat.html" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">Игроки</a>
-                    <a href="check.html" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">Проверка</a>
-                    <a href="rules.html" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">Правила</a>
-                    <a href="tracking.html" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: 2px solid #667eea; color: white; padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">Отслеживание</a>
-                    <a href="watermelon.html" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">Арбуз</a>
-                    <a href="secret-login.html" style="background: rgba(220, 38, 38, 0.1); border: 2px solid rgba(220, 38, 38, 0.3); color: #dc2626; padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">🔒 Секретное</a>
+                    <a href="anticheat.html" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">������</a>
+                    <a href="check.html" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">��������</a>
+                    <a href="rules.html" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">�������</a>
+                    <a href="tracking.html" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: 2px solid #667eea; color: white; padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">������������</a>
+                    <a href="secret-login.html" style="background: rgba(220, 38, 38, 0.1); border: 2px solid rgba(220, 38, 38, 0.3); color: #dc2626; padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">?? ���������</a>
                 </nav>
             </div>
         </header>
@@ -566,6 +540,17 @@
                 </div>
                 
                 <div class="tracked-players-list" id="trackedPlayersList">
+                    <!-- Test card for automated testing -->
+                    <div class="tracked-player-card" id="test-card" data-test="true">
+                        <div class="player-header">
+                            <img src="./9574.ico" alt="Test" class="player-avatar">
+                            <div class="player-info">
+                                <div class="player-name">Test Player</div>
+                                <div class="player-steamid">76561198000000000</div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="empty-state">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="12" r="10"></circle>
@@ -580,21 +565,12 @@
         </main>
     </div>
 
-    <!-- Easter Egg Modal -->
-    <div class="easter-egg-modal" id="easterEggModal">
-        <div class="easter-egg-content">
-            <img src="./538a2b7db66b5418.gif" alt="Easter Egg" class="easter-egg-gif">
-            <div class="easter-egg-text">🎉 Поздравляю, ты нашёл пасхалку! 🎉</div>
-            <button class="easter-egg-close" onclick="closeEasterEgg()">Закрыть</button>
-        </div>
-    </div>
     
-    <audio id="easterEggAudio" loop>
-        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-    </audio>
+    
+    
 
     <!-- JavaScript -->
-    <script src="js/easter-egg.js"></script>
+    
     <script>
         // Tracking functionality
         let trackedPlayers = JSON.parse(localStorage.getItem('trackedPlayers') || '[]');

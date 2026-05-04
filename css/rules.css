@@ -134,13 +134,13 @@ body .container {
     color: white;
     margin-bottom: 30px;
     padding-bottom: 20px;
-    border-bottom: 3px solid rgba(255, 20, 147, 0.5);
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
 }
 
 .subsection-title {
     font-size: 24px;
     font-weight: 700;
-    color: #ff1493;
+    color: rgba(255, 255, 255, 0.9);
     margin-top: 40px;
     margin-bottom: 20px;
 }
@@ -152,6 +152,35 @@ body .container {
     padding: 20px;
     margin-bottom: 20px;
     transition: all 0.3s ease;
+}
+
+/* Category-specific border colors */
+.rule-item[data-category="Основные"] {
+    border-left-color: #fbbf24; /* Yellow for main/punishment rules */
+}
+
+.rule-item[data-category="Общение"] {
+    border-left-color: #3b82f6; /* Blue for communication rules */
+}
+
+.rule-item[data-category="Игровой процесс"] {
+    border-left-color: #10b981; /* Green for gameplay rules */
+}
+
+.rule-item[data-category="Никнеймы и аватарки"] {
+    border-left-color: #8b5cf6; /* Purple for nickname/avatar rules */
+}
+
+.rule-item[data-category="Прочее"] {
+    border-left-color: #ef4444; /* Red for other rules */
+}
+
+.rule-item[data-category="Для администрации"] {
+    border-left-color: #f59e0b; /* Orange for admin rules */
+}
+
+.rule-item[data-category="Условия проверки"] {
+    border-left-color: #ec4899; /* Pink for check conditions */
 }
 
 .rule-item:hover {
@@ -180,12 +209,13 @@ body .container {
     border-radius: 8px;
     padding: 12px 15px;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: normal;
     color: #ff1493;
 }
 
 .rule-punishment strong {
     color: white;
+    font-weight: normal;
 }
 
 /* Sidebar Subsection (Quick Navigation) */

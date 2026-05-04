@@ -53,7 +53,7 @@ class AntiCheatPage {
             }
             
             // Fetch servers through local proxy (avoid CORS)
-            const response = await fetch('/api/fear/servers');
+            const response = await fetch('/api/fear?action=servers');
             if (!response.ok) {
                 throw new Error(`API returned ${response.status}`);
             }
@@ -246,22 +246,8 @@ class AntiCheatPage {
                 <div class="player-info-header">
                     <div class="player-name">${this.escapeHtml(displayName)}</div>
                     <div class="player-steamid">${steamId}</div>
+                    <div class="age-text" data-timecreated="${timecreated}" style="font-size: 11px; color: white; margin-top: 5px; border: 1px solid ${accountAge.isNew ? '#ff4444' : '#44ff44'}; padding: 2px 6px; border-radius: 4px; display: inline-block;">${accountAge.text}</div>
                 </div>
-            </div>
-            
-            <div class="account-age-section ${accountAge.isNew ? '' : 'old'}">
-                <div class="age-badge-header">
-                    <span class="age-label">Возраст аккаунта:</span>
-                    <div class="age-indicator ${accountAge.isNew ? 'new' : 'old'}"></div>
-                </div>
-                <div class="age-text" data-timecreated="${timecreated}">${accountAge.text}</div>
-                <div class="age-date">${accountAge.date}</div>
-            </div>
-            
-            <div class="server-info">
-                <div class="server-label">Сервер:</div>
-                <div class="server-name">${this.escapeHtml(serverName)}</div>
-                <span class="ip-badge">📋 IP</span>
             </div>
             
             <div class="stats-grid">
@@ -288,14 +274,9 @@ class AntiCheatPage {
                 </button>
             </div>
             
-            <div class="copy-buttons">
-                <button class="copy-btn" onclick="window.copyToClipboard('${steamId}', this)">
-                    📋 STEAMID
-                </button>
-                <button class="copy-btn" onclick="window.copyToClipboard('${serverConnect}', this)">
-                    📋 IP
-                </button>
-            </div>
+            <button class="copy-btn" style="width: 100%; margin-bottom: 10px;" onclick="window.copyToClipboard('${steamId}', this)">
+                📋 STEAMID
+            </button>
             
             <button class="connect-btn" onclick="window.location.href='steam://connect/${serverConnect}'">
                 ▶ ПОДКЛЮЧИТЬСЯ
