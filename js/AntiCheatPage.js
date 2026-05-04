@@ -246,16 +246,8 @@ class AntiCheatPage {
                 <div class="player-info-header">
                     <div class="player-name">${this.escapeHtml(displayName)}</div>
                     <div class="player-steamid">${steamId}</div>
+                    <div class="age-text" data-timecreated="${timecreated}" style="font-size: 11px; color: ${accountAge.isNew ? '#ff4444' : '#44ff44'}; margin-top: 5px;">${accountAge.text}</div>
                 </div>
-            </div>
-            
-            <div class="account-age-section ${accountAge.isNew ? '' : 'old'}">
-                <div class="age-badge-header">
-                    <span class="age-label">Возраст аккаунта:</span>
-                    <div class="age-indicator ${accountAge.isNew ? 'new' : 'old'}"></div>
-                </div>
-                <div class="age-text" data-timecreated="${timecreated}">${accountAge.text}</div>
-                <div class="age-date">${accountAge.date}</div>
             </div>
             
             <div class="stats-grid">
