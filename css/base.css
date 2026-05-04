@@ -108,14 +108,10 @@ body::before {
 /* ========== HEADER WITH GLASS EFFECT ========== */
 .header {
     background: rgba(10, 10, 15, 0.4);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(139, 92, 246, 0.15);
     padding: 1.5rem 2.5rem;
     position: sticky;
     top: 0;
     z-index: 100;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .header-content {
