@@ -21,8 +21,8 @@
       "destination": "/api/reports.js"
     },
     {
-      "source": "/api/steam/:path*",
-      "destination": "/api/steam.js"
+      "source": "/api/steam-summaries",
+      "destination": "/api/player-summaries.js"
     }
   ],
   "functions": {
@@ -36,6 +36,9 @@
       "maxDuration": 10
     },
     "api/steam.js": {
+      "maxDuration": 10
+    },
+    "api/player-summaries.js": {
       "maxDuration": 10
     }
   },

@@ -186,7 +186,7 @@ class APIClient {
             for (let i = 0; i < batches.length; i++) {
                 const batch = batches[i];
                 const steamIdsParam = batch.join(',');
-                const url = `${this.config.steamApiBase}/ISteamUser/GetPlayerSummaries/v2/?key=${this.config.steamApiKey}&steamids=${steamIdsParam}&format=json`;
+                const url = `${this.config.steamApiBase}-summaries?key=${this.config.steamApiKey}&steamids=${steamIdsParam}&format=json`;
                 
                 try {
                     const response = await fetch(url, {
