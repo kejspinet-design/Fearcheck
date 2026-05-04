@@ -53,7 +53,7 @@ class AntiCheatPage {
             }
             
             // Fetch servers through local proxy (avoid CORS)
-            const response = await fetch('/api/fear/servers');
+            const response = await fetch('/api/fear?action=servers');
             if (!response.ok) {
                 throw new Error(`API returned ${response.status}`);
             }

@@ -22,10 +22,45 @@ export default async function handler(req, res) {
     }
     
     try {
-        const { q, page = 1, limit = 10, type = 1 } = req.query;
+        const { action, q, page = 1, limit = 10, type = 1 } = req.query;
         
-        console.log('[Fear API] Received request:', { q, page, limit, type });
+        console.log('[Fear API] Received request:', { action, q, page, limit, type });
         
+        // Handle servers list request
+        if (action === 'servers') {
+            const fearApiUrl = 'https://api.fearproject.ru/servers';
+            
+            console.log('[Fear API] Requesting servers:', fearApiUrl);
+            
+            const response = await fetch(fearApiUrl, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'User-Agent': 'Fear-Protection-Check/1.0'
+                }
+            });
+            
+            console.log('[Fear API] Servers response status:', response.status);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('[Fear API] Servers error response:', errorText);
+                res.status(response.status).json({ 
+                    error: 'Fear API error', 
+                    status: response.status,
+                    message: response.statusText
+                });
+                return;
+            }
+            
+            const data = await response.json();
+            console.log('[Fear API] Servers success');
+            
+            res.status(200).json(data);
+            return;
+        }
+        
+        // Handle punishments search request
         if (!q) {
             console.log('[Fear API] Missing Steam ID parameter');
             res.status(400).json({ error: 'Missing Steam ID parameter' });
@@ -40,7 +75,7 @@ export default async function handler(req, res) {
             return;
         }
         
-        // Build Fear API URL
+        // Build Fear API URL for punishments
         const fearApiUrl = `https://api.fearproject.ru/punishments/search?q=${encodeURIComponent(q)}&page=${page}&limit=${limit}&type=${type}`;
         
         console.log('[Fear API] Requesting:', fearApiUrl);
