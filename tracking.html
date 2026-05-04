@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="css/base.css?v=3">
     <link rel="stylesheet" href="css/style.css?v=3">
     <link rel="stylesheet" href="css/dashboard.css?v=3">
-    <link rel="stylesheet" href="css/easter-egg.css">
+    
     
     <style>
         /* Allow scroll */
@@ -554,21 +554,12 @@
         </main>
     </div>
 
-    <!-- Easter Egg Modal -->
-    <div class="easter-egg-modal" id="easterEggModal">
-        <div class="easter-egg-content">
-            <img src="./538a2b7db66b5418.gif" alt="Easter Egg" class="easter-egg-gif">
-            <div class="easter-egg-text">🎉 Поздравляю, ты нашёл пасхалку! 🎉</div>
-            <button class="easter-egg-close" onclick="closeEasterEgg()">Закрыть</button>
-        </div>
-    </div>
     
-    <audio id="easterEggAudio" loop>
-        <source src="������/������ - �����.mp3" type="audio/mpeg">
-    </audio>
+    
+    
 
     <!-- JavaScript -->
-    <script src="js/easter-egg.js"></script>
+    
     <script>
         // Tracking functionality
         let trackedPlayers = JSON.parse(localStorage.getItem('trackedPlayers') || '[]');
