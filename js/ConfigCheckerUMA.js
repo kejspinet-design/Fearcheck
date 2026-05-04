@@ -442,12 +442,14 @@ class ConfigCheckerUMA {
     }
 
     /**
-     * Check Fear ban status
+     * Check Fear ban status using old API method
      */
     async checkFearBan(steamId) {
         try {
-            // Use Fear Project API directly
-            const apiUrl = `https://api.fearproject.ru/profile/${encodeURIComponent(steamId)}`;
+            console.log('[ConfigCheckerUMA] Checking Fear API for:', steamId);
+            
+            // Use old API method with punishments search
+            const apiUrl = `/api/fear?q=${encodeURIComponent(steamId)}&page=1&limit=10&type=1`;
             
             const response = await fetch(apiUrl, {
                 method: 'GET',
@@ -462,28 +464,34 @@ class ConfigCheckerUMA {
             }
             
             const data = await response.json();
+            console.log('[ConfigCheckerUMA] Fear API response for', steamId, ':', data);
             
-            // Check banInfo from profile
-            if (data && data.banInfo) {
-                if (data.banInfo.isBanned === true) {
-                    const unbanDate = data.banInfo.unbanTimestamp ? 
-                        new Date(data.banInfo.unbanTimestamp * 1000).toLocaleString('ru-RU') : 
-                        'Навсегда';
+            // Check if any active bans found
+            if (data && data.punishments && Array.isArray(data.punishments) && data.punishments.length > 0) {
+                // Find ban where steamid matches the searched player (not admin)
+                const playerBan = data.punishments.find(ban => ban.steamid === steamId);
+                
+                if (playerBan) {
+                    const status = playerBan.status; // 1 = active, 0 = expired
                     
-                    return {
-                        banned: true,
-                        reason: data.banInfo.reason || 'Забанен',
-                        unbanDate: unbanDate
-                    };
+                    if (status === 1) {
+                        // Hide admin information - don't include admin, admin_steamid, admin_avatar fields
+                        return {
+                            banned: true,
+                            reason: playerBan.reason || 'Забанен'
+                        };
+                    } else {
+                        return {
+                            banned: false,
+                            reason: 'Бан истек'
+                        };
+                    }
                 } else {
-                    return {
-                        banned: false,
-                        reason: 'Не забанен'
-                    };
+                    return { banned: false, reason: 'Не забанен' };
                 }
+            } else {
+                return { banned: false, reason: 'Не забанен' };
             }
-            
-            return { banned: false, reason: 'Не забанен' };
             
         } catch (error) {
             console.warn('[ConfigCheckerUMA] Fear API check failed:', error);
