@@ -42,18 +42,64 @@ export default async function handler(req, res) {
         
         console.log('[UMA API] Checking UMA ban for:', steamid);
         
-        // Check UMA ban via HTTP API
-        // yooma.su doesn't have a public HTTP API, so we return not banned
-        // In local development, WebSocket proxy is used instead
-        const result = {
-            banned: false,
-            reason: null
-        };
+        // Check UMA ban via yooma.su HTTP API
+        const yoomaUrl = `https://yooma.su/api/public/read/punishments?page=1&punish_type=0&search=${encodeURIComponent(steamid)}`;
         
-        console.log('[UMA API] Result:', result);
+        console.log('[UMA API] Requesting:', yoomaUrl);
         
-        // Return the result
-        res.status(200).json(result);
+        const response = await fetch(yoomaUrl, {
+            method: 'GET',
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'application/json, text/plain, */*',
+                'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
+                'Referer': 'https://yooma.su/',
+                'Origin': 'https://yooma.su'
+            }
+        });
+        
+        console.log('[UMA API] Response status:', response.status);
+        
+        if (!response.ok) {
+            console.error('[UMA API] yooma.su returned', response.status);
+            res.status(200).json({ banned: false, reason: 'Ошибка API' });
+            return;
+        }
+        
+        const data = await response.json();
+        console.log('[UMA API] Received punishments:', data.punishments?.length || 0);
+        
+        // Check if player has active bans
+        if (data.punishments && Array.isArray(data.punishments) && data.punishments.length > 0) {
+            const now = Math.floor(Date.now() / 1000);
+            
+            for (const punishment of data.punishments) {
+                const expires = punishment.expires;
+                const reason = punishment.reason || 'Забанен';
+                
+                console.log('[UMA API] Checking punishment:', {
+                    steamid,
+                    reason,
+                    expires,
+                    now,
+                    isActive: expires > now
+                });
+                
+                // Check if ban is active
+                if (expires > now) {
+                    console.log('[UMA API] Active ban found:', reason);
+                    res.status(200).json({
+                        banned: true,
+                        reason: reason
+                    });
+                    return;
+                }
+            }
+        }
+        
+        // No active bans found
+        console.log('[UMA API] No active bans');
+        res.status(200).json({ banned: false, reason: 'Не забанен' });
         
     } catch (error) {
         console.error('[UMA API] Exception:', error);
