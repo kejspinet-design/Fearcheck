@@ -8,6 +8,7 @@ class ConfigChecker {
         this.fileInput = null;
         this.resultsColumn = null;
         this.countElement = null;
+        this.isProcessing = false; // Flag to prevent double processing
         
         this.init();
     }
@@ -39,21 +40,29 @@ class ConfigChecker {
         // File input change
         this.fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
-            if (file) {
+            if (file && !this.isProcessing) {
                 this.handleFile(file);
             }
+            // Clear the input value to allow selecting the same file again
+            e.target.value = '';
         });
         
         // Click to open file dialog
-        this.uploadArea.addEventListener('click', () => {
-            this.fileInput.click();
+        this.uploadArea.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!this.isProcessing) {
+                this.fileInput.click();
+            }
         });
         
         // Drag and drop events
         this.uploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            this.uploadArea.classList.add('drag-over');
+            if (!this.isProcessing) {
+                this.uploadArea.classList.add('drag-over');
+            }
         });
         
         this.uploadArea.addEventListener('dragleave', (e) => {
@@ -68,7 +77,7 @@ class ConfigChecker {
             this.uploadArea.classList.remove('drag-over');
             
             const file = e.dataTransfer.files[0];
-            if (file) {
+            if (file && !this.isProcessing) {
                 this.handleFile(file);
             }
         });
@@ -78,11 +87,19 @@ class ConfigChecker {
      * Handle uploaded file
      */
     async handleFile(file) {
+        // Prevent double processing
+        if (this.isProcessing) {
+            console.warn('[ConfigChecker] File processing already in progress, ignoring');
+            return;
+        }
+        
+        this.isProcessing = true;
         console.info('[ConfigChecker] File uploaded:', file.name);
         
         // Validate file
         if (!file.name.endsWith('.vdf') && !file.name.endsWith('.cfg')) {
             alert('Пожалуйста, загрузите файл config.vdf или config.cfg');
+            this.isProcessing = false;
             return;
         }
         
@@ -101,6 +118,7 @@ class ConfigChecker {
             if (steamIds.length === 0) {
                 alert('В файле не найдено Steam ID');
                 this.showUploadArea();
+                this.isProcessing = false;
                 return;
             }
             
@@ -113,6 +131,8 @@ class ConfigChecker {
         } catch (error) {
             console.error('[ConfigChecker] Error processing file:', error);
             this.showError('Ошибка при обработке файла');
+        } finally {
+            this.isProcessing = false;
         }
     }
 
@@ -360,6 +380,7 @@ class ConfigChecker {
         this.resultsColumn.style.display = 'none';
         this.resultsColumn.innerHTML = '';
         this.updateCount(0);
+        this.isProcessing = false; // Reset processing flag
     }
 
     /**
