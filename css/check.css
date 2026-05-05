@@ -94,7 +94,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    padding-right: 8px;
+    padding: 8px 8px 8px 0;
     min-height: 0;
     max-height: calc(100vh - 250px);
 }
@@ -161,7 +161,7 @@ body {
 }
 
 .ban-status-card:hover {
-    transform: translateX(4px);
+    transform: translateY(-2px);
     border-color: rgba(139, 92, 246, 0.4);
     box-shadow: 0 8px 24px rgba(139, 92, 246, 0.2);
 }
@@ -183,6 +183,7 @@ body {
     border-color: rgba(220, 38, 38, 0.5);
     box-shadow: 0 8px 24px rgba(220, 38, 38, 0.3),
                 0 0 40px rgba(220, 38, 38, 0.1);
+    transform: translateY(-2px);
 }
 
 .ban-status-card.clean {
@@ -197,6 +198,7 @@ body {
 .ban-status-card.clean:hover {
     border-color: rgba(34, 197, 94, 0.4);
     box-shadow: 0 8px 24px rgba(34, 197, 94, 0.2);
+    transform: translateY(-2px);
 }
 
 /* ========== BAN STATUS HEADER ========== */
