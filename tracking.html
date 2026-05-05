@@ -18,11 +18,11 @@
     
     
     <style>
-        /* Allow scroll */
+        /* Allow scroll and fix scroll issues */
         body {
             overflow-y: auto !important;
             overflow-x: hidden !important;
-            height: auto !important;
+            height: 100vh !important;
             min-height: 100vh !important;
             background: #1a1d29;
         }
@@ -30,7 +30,7 @@
         .container {
             overflow-y: auto !important;
             overflow-x: hidden !important;
-            height: auto !important;
+            height: 100vh !important;
             min-height: 100vh !important;
         }
         
@@ -869,6 +869,18 @@
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('[Tracking] Initializing...');
+            
+            // Fix scroll issues after page refresh
+            setTimeout(() => {
+                document.body.style.overflow = 'hidden';
+                document.body.style.overflowY = 'auto';
+                document.body.style.overflowX = 'hidden';
+                
+                // Ensure scroll position is accessible
+                if (window.scrollY > 0) {
+                    window.scrollTo({ top: window.scrollY, behavior: 'instant' });
+                }
+            }, 100);
             
             // Initial load
             await fetchServers();
