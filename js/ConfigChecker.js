@@ -315,7 +315,7 @@ class ConfigChecker {
                 finalAvatar = `data:image/svg+xml;base64,${btoa(`
                     <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="32" cy="32" r="32" fill="${color}"/>
-                        <text x="32" y="38" text-anchor="middle" fill="white" font-family="Inter, sans-serif" font-size="24">👤</text>
+                        <text x="32" y="38" text-anchor="middle" fill="white" font-family="Poppins, sans-serif" font-size="24">👤</text>
                     </svg>
                 `)}`;
             }
