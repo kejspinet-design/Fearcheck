@@ -76,17 +76,19 @@ export default async function handler(req, res) {
             for (const punishment of data.punishments) {
                 const expires = punishment.expires;
                 const reason = punishment.reason || 'Забанен';
+                const unbanned = punishment.unbanned; // Check if ban was removed/unbanned
                 
                 console.log('[UMA API] Checking punishment:', {
                     steamid,
                     reason,
                     expires,
                     now,
-                    isActive: expires > now
+                    unbanned,
+                    isActive: expires > now && !unbanned
                 });
                 
-                // Check if ban is active
-                if (expires > now) {
+                // Check if ban is active (not expired AND not unbanned)
+                if (expires > now && !unbanned) {
                     console.log('[UMA API] Active ban found:', reason);
                     res.status(200).json({
                         banned: true,

@@ -422,17 +422,19 @@ class ConfigCheckerUMA {
                         const expires = punishment.expires;
                         const now = Math.floor(Date.now() / 1000);
                         const reason = punishment.reason || 'Забанен';
+                        const unbanned = punishment.unbanned; // Check if ban was removed/unbanned
                         
                         console.debug('[ConfigCheckerUMA] Checking punishment:', {
                             steamId,
                             reason,
                             expires,
                             now,
-                            isActive: expires > now
+                            unbanned,
+                            isActive: expires > now && !unbanned
                         });
                         
-                        // Check if ban is active
-                        if (expires > now) {
+                        // Check if ban is active (not expired AND not unbanned)
+                        if (expires > now && !unbanned) {
                             console.info('[ConfigCheckerUMA] Active ban found for', steamId, ':', reason);
                             resolve({
                                 banned: true,
