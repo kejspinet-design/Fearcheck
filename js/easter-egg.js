@@ -103,7 +103,7 @@
     
     function toggleMusic() {
         // Create new audio element each time for sound effect
-        const soundEffect = new Audio('./1498374867383353515 (1).ogg');
+        const soundEffect = new Audio('./assets/sounds/1498374867383353515 (1).ogg');
         soundEffect.volume = 0.7;
         
         // Play sound effect
