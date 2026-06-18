@@ -67,14 +67,13 @@ class APIClient {
      */
     async fetchServers() {
         try {
-            const response = await fetch(`${this.config.fearApiBase}/servers/`, {
+            const response = await fetch(`${this.config.fearApiBase}/servers`, {
                 method: 'GET',
                 mode: 'cors',
                 credentials: 'include',
                 headers: {
                     'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.config.accessToken}`
+                    'Content-Type': 'application/json'
                 }
             });
             
@@ -117,8 +116,7 @@ class APIClient {
                 credentials: 'include',
                 headers: {
                     'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.config.accessToken}`
+                    'Content-Type': 'application/json'
                 }
             });
             

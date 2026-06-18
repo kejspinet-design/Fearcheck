@@ -1,21 +1,20 @@
 /**
  * Vercel Serverless Function for UMA.SU API Proxy
- * Checks ban status via yooma.su WebSocket API
+ * Checks ban status via yooma.su HTTP API
  */
 
 export default async function handler(req, res) {
     // Enable CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     
-    // Handle preflight requests
+    // Handle preflight
     if (req.method === 'OPTIONS') {
         res.status(200).end();
         return;
     }
     
-    // Only allow GET requests
     if (req.method !== 'GET') {
         res.status(405).json({ error: 'Method not allowed' });
         return;
@@ -77,6 +76,7 @@ export default async function handler(req, res) {
                 const expires = punishment.expires;
                 const reason = punishment.reason || 'Забанен';
                 const unbanned = punishment.unbanned; // Check if ban was removed/unbanned
+                const adminSteamId = punishment.admin_steam_id;
                 
                 console.log('[UMA API] Checking punishment:', {
                     steamid,
@@ -84,8 +84,20 @@ export default async function handler(req, res) {
                     expires,
                     now,
                     unbanned,
+                    adminSteamId,
+                    isAdmin: adminSteamId === steamid,
                     isActive: expires > now && !unbanned
                 });
+                
+                // CRITICAL: If this Steam ID is the admin who issued the ban, they are NOT the banned player
+                if (adminSteamId && adminSteamId === steamid) {
+                    console.info('[UMA API] User', steamid, 'is admin, not banned player');
+                    res.status(200).json({
+                        banned: false,
+                        reason: 'Админ (не забанен)'
+                    });
+                    return;
+                }
                 
                 // Check if ban is active (not expired AND not unbanned)
                 if (expires > now && !unbanned) {

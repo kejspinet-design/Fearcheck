@@ -4,41 +4,26 @@
   "trailingSlash": false,
   "rewrites": [
     {
-      "source": "/",
-      "destination": "/index.html"
+      "source": "/api/fear/servers",
+      "destination": "/api/fear-servers.js"
     },
     {
-      "source": "/api/steam/:path*",
-      "destination": "/api/steam"
+      "source": "/api/fear/reports/recent",
+      "destination": "/api/reports-recent.js"
     },
     {
-      "source": "/api/fear",
-      "destination": "/api/fear.js"
-    },
-    {
-      "source": "/api/player",
-      "destination": "/api/player.js"
-    },
-    {
-      "source": "/api/reports",
-      "destination": "/api/reports.js"
-    },
-    {
-      "source": "/api/uma",
-      "destination": "/api/uma.js"
+      "source": "/api/reports/recent",
+      "destination": "/api/reports-recent.js"
     }
   ],
   "functions": {
-    "api/fear.js": {
+    "api/fear-servers.js": {
+      "maxDuration": 30
+    },
+    "api/reports-recent.js": {
       "maxDuration": 30
     },
     "api/player.js": {
-      "maxDuration": 30
-    },
-    "api/reports.js": {
-      "maxDuration": 30
-    },
-    "api/steam.js": {
       "maxDuration": 30
     },
     "api/uma.js": {
