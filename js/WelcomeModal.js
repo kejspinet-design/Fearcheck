@@ -140,16 +140,13 @@ class WelcomeModal {
                 <p style="margin: 0 0 16px 0;">
                     <strong>Добро пожаловать!</strong>
                 </p>
-                <p style="margin: 0 0 16px 0;">
-                    Мы рады сообщить, что проект <strong>Fear Protection</strong> снова в деле! 🚀
-                </p>
                 <p style="margin: 0;">
-                    Присоединяйтесь к нашему Discord-сообществу, чтобы быть в курсе всех обновлений! 💬
+                    Мы рады сообщить, что проект <strong>Fear Protection</strong> снова в деле! 🚀
                 </p>
             </div>
             
             <button class="close-btn" onclick="document.getElementById('welcome-modal').dispatchEvent(new Event('close'))">
-                Понятно!
+                УРА!
             </button>
             <div class="signature">
                 — Команда Fear Protection

@@ -414,6 +414,8 @@ class ConfigChecker {
         resetButton.textContent = 'Проверить другой файл';
         resetButton.style.marginTop = '20px';
         resetButton.style.alignSelf = 'center';
+        resetButton.style.maxWidth = '300px';
+        resetButton.style.width = '100%';
         resetButton.onclick = () => this.showUploadArea();
         
         this.resultsColumn.appendChild(resetButton);

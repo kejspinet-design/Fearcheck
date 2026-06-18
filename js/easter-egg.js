@@ -1,59 +1,10 @@
 /**
  * Easter Egg - Click on logo icon to play music
- * Also blocks F12 and DevTools
+ * DevTools blocking DISABLED for development
  */
 
-// Block F12 and DevTools
-(function() {
-    'use strict';
-    
-    // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
-    document.addEventListener('keydown', function(e) {
-        // F12
-        if (e.key === 'F12' || e.keyCode === 123) {
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
-        }
-        
-        // Ctrl+Shift+I (Inspect)
-        if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.keyCode === 73)) {
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
-        }
-        
-        // Ctrl+Shift+J (Console)
-        if (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.keyCode === 74)) {
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
-        }
-        
-        // Ctrl+Shift+C (Inspect Element)
-        if (e.ctrlKey && e.shiftKey && (e.key === 'C' || e.keyCode === 67)) {
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
-        }
-        
-        // Ctrl+U (View Source)
-        if (e.ctrlKey && (e.key === 'U' || e.keyCode === 85)) {
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
-        }
-    }, true);
-    
-    // Disable right-click
-    document.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-        return false;
-    });
-    
-    console.log('%c🚫 Консоль отключена', 'color: #dc2626; font-size: 24px; font-weight: bold;');
-    console.log('%cДоступ к консоли запрещен администрацией Fear Protection', 'color: #ef4444; font-size: 16px;');
-})();
+// DevTools blocking is DISABLED
+console.log('%c✅ Консоль разблокирована для разработки', 'color: #10B981; font-size: 18px; font-weight: bold;');
 
 // Easter Egg - Music player
 (function() {

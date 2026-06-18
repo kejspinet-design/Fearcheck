@@ -15,11 +15,11 @@ app.use((req, res, next) => {
 
 // Serve main page with loading screen (BEFORE static middleware!)
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(__dirname, '..', 'index.html'));
 });
 
 // Serve static files
-app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname, '..')));
 
 // Handle preflight requests
 app.options('*', (req, res) => {
@@ -55,12 +55,31 @@ if (process.env.NODE_ENV !== 'production') {
         },
         onProxyReq: (proxyReq, req, res) => {
             // Add authentication cookies
-            const accessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfaWQiOiI3NjU2MTE5OTUyNDc4MDMyNyIsImlhdCI6MTc3NzgwNzMyNCwiZXhwIjoxNzgwMzk5MzI0fQ.PaLsOYuO-qx0AZcEG-5aQnjdNPUzD2zHFtqVxc4RmNo';
-            proxyReq.setHeader('Cookie', `access_token=${accessToken}; _ym_uid=1766660078200365881; _ym_d=1776260131; __ddg1_=faR8r5N1jJ3rGWxclyQR; __ddgid_=ZqbP2ZyzeZ2XMwTt; __ddgmark_=4RvtV5EigamE7TfU; _ym_isad=2; __ddg9_=104.28.229.14; _ym_visorc=w; __ddg10_=1777818152; __ddg8_=9pZgQJGSwSkScMhK`);
-            console.log(`Proxying reports request: ${req.method} ${req.url}`);
+            const accessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfaWQiOiI3NjU2MTE5OTUyNDc4MDMyNyIsImlhdCI6MTc4MTUyMDQwNCwiZXhwIjoxNzg0MTEyNDA0fQ.mRPdNR_NwLZA4n3SaQaJZR2n2CVa7-PEuG1zDaBAKCc';
+            proxyReq.setHeader('Cookie', `access_token=${accessToken}`);
+            console.log(`Proxying reports request: ${req.method} ${req.url} -> /reports/recent`);
         },
         onError: (err, req, res) => {
             console.error('Reports proxy error:', err);
+            res.status(500).json({ error: 'Proxy error', message: err.message });
+        }
+    }));
+    
+    // Proxy for Fear Reports API (alternative path for APIClient)
+    app.use('/api/fear/reports', createProxyMiddleware({
+        target: 'https://api.fearproject.ru',
+        changeOrigin: true,
+        pathRewrite: {
+            '^/api/fear/reports': '/reports'
+        },
+        onProxyReq: (proxyReq, req, res) => {
+            // Add authentication cookies
+            const accessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfaWQiOiI3NjU2MTE5OTUyNDc4MDMyNyIsImlhdCI6MTc4MTUyMDQwNCwiZXhwIjoxNzg0MTEyNDA0fQ.mRPdNR_NwLZA4n3SaQaJZR2n2CVa7-PEuG1zDaBAKCc';
+            proxyReq.setHeader('Cookie', `access_token=${accessToken}`);
+            console.log(`Proxying fear reports request: ${req.method} ${req.url} -> /reports${req.url.replace('/api/fear/reports', '')}`);
+        },
+        onError: (err, req, res) => {
+            console.error('Fear reports proxy error:', err);
             res.status(500).json({ error: 'Proxy error', message: err.message });
         }
     }));
@@ -94,7 +113,10 @@ if (process.env.NODE_ENV !== 'production') {
             return path.replace('/api/player', '/profile');
         },
         onProxyReq: (proxyReq, req, res) => {
-            console.log(`Proxying player request: ${req.method} ${req.url}`);
+            // Add authentication cookies
+            const accessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfaWQiOiI3NjU2MTE5OTUyNDc4MDMyNyIsImlhdCI6MTc4MTUyMDQwNCwiZXhwIjoxNzg0MTEyNDA0fQ.mRPdNR_NwLZA4n3SaQaJZR2n2CVa7-PEuG1zDaBAKCc';
+            proxyReq.setHeader('Cookie', `access_token=${accessToken}`);
+            console.log(`Proxying player request: ${req.method} ${req.url} -> ${proxyReq.path}`);
         },
         onError: (err, req, res) => {
             console.error('Player proxy error:', err);
@@ -114,6 +136,31 @@ if (process.env.NODE_ENV !== 'production') {
         },
         onError: (err, req, res) => {
             console.error('Steam API proxy error:', err);
+            res.status(500).json({ error: 'Proxy error', message: err.message });
+        }
+    }));
+
+    // Proxy for Yooma.su API to check UMA bans (profile)
+    app.use('/api/uma', createProxyMiddleware({
+        target: 'https://yooma.su',
+        changeOrigin: true,
+        pathRewrite: {
+            '^/api/uma': '/api/public/read/profile'
+        },
+        onProxyReq: (proxyReq, req, res) => {
+            // Add browser-like headers
+            proxyReq.setHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+            proxyReq.setHeader('Accept', 'application/json, text/plain, */*');
+            proxyReq.setHeader('Accept-Language', 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7');
+            proxyReq.setHeader('Referer', 'https://yooma.su/');
+            proxyReq.setHeader('Origin', 'https://yooma.su');
+            console.log(`Proxying UMA profile request: ${req.method} ${req.url} -> ${proxyReq.path}`);
+        },
+        onProxyRes: (proxyRes, req, res) => {
+            console.log(`UMA profile response: ${proxyRes.statusCode}`);
+        },
+        onError: (err, req, res) => {
+            console.error('UMA profile proxy error:', err);
             res.status(500).json({ error: 'Proxy error', message: err.message });
         }
     }));

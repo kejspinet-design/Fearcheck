@@ -121,15 +121,6 @@ class ConfigCheckerUMA {
             e.target.value = '';
         });
         
-        // Click to open file dialog
-        this.uploadArea.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (!this.isProcessing) {
-                this.fileInput.click();
-            }
-        });
-        
         // Drag and drop events
         this.uploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
@@ -422,7 +413,8 @@ class ConfigCheckerUMA {
                         const expires = punishment.expires;
                         const now = Math.floor(Date.now() / 1000);
                         const reason = punishment.reason || 'Забанен';
-                        const unbanned = punishment.unbanned; // Check if ban was removed/unbanned
+                        const unbanned = punishment.unbanned;
+                        const adminSteamId = punishment.admin_steam_id;
                         
                         console.debug('[ConfigCheckerUMA] Checking punishment:', {
                             steamId,
@@ -430,8 +422,18 @@ class ConfigCheckerUMA {
                             expires,
                             now,
                             unbanned,
+                            adminSteamId,
+                            isAdmin: adminSteamId === steamId,
                             isActive: expires > now && !unbanned
                         });
+                        
+                        // Check if this Steam ID is the admin who issued the ban
+                        if (adminSteamId && adminSteamId === steamId) {
+                            console.info('[ConfigCheckerUMA] User', steamId, 'is admin, not banned player');
+                            resolve({ banned: false, reason: 'Админ (не забанен)' });
+                            ws.close();
+                            return;
+                        }
                         
                         // Check if ban is active (not expired AND not unbanned)
                         if (expires > now && !unbanned) {
@@ -490,11 +492,46 @@ class ConfigCheckerUMA {
             
             // Check if any active bans found
             if (data && data.punishments && Array.isArray(data.punishments) && data.punishments.length > 0) {
+                console.log('[ConfigCheckerUMA] Found', data.punishments.length, 'punishment(s) for search:', steamId);
+                
+                // Log each punishment for debugging
+                data.punishments.forEach((ban, index) => {
+                    console.log(`[ConfigCheckerUMA] Punishment ${index + 1}:`, {
+                        steamid: ban.steamid,
+                        admin_steam_id: ban.admin_steam_id,
+                        admin_name: ban.admin_name,
+                        reason: ban.reason,
+                        status: ban.status
+                    });
+                });
+                
                 // Find ban where steamid matches the searched player (not admin)
-                const playerBan = data.punishments.find(ban => ban.steamid === steamId);
+                const playerBan = data.punishments.find(ban => {
+                    // Check if this Steam ID is the banned player OR the admin who issued the ban
+                    const isBannedPlayer = ban.steamid === steamId;
+                    const isAdmin = ban.admin_steam_id === steamId;
+                    
+                    console.log('[ConfigCheckerUMA] Checking ban:', {
+                        searchedId: steamId,
+                        banSteamId: ban.steamid,
+                        adminSteamId: ban.admin_steam_id,
+                        isBannedPlayer,
+                        isAdmin,
+                        willReturn: isBannedPlayer && !isAdmin
+                    });
+                    
+                    // Only return ban if user is the banned player, NOT the admin
+                    return isBannedPlayer && !isAdmin;
+                });
                 
                 if (playerBan) {
                     const status = playerBan.status; // 1 = active, 0 = expired
+                    
+                    console.log('[ConfigCheckerUMA] Found matching ban:', {
+                        status,
+                        reason: playerBan.reason,
+                        isActive: status === 1
+                    });
                     
                     if (status === 1) {
                         // Hide admin information - don't include admin, admin_steamid, admin_avatar fields
@@ -509,9 +546,19 @@ class ConfigCheckerUMA {
                         };
                     }
                 } else {
+                    // Check if user is admin in any ban (not the banned player)
+                    const isAdminInAnyBan = data.punishments.some(ban => ban.admin_steam_id === steamId);
+                    
+                    if (isAdminInAnyBan) {
+                        console.log('[ConfigCheckerUMA] User', steamId, 'is admin, not banned player');
+                        return { banned: false, reason: 'Админ (не забанен)' };
+                    }
+                    
+                    console.log('[ConfigCheckerUMA] No matching ban found for', steamId);
                     return { banned: false, reason: 'Не забанен' };
                 }
             } else {
+                console.log('[ConfigCheckerUMA] No punishments found for', steamId);
                 return { banned: false, reason: 'Не забанен' };
             }
             
@@ -656,6 +703,8 @@ class ConfigCheckerUMA {
         resetButton.textContent = 'Проверить другой файл';
         resetButton.style.marginTop = '20px';
         resetButton.style.alignSelf = 'center';
+        resetButton.style.maxWidth = '300px';
+        resetButton.style.width = '100%';
         resetButton.onclick = () => this.showUploadArea();
         
         this.resultsColumn.appendChild(resetButton);

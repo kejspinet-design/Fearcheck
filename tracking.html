@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fear Protection - Отслеживание</title>
+    <link rel="icon" href="./assets/images/9574.ico" type="image/x-icon">
+    
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="css/fonts.css">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/base.css?v=3">
+    <link rel="stylesheet" href="css/style.css?v=3">
+    <link rel="stylesheet" href="css/dashboard.css?v=3">
+    <link rel="stylesheet" href="css/check.css?v=3">
+    <link rel="stylesheet" href="css/style-minimalist.css?v=1">
+    
+    <style>
+        body {
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            min-height: 100vh !important;
+            background: #1a1d29;
+        }
+        
+        .container {
+            overflow-y: visible !important;
+            min-height: 100vh !important;
+        }
+        
+        /* HEADER OVERRIDE */
+        .header {
+            background: rgba(10, 10, 15, 0.05) !important;
+            padding: 1.5rem 2.5rem !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+        
+        .header::before {
+            display: none !important;
+        }
+        
+        /* Tracking Content */
+        .tracking-container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        
+        .tracking-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .tracking-title {
+            font-size: 48px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+        }
+        
+        .tracking-subtitle {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        /* Search Box */
+        .search-box {
+            background: rgba(30, 30, 30, 0.9);
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .search-input-group {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .search-input {
+            flex: 1;
+            background: rgba(20, 20, 20, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px 20px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: rgba(102, 126, 234, 0.6);
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .search-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 16px 40px;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        /* Results */
+        .results-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        @media (max-width: 1200px) {
+            .results-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .results-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .result-card {
+            background: linear-gradient(135deg, rgba(30, 30, 40, 0.95) 0%, rgba(20, 20, 30, 0.95) 100%);
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            border-radius: 20px;
+            padding: 24px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .result-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+            background-size: 200% 100%;
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        .result-card:hover {
+            border-color: rgba(102, 126, 234, 0.8);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.4), 0 0 40px rgba(102, 126, 234, 0.2);
+        }
+        
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .result-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            background: linear-gradient(135deg, #667eea, #764ba2) border-box;
+            -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+        }
+        
+        .result-card:hover .result-avatar {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .result-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .result-info h3 {
+            font-size: 18px;
+            color: white;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .result-steamid {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .result-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+            background: rgba(15, 15, 20, 0.6);
+            border-radius: 12px;
+            padding: 16px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .detail-value {
+            font-size: 13px;
+            color: white;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 180px;
+        }
+        
+        .actions-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            margin-top: auto;
+        }
+        
+        .action-btn {
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .action-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        .action-btn:active {
+            transform: translateY(-2px);
+        }
+        
+        .btn-copy {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(102, 126, 234, 0.1) 100%);
+            border-color: rgba(102, 126, 234, 0.5);
+            color: #667eea;
+        }
+        
+        .btn-copy:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(102, 126, 234, 0.2) 100%);
+            border-color: #667eea;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+        
+        .btn-connect {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(34, 197, 94, 0.1) 100%);
+            border-color: rgba(34, 197, 94, 0.5);
+            color: #22c55e;
+        }
+        
+        .btn-connect:hover {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.3) 0%, rgba(34, 197, 94, 0.2) 100%);
+            border-color: #22c55e;
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.5);
+        }
+        
+        .btn-profile {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(168, 85, 247, 0.1) 100%);
+            border-color: rgba(168, 85, 247, 0.5);
+            color: #a855f7;
+        }
+        
+        .btn-profile:hover {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.3) 0%, rgba(168, 85, 247, 0.2) 100%);
+            border-color: #a855f7;
+            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.5);
+        }
+        
+        .btn-remove {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(239, 68, 68, 0.1) 100%);
+            border-color: rgba(239, 68, 68, 0.5);
+            color: #ef4444;
+            grid-column: 1 / -1;
+            margin-top: 8px;
+        }
+        
+        .btn-remove:hover {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.3) 0%, rgba(239, 68, 68, 0.2) 100%);
+            border-color: #ef4444;
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .empty-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        
+        .empty-text {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .empty-subtext {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- АНИМИРОВАННЫЙ ФОН -->
+    <div class="animated-background">
+        <div class="floating-dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+    </div>
+    
+    <!-- Основной контент -->
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-container" style="display: flex; align-items: center; gap: 12px;">
+                    <img src="./assets/images/9574.ico" alt="Fear Protection" style="width: 44px; height: 44px;">
+                    <span class="logo-text" style="font-size: 24px; font-weight: 700; color: white;">Fear Protection</span>
+                </div>
+                
+                <!-- Navigation -->
+                <nav style="display: flex; gap: 15px; align-items: center;">
+                    <a href="anticheat.html" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">Игроки</a>
+                    <a href="check.html" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">Проверка</a>
+                    <a href="tracking.html" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: 2px solid #667eea; color: white; padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">Отслеживание</a>
+                    <a href="online-admins.html" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;">Онлайн Админы</a>
+                    <a href="https://discord.gg/6EnswKAwR3" target="_blank" style="background: linear-gradient(135deg, #5865F2 0%, #4752C4 100%); border: 2px solid #5865F2; color: white; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(88, 101, 242, 0.4); transition: all 0.3s ease;">
+                        <svg width="20" height="20" viewBox="0 0 71 55" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M60.1045 4.8978C55.5792 2.8214 50.7265 1.2916 45.6527 0.41542C45.5603 0.39851 45.468 0.440769 45.4204 0.525289C44.7963 1.6353 44.105 3.0834 43.6209 4.2216C38.1637 3.4046 32.7345 3.4046 27.3892 4.2216C26.905 3.0581 26.1886 1.6353 25.5617 0.525289C25.5141 0.443589 25.4218 0.40133 25.3294 0.41542C20.2584 1.2888 15.4057 2.8186 10.8776 4.8978C10.8384 4.9147 10.8048 4.9429 10.7825 4.9795C1.57795 18.7309 -0.943561 32.1443 0.293408 45.3914C0.299005 45.4562 0.335386 45.5182 0.385761 45.5576C6.45866 50.0174 12.3413 52.7249 18.1147 54.5195C18.2071 54.5477 18.305 54.5139 18.3638 54.4378C19.7295 52.5728 20.9469 50.6063 21.9907 48.5383C22.0523 48.4172 21.9935 48.2735 21.8676 48.2256C19.9366 47.4931 18.0979 46.6 16.3292 45.5858C16.1893 45.5041 16.1781 45.304 16.3068 45.2082C16.679 44.9293 17.0513 44.6391 17.4067 44.3461C17.471 44.2926 17.5606 44.2813 17.6362 44.3151C29.2558 49.6202 41.8354 49.6202 53.3179 44.3151C53.3935 44.2785 53.4831 44.2898 53.5502 44.3433C53.9057 44.6363 54.2779 44.9293 54.6529 45.2082C54.7816 45.304 54.7732 45.5041 54.6333 45.5858C52.8646 46.6197 51.0259 47.4931 49.0921 48.2228C48.9662 48.2707 48.9102 48.4172 48.9718 48.5383C50.038 50.6034 51.2554 52.5699 52.5959 54.435C52.6519 54.5139 52.7526 54.5477 52.845 54.5195C58.6464 52.7249 64.529 50.0174 70.6019 45.5576C70.6551 45.5182 70.6887 45.459 70.6943 45.3942C72.1747 30.0791 68.2147 16.7757 60.1968 4.9823C60.1772 4.9429 60.1437 4.9147 60.1045 4.8978ZM23.7259 37.3253C20.2276 37.3253 17.3451 34.1136 17.3451 30.1693C17.3451 26.225 20.1717 23.0133 23.7259 23.0133C27.308 23.0133 30.1626 26.2532 30.1066 30.1693C30.1066 34.1136 27.28 37.3253 23.7259 37.3253ZM47.3178 37.3253C43.8196 37.3253 40.9371 34.1136 40.9371 30.1693C40.9371 26.225 43.7636 23.0133 47.3178 23.0133C50.9 23.0133 53.7545 26.2532 53.6986 30.1693C53.6986 34.1136 50.9 37.3253 47.3178 37.3253Z" fill="white"/>
+                        </svg>
+                        Discord
+                    </a>
+                </nav>
+            </div>
+        </header>
+        
+        <!-- Main Content -->
+        <main class="tracking-container">
+            <div class="search-box">
+                <div class="search-input-group">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Введите SteamID или имя игрока...">
+                    <button class="search-btn" onclick="searchPlayer()">🔍 Найти</button>
+                </div>
+            </div>
+            
+            <div class="results-container" id="resultsContainer">
+                <div class="empty-state">
+                    <div class="empty-icon">🔎</div>
+                    <div class="empty-text">Начните поиск</div>
+                    <div class="empty-subtext">Введите SteamID или имя игрока для отслеживания</div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- JavaScript -->
+    <script src="js/APIClient.js"></script>
+    <script src="js/WelcomeModal.js"></script>
+    <script src="js/easter-egg.js"></script>
+    
+    <script>
+        const apiClient = new APIClient({
+            steamApiKey: '4CE8017CEC2702E4A9200A4BAD93513E',
+            accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfaWQiOiI3NjU2MTE5OTUyNDc4MDMyNyIsImlhdCI6MTc4MTUyMDQwNCwiZXhwIjoxNzg0MTEyNDA0fQ.mRPdNR_NwLZA4n3SaQaJZR2n2CVa7-PEuG1zDaBAKCc',
+            cookieDomain: '.fearproject.ru'
+        });
+        
+        // Tracking functionality
+        let trackedPlayers = JSON.parse(localStorage.getItem('trackedPlayers') || '[]');
+        let serversData = [];
+        let reportsData = [];
+        
+        // Fetch reports data
+        async function fetchReports() {
+            try {
+                const reports = await apiClient.fetchReports();
+                reportsData = Array.isArray(reports) ? reports : [];
+                console.log('[Tracking] Reports loaded:', reportsData.length);
+                return reportsData;
+            } catch (error) {
+                console.error('[Tracking] Error fetching reports:', error);
+                return [];
+            }
+        }
+        
+        // Check if player has reports - returns array of reports
+        function getPlayerReports(steamId) {
+            const reports = reportsData.filter(report => {
+                const intruderSteamId = String(report.intruder_steamid || '').trim();
+                const checkSteamId = String(steamId).trim();
+                return intruderSteamId === checkSteamId;
+            });
+            return reports;
+        }
+        
+        // Format date
+        function formatDate(dateString) {
+            if (!dateString) return 'Неизвестно';
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 1) return 'Только что';
+            if (diffMins < 60) return `${diffMins} мин назад`;
+            if (diffHours < 24) return `${diffHours} ч назад`;
+            if (diffDays < 7) return `${diffDays} дн назад`;
+            
+            return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        }
+        
+        // Extract Steam ID from various formats
+        function extractSteamId(input) {
+            input = input.trim();
+            
+            // Already a Steam ID
+            if (/^765\d{14}$/.test(input)) {
+                return input;
+            }
+            
+            // Steam profile URL
+            const profileMatch = input.match(/steamcommunity\.com\/profiles\/(\d+)/);
+            if (profileMatch) {
+                return profileMatch[1];
+            }
+            
+            alert('Используйте Steam ID (числовой) или ссылку на профиль');
+            return null;
+        }
+        
+        // Fetch servers data
+        async function fetchServers() {
+            try {
+                const servers = await apiClient.fetchServers();
+                serversData = Array.isArray(servers) ? servers : [];
+                console.log('[Tracking] Servers loaded:', serversData.length);
+                return serversData;
+            } catch (error) {
+                console.error('[Tracking] Error fetching servers:', error);
+                return [];
+            }
+        }
+        
+        // Check if player is online and get server info
+        function checkPlayerOnline(steamId) {
+            for (const server of serversData) {
+                const liveData = server.live_data || {};
+                const players = liveData.players || [];
+                
+                const found = players.find(p => p.steam_id === steamId);
+                if (found) {
+                    return {
+                        online: true,
+                        serverName: server.site_name || 'Unknown Server',
+                        serverIp: server.ip,
+                        serverPort: server.port,
+                        player: found
+                    };
+                }
+            }
+            return { online: false };
+        }
+        
+        // Add player to tracking
+        async function addPlayer() {
+            const input = document.getElementById('searchInput').value.trim();
+            if (!input) {
+                alert('Введите SteamID');
+                return;
+            }
+            
+            const steamId = extractSteamId(input);
+            if (!steamId) return;
+            
+            // Check if already tracked
+            if (trackedPlayers.includes(steamId)) {
+                alert('Игрок уже в списке отслеживания');
+                return;
+            }
+            
+            trackedPlayers.push(steamId);
+            localStorage.setItem('trackedPlayers', JSON.stringify(trackedPlayers));
+            
+            document.getElementById('searchInput').value = '';
+            await refreshTracking();
+        }
+        
+        // Remove player from tracking
+        function removePlayer(steamId) {
+            if (confirm('Удалить игрока из отслеживания?')) {
+                trackedPlayers = trackedPlayers.filter(id => id !== steamId);
+                localStorage.setItem('trackedPlayers', JSON.stringify(trackedPlayers));
+                refreshTracking();
+            }
+        }
+        
+        // Refresh tracking data
+        async function refreshTracking() {
+            const container = document.getElementById('resultsContainer');
+            
+            if (trackedPlayers.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-icon">🔎</div><div class="empty-text">Нет отслеживаемых игроков</div><div class="empty-subtext">Добавьте игроков для отслеживания</div></div>';
+                return;
+            }
+            
+            container.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-text">Загрузка...</div></div>';
+            
+            // Load servers and reports in parallel
+            await Promise.all([fetchServers(), fetchReports()]);
+            
+            container.innerHTML = '';
+            
+            // Load all player data in parallel
+            const playerDataPromises = trackedPlayers.map(async (steamId) => {
+                const status = checkPlayerOnline(steamId);
+                const playerReports = getPlayerReports(steamId);
+                
+                // Fetch player profile from Fear API
+                let playerData = { 
+                    name: 'Unknown', 
+                    avatar: 'https://via.placeholder.com/64',
+                    lastActivity: 'Неизвестно'
+                };
+                
+                try {
+                    const response = await fetch(`/api/player?steamid=${steamId}`);
+                    if (response.ok) {
+                        const profile = await response.json();
+                        playerData = {
+                            name: profile.name || 'Unknown',
+                            avatar: profile.avatar_full || profile.avatar_medium || profile.avatar || 'https://via.placeholder.com/64',
+                            lastActivity: profile.last_activity ? formatLastActivity(profile.last_activity) : 'Неизвестно'
+                        };
+                    }
+                } catch (error) {
+                    console.error('[Tracking] Error fetching player profile:', error);
+                }
+                
+                return { steamId, status, playerReports, playerData };
+            });
+            
+            // Wait for all player data to load
+            const allPlayerData = await Promise.all(playerDataPromises);
+            
+            // Render all cards
+            allPlayerData.forEach(({ steamId, status, playerReports, playerData }) => {
+                const card = document.createElement('div');
+                card.className = 'result-card';
+                
+                const serverIp = status.online && status.serverIp && status.serverPort 
+                    ? `${status.serverIp}:${status.serverPort}` 
+                    : null;
+                
+                // Build reports display
+                const reportsDisplay = playerReports.length > 0 
+                    ? `<span style="color: #ef4444">${playerReports.length}</span>` 
+                    : `<span style="color: #22c55e">0</span>`;
+                
+                card.innerHTML = `
+                    <div class="result-header">
+                        <img src="${playerData.avatar}" alt="${playerData.name}" class="result-avatar" onerror="this.src='https://via.placeholder.com/64'" loading="lazy">
+                        <div class="result-info">
+                            <h3 title="${playerData.name}">${playerData.name}</h3>
+                            <div class="result-steamid">${steamId}</div>
+                        </div>
+                    </div>
+                    <div class="result-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Статус</span>
+                            <span class="detail-value">${status.online ? '🟢 Онлайн' : '🔴 Оффлайн'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Сервер</span>
+                            <span class="detail-value" title="${status.serverName || 'Не в сети'}">${status.serverName || 'Не в сети'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Репорты</span>
+                            <span class="detail-value">${reportsDisplay}</span>
+                        </div>
+                    </div>
+                    <div class="actions-row">
+                        <button class="action-btn btn-copy" onclick="copyIP('${serverIp || 'N/A'}')" ${!serverIp ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}>📋 IP</button>
+                        <button class="action-btn btn-connect" onclick="connectToServer('${serverIp || ''}')" ${!serverIp ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}>🎮 Играть</button>
+                        <button class="action-btn btn-profile" onclick="openFearProfile('${steamId}')">👤 Fear</button>
+                        <button class="action-btn btn-remove" onclick="removePlayer('${steamId}')">🗑️ Удалить</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+        
+        // Format last activity timestamp
+        function formatLastActivity(timestamp) {
+            if (!timestamp) return 'Неизвестно';
+            
+            const date = new Date(timestamp * 1000); // Convert Unix timestamp to milliseconds
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 1) return 'Только что';
+            if (diffMins < 60) return `${diffMins} мин назад`;
+            if (diffHours < 24) return `${diffHours} ч назад`;
+            if (diffDays < 7) return `${diffDays} дн назад`;
+            
+            return date.toLocaleDateString('ru-RU');
+        }
+        
+        // Action button functions
+        function copyIP(ip) {
+            if (!ip || ip === 'N/A') {
+                alert('IP недоступен (игрок не в сети)');
+                return;
+            }
+            navigator.clipboard.writeText(ip).then(() => {
+                alert(`IP скопирован: ${ip}`);
+            }).catch(err => {
+                console.error('Ошибка копирования:', err);
+            });
+        }
+        
+        function connectToServer(ip) {
+            if (!ip) {
+                alert('Невозможно подключиться (игрок не в сети)');
+                return;
+            }
+            window.location.href = `steam://connect/${ip}`;
+        }
+        
+        function openFearProfile(steamId) {
+            window.open(`https://fearproject.ru/profile/${steamId}`, '_blank');
+        }
+        
+        // Enter key support
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addPlayer();
+            }
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshTracking();
+            // Auto-refresh every 30 seconds
+            setInterval(refreshTracking, 30000);
+        });
+        
+        // Update search button
+        document.querySelector('.search-btn').onclick = addPlayer;
+    </script>
+</body>
+</html>
