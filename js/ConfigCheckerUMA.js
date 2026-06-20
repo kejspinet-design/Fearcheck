@@ -708,9 +708,15 @@ class ConfigCheckerUMA {
         resetButton.style.display = 'block';
         resetButton.style.position = 'relative';
         resetButton.style.zIndex = '10';
+        resetButton.style.flexShrink = '0'; // Don't shrink the button
         resetButton.onclick = () => this.showUploadArea();
         
         this.resultsColumn.appendChild(resetButton);
+        
+        // Scroll to bottom to show the button
+        setTimeout(() => {
+            resetButton.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
     }
 
     /**

@@ -47,10 +47,14 @@ class ConfigChecker {
             e.target.value = '';
         });
         
-        // Click to open file dialog
+        // Click on upload area (but not on label) to open file dialog
         this.uploadArea.addEventListener('click', (e) => {
+            // Don't interfere with label clicks
+            if (e.target.tagName === 'LABEL' || e.target.closest('label')) {
+                return;
+            }
+            
             e.preventDefault();
-            e.stopPropagation();
             if (!this.isProcessing) {
                 this.fileInput.click();
             }
@@ -419,9 +423,15 @@ class ConfigChecker {
         resetButton.style.display = 'block';
         resetButton.style.position = 'relative';
         resetButton.style.zIndex = '10';
+        resetButton.style.flexShrink = '0'; // Don't shrink the button
         resetButton.onclick = () => this.showUploadArea();
         
         this.resultsColumn.appendChild(resetButton);
+        
+        // Scroll to bottom to show the button
+        setTimeout(() => {
+            resetButton.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
     }
 
     /**
