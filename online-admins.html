@@ -363,15 +363,13 @@
     <script src="js/easter-egg.js"></script>
     
     <script>
-        // Защита от консоли и DevTools - ВРЕМЕННО ОТКЛЮЧЕНА ДЛЯ ОТЛАДКИ
-        /*
+        // Защита от консоли и DevTools
         document.addEventListener('contextmenu', e => e.preventDefault());
         document.addEventListener('keydown', e => {
             if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') || (e.ctrlKey && e.shiftKey && e.key === 'J') || (e.ctrlKey && e.key === 'U')) {
                 e.preventDefault();
             }
         });
-        */
         
         const apiClient = new APIClient({
             steamApiKey: '4CE8017CEC2702E4A9200A4BAD93513E',
