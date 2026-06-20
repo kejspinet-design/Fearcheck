@@ -465,7 +465,29 @@
         });
         
         // Tracking functionality
-        let trackedPlayers = JSON.parse(localStorage.getItem('trackedPlayers') || '[]');
+        let trackedPlayers = [];
+        
+        // Load tracked players from localStorage with validation
+        try {
+            const stored = localStorage.getItem('trackedPlayers');
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                // Ensure all items are strings (Steam IDs), not objects
+                if (Array.isArray(parsed)) {
+                    trackedPlayers = parsed.filter(item => typeof item === 'string' && /^765\d{14}$/.test(item));
+                    // Save back cleaned data
+                    if (trackedPlayers.length !== parsed.length) {
+                        localStorage.setItem('trackedPlayers', JSON.stringify(trackedPlayers));
+                        console.warn('[Tracking] Cleaned invalid Steam IDs from localStorage');
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('[Tracking] Error loading tracked players:', error);
+            trackedPlayers = [];
+            localStorage.setItem('trackedPlayers', JSON.stringify(trackedPlayers));
+        }
+        
         let serversData = [];
         let reportsData = [];
         

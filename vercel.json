@@ -5,15 +5,15 @@
   "rewrites": [
     {
       "source": "/api/fear/servers",
-      "destination": "/api/fear-servers.js"
+      "destination": "/api/fear-servers"
     },
     {
       "source": "/api/fear/reports/recent",
-      "destination": "/api/reports-recent.js"
+      "destination": "/api/reports-recent"
     },
     {
       "source": "/api/reports/recent",
-      "destination": "/api/reports-recent.js"
+      "destination": "/api/reports-recent"
     }
   ],
   "functions": {
