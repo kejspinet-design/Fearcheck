@@ -705,6 +705,9 @@ class ConfigCheckerUMA {
         resetButton.style.alignSelf = 'center';
         resetButton.style.maxWidth = '300px';
         resetButton.style.width = '100%';
+        resetButton.style.display = 'block';
+        resetButton.style.position = 'relative';
+        resetButton.style.zIndex = '10';
         resetButton.onclick = () => this.showUploadArea();
         
         this.resultsColumn.appendChild(resetButton);
