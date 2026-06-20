@@ -670,24 +670,31 @@
                 const card = document.createElement('div');
                 card.className = 'result-card';
                 
+                // Add red border if player has reports
+                if (playerReports.length > 0) {
+                    card.style.borderColor = '#ef4444';
+                    card.style.borderWidth = '3px';
+                    card.style.boxShadow = '0 0 30px rgba(239, 68, 68, 0.5), 0 4px 15px rgba(0, 0, 0, 0.3)';
+                }
+                
                 const serverIp = status.online && status.serverIp && status.serverPort 
                     ? `${status.serverIp}:${status.serverPort}` 
                     : null;
                 
                 // Build reports display
                 const reportsDisplay = playerReports.length > 0 
-                    ? `<span style="color: #ef4444">${playerReports.length}</span>` 
+                    ? `<span style="color: #ef4444; font-weight: 900; font-size: 16px;">⚠️ ${playerReports.length}</span>` 
                     : `<span style="color: #22c55e">0</span>`;
                 
                 card.innerHTML = `
                     <div class="result-header">
-                        <img src="${playerData.avatar}" alt="${playerData.name}" class="result-avatar" onerror="this.onerror=null; this.src='https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/fe/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg';" loading="lazy">
+                        <img src="${playerData.avatar || 'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/fe/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg'}" alt="${playerData.name}" class="result-avatar" onerror="this.onerror=null; this.src='https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/fe/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg';" crossorigin="anonymous">
                         <div class="result-info">
                             <h3 title="${playerData.name}">${playerData.name}</h3>
                             <div class="result-steamid">${steamId}</div>
                         </div>
                     </div>
-                    <div class="result-details" style="${playerReports.length > 0 ? 'border: 2px solid #ef4444; background: rgba(239, 68, 68, 0.1);' : ''}">
+                    <div class="result-details">
                         <div class="detail-row">
                             <span class="detail-label">Статус</span>
                             <span class="detail-value">${status.online ? '🟢 Онлайн' : '🔴 Оффлайн'}</span>
@@ -698,7 +705,7 @@
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">Репорты</span>
-                            <span class="detail-value" style="${playerReports.length > 0 ? 'color: #ef4444; font-weight: 900;' : ''}">${reportsDisplay}</span>
+                            <span class="detail-value">${reportsDisplay}</span>
                         </div>
                     </div>
                     <div class="actions-row">
