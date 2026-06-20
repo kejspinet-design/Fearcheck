@@ -650,9 +650,16 @@
                     if (response.ok) {
                         const profile = await response.json();
                         console.log('[Tracking] Player profile for', steamId, ':', profile);
+                        
+                        // Proxy avatar through our endpoint to avoid CORS
+                        let avatarUrl = profile.avatar_full || profile.avatar_medium || profile.avatar || null;
+                        if (avatarUrl) {
+                            avatarUrl = `/api/avatar?url=${encodeURIComponent(avatarUrl)}`;
+                        }
+                        
                         playerData = {
                             name: profile.name || 'Unknown',
-                            avatar: profile.avatar_full || profile.avatar_medium || profile.avatar || null,
+                            avatar: avatarUrl,
                             lastActivity: profile.last_activity ? formatLastActivity(profile.last_activity) : 'Неизвестно'
                         };
                     } else {
@@ -668,6 +675,9 @@
                     const colorIndex = parseInt(steamId.slice(-2)) % colors.length;
                     const color = colors[colorIndex];
                     playerData.avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(playerData.name)}&background=${color}&color=fff&size=128&bold=true`;
+                } else {
+                    // Proxy Steam avatars through our server to avoid CORS issues
+                    playerData.avatar = `/api/avatar-proxy?url=${encodeURIComponent(playerData.avatar)}`;
                 }
                 
                 return { steamId, status, playerReports, playerData };

@@ -28,6 +28,9 @@
     },
     "api/uma.js": {
       "maxDuration": 15
+    },
+    "api/avatar-proxy.js": {
+      "maxDuration": 10
     }
   },
   "headers": [
