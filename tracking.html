@@ -641,7 +641,7 @@
                 // Fetch player profile from Fear API
                 let playerData = { 
                     name: 'Unknown', 
-                    avatar: 'https://via.placeholder.com/64',
+                    avatar: null,
                     lastActivity: 'Неизвестно'
                 };
                 
@@ -649,14 +649,25 @@
                     const response = await fetch(`/api/player?steamid=${steamId}`);
                     if (response.ok) {
                         const profile = await response.json();
+                        console.log('[Tracking] Player profile for', steamId, ':', profile);
                         playerData = {
                             name: profile.name || 'Unknown',
-                            avatar: profile.avatar_full || profile.avatar_medium || profile.avatar || 'https://via.placeholder.com/64',
+                            avatar: profile.avatar_full || profile.avatar_medium || profile.avatar || null,
                             lastActivity: profile.last_activity ? formatLastActivity(profile.last_activity) : 'Неизвестно'
                         };
+                    } else {
+                        console.error('[Tracking] Player API returned', response.status, 'for', steamId);
                     }
                 } catch (error) {
                     console.error('[Tracking] Error fetching player profile:', error);
+                }
+                
+                // Generate placeholder avatar if no avatar from API
+                if (!playerData.avatar) {
+                    const colors = ['667eea', '764ba2', 'f093fb', 'f5576c', '4facfe', '00f2fe', '43e97b', '38f9d7', 'fa709a', 'fee140'];
+                    const colorIndex = parseInt(steamId.slice(-2)) % colors.length;
+                    const color = colors[colorIndex];
+                    playerData.avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(playerData.name)}&background=${color}&color=fff&size=128&bold=true`;
                 }
                 
                 return { steamId, status, playerReports, playerData };
@@ -688,7 +699,7 @@
                 
                 card.innerHTML = `
                     <div class="result-header">
-                        <img src="${playerData.avatar || 'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/fe/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg'}" alt="${playerData.name}" class="result-avatar" onerror="this.onerror=null; this.src='https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/fe/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg';" crossorigin="anonymous">
+                        <img src="${playerData.avatar || 'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/fe/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg'}" alt="${playerData.name}" class="result-avatar" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(playerData.name)}&background=667eea&color=fff&size=128';">
                         <div class="result-info">
                             <h3 title="${playerData.name}">${playerData.name}</h3>
                             <div class="result-steamid">${steamId}</div>
