@@ -18,7 +18,7 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
     
-    const { endpoint, steamid, url } = req.query;
+    const { endpoint, steamid, steamids, url } = req.query;
     
     try {
         switch (endpoint) {
@@ -30,6 +30,9 @@ export default async function handler(req, res) {
             
             case 'player':
                 return await handlePlayer(req, res, steamid);
+            
+            case 'player-summaries':
+                return await handlePlayerSummaries(req, res, steamids);
             
             case 'uma':
                 return await handleUma(req, res, steamid);
@@ -143,6 +146,69 @@ async function handlePlayer(req, res, steamid) {
     
     res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=120');
     res.status(200).json(data);
+}
+
+/**
+ * Player Summaries (batch) - Steam API
+ */
+async function handlePlayerSummaries(req, res, steamids) {
+    if (!steamids) {
+        return res.status(400).json({ error: 'steamids parameter is required' });
+    }
+    
+    // Разбиваем строку на массив
+    const idsArray = steamids.split(',').map(id => id.trim()).filter(id => id);
+    
+    if (idsArray.length === 0) {
+        return res.status(400).json({ error: 'No valid Steam IDs provided' });
+    }
+    
+    // Валидация всех Steam ID
+    const validIds = idsArray.filter(id => validateSteamId(id));
+    
+    if (validIds.length === 0) {
+        return res.status(400).json({ error: 'No valid Steam IDs provided' });
+    }
+    
+    // Steam API поддерживает до 100 ID за раз
+    const batchSize = 100;
+    const batches = [];
+    for (let i = 0; i < validIds.length; i += batchSize) {
+        batches.push(validIds.slice(i, i + batchSize));
+    }
+    
+    try {
+        const allPlayers = [];
+        
+        for (const batch of batches) {
+            const steamIdsParam = batch.join(',');
+            const response = await safeFetch(
+                `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${config.STEAM_API.KEY}&steamids=${steamIdsParam}`,
+                {
+                    headers: {
+                        'Accept': 'application/json',
+                        'User-Agent': 'FearProtection/1.0'
+                    }
+                },
+                15000
+            );
+            
+            if (!response.ok) {
+                throw new Error(`Steam API returned ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.response && data.response.players) {
+                allPlayers.push(...data.response.players);
+            }
+        }
+        
+        res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
+        res.status(200).json(allPlayers);
+    } catch (error) {
+        handleError(res, error);
+    }
 }
 
 /**

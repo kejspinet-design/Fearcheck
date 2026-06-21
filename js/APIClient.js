@@ -128,6 +128,34 @@ class APIClient {
     }
 
     /**
+     * Получение summaries нескольких игроков (batch)
+     */
+    async fetchPlayerSummaries(steamIds) {
+        if (!Array.isArray(steamIds) || steamIds.length === 0) {
+            return [];
+        }
+
+        // Валидация всех Steam ID
+        const validIds = steamIds.filter(id => SecurityUtils.validateSteamId(id));
+        
+        if (validIds.length === 0) {
+            console.error('[APIClient] No valid Steam IDs provided');
+            return [];
+        }
+
+        try {
+            // Batch request через прокси
+            const idsParam = validIds.join(',');
+            const summaries = await this.request(`/proxy?endpoint=player-summaries&steamids=${idsParam}`);
+            console.log(`[APIClient] Player summaries fetched: ${summaries.length}`);
+            return Array.isArray(summaries) ? summaries : [];
+        } catch (error) {
+            console.error('[APIClient] Error fetching player summaries:', error);
+            return [];
+        }
+    }
+
+    /**
      * Получение банов UMA
      */
     async fetchUmaBans(steamId = null) {

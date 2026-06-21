@@ -375,15 +375,10 @@ class AntiCheatPage {
     }
 
     /**
-     * Show loading state
+     * Show loading state with skeletons
      */
     showLoading() {
-        this.playersList.innerHTML = `
-            <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 1000;">
-                <div style="width: 60px; height: 60px; margin: 0 auto 20px; border: 4px solid rgba(102, 126, 234, 0.3); border-radius: 50%; border-top-color: #667eea; animation: spin 1s linear infinite;"></div>
-                <p style="color: rgba(255, 255, 255, 0.7); font-size: 18px;">Загрузка игроков...</p>
-            </div>
-        `;
+        this.playersList.innerHTML = createSkeleton(10);
     }
 
     /**
