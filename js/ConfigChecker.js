@@ -102,7 +102,7 @@ class ConfigChecker {
         
         // Validate file
         if (!file.name.endsWith('.vdf') && !file.name.endsWith('.cfg')) {
-            alert('Пожалуйста, загрузите файл config.vdf или config.cfg');
+            showToast('Пожалуйста, загрузите файл config.vdf или config.cfg', 'warning');
             this.isProcessing = false;
             return;
         }
@@ -120,7 +120,7 @@ class ConfigChecker {
             console.info('[ConfigChecker] Found Steam IDs:', steamIds.length);
             
             if (steamIds.length === 0) {
-                alert('В файле не найдено Steam ID');
+                showToast('В файле не найдено Steam ID', 'warning');
                 this.showUploadArea();
                 this.isProcessing = false;
                 return;
@@ -362,18 +362,12 @@ class ConfigChecker {
     }
 
     /**
-     * Show processing state
+     * Show processing state with skeleton loading
      */
     showProcessing() {
         this.uploadArea.style.display = 'none';
         this.resultsColumn.style.display = 'flex';
-        this.resultsColumn.innerHTML = `
-            <div class="config-processing">
-                <div class="processing-spinner"></div>
-                <p class="processing-text">Обработка файла...</p>
-                <p class="processing-subtext">Проверяем игроков на баны</p>
-            </div>
-        `;
+        this.resultsColumn.innerHTML = createSkeleton(5);
     }
 
     /**
