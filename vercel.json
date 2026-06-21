@@ -25,20 +25,8 @@
     }
   ],
   "functions": {
-    "api/fear-servers.js": {
+    "api/proxy.js": {
       "maxDuration": 30
-    },
-    "api/reports-recent.js": {
-      "maxDuration": 30
-    },
-    "api/player.js": {
-      "maxDuration": 30
-    },
-    "api/uma.js": {
-      "maxDuration": 15
-    },
-    "api/avatar-proxy.js": {
-      "maxDuration": 10
     }
   },
   "headers": [
