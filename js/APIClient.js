@@ -1,6 +1,7 @@
 /**
  * APIClient.js - БЕЗОПАСНЫЙ клиент для Fear Protection API
  * Все ключи перемещены на сервер, используются только прокси
+ * Добавлено: кеширование, debounce, оптимизация запросов
  */
 
 class APIClient {
@@ -15,17 +16,33 @@ class APIClient {
         // Rate limiter для клиентских запросов
         this.rateLimiter = SecurityUtils.createRateLimiter(20, 60000);
         
+        // Инициализация кеш-менеджера (TTL = 30 секунд)
+        this.cache = new CacheManager(30000);
+        
         console.log(`[APIClient] Environment: ${this.isProduction ? 'Production' : 'Development'}`);
         console.log(`[APIClient] API Base URL: ${this.baseUrl}`);
+        console.log(`[APIClient] Cache enabled with TTL: 30s`);
     }
 
     /**
-     * Универсальный метод для запросов к API
+     * Универсальный метод для запросов к API (с кешированием)
      */
     async request(endpoint, options = {}) {
         // Проверка rate limit
         if (!this.rateLimiter()) {
             throw new Error('Too many requests. Please wait.');
+        }
+
+        // Создаем ключ кеша на основе endpoint и options
+        const cacheKey = `${endpoint}-${JSON.stringify(options)}`;
+        
+        // Проверяем кеш (только для GET запросов)
+        if (!options.method || options.method === 'GET') {
+            const cached = this.cache.get(cacheKey);
+            if (cached) {
+                console.log(`[APIClient] Cache HIT: ${endpoint}`);
+                return cached;
+            }
         }
 
         const url = `${this.baseUrl}${endpoint}`;
@@ -49,6 +66,12 @@ class APIClient {
             }
 
             const data = await response.json();
+            
+            // Сохраняем в кеш (только GET запросы)
+            if (!options.method || options.method === 'GET') {
+                this.cache.set(cacheKey, data);
+            }
+            
             return data;
         } catch (error) {
             console.error(`[APIClient] Error fetching ${endpoint}:`, error);
@@ -180,6 +203,24 @@ class APIClient {
                 error: error.message
             };
         }
+    }
+
+    /**
+     * Очистить весь кеш
+     */
+    clearCache() {
+        this.cache.clear();
+        console.log('[APIClient] Cache cleared');
+    }
+
+    /**
+     * Получить статистику кеша
+     */
+    getCacheStats() {
+        return {
+            size: this.cache.size(),
+            ttl: this.cache.ttl
+        };
     }
 }
 
