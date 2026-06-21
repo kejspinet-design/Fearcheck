@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://fearproject.ru https://reafsavers.vercel.app;">
     <title>API Test</title>
     <style>
         body { font-family: monospace; padding: 20px; background: #1a1d29; color: white; }
@@ -18,6 +19,7 @@
     
     <div id="results"></div>
     
+    <script src="js/SecurityUtils.js"></script>
     <script>
         const results = document.getElementById('results');
         

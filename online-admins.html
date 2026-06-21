@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://*.steamstatic.com https://avatars.steamstatic.com https://ui-avatars.com; connect-src 'self' https://fearproject.ru https://reafsavers.vercel.app;">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fear Protection - Онлайн Админы</title>
     <link rel="icon" href="./assets/images/9574.ico" type="image/x-icon">
@@ -358,6 +359,7 @@
     </div>
     
     <!-- JavaScript -->
+    <script src="js/SecurityUtils.js"></script>
     <script src="js/APIClient.js"></script>
     <script src="js/WelcomeModal.js"></script>
     <script src="js/easter-egg.js"></script>
@@ -371,11 +373,7 @@
             }
         });
         
-        const apiClient = new APIClient({
-            steamApiKey: '4CE8017CEC2702E4A9200A4BAD93513E',
-            accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfaWQiOiI3NjU2MTE5OTUyNDc4MDMyNyIsImlhdCI6MTc4MTUyMDQwNCwiZXhwIjoxNzg0MTEyNDA0fQ.mRPdNR_NwLZA4n3SaQaJZR2n2CVa7-PEuG1zDaBAKCc',
-            cookieDomain: '.fearproject.ru'
-        });
+        const apiClient = new APIClient();
         
         let allAdmins = [];
         
