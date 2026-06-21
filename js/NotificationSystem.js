@@ -2,7 +2,8 @@
  * Глобальная система уведомлений для отслеживания игроков
  */
 class NotificationSystem {
-    constructor() {
+    constructor(apiClient) {
+        this.apiClient = apiClient;
         this.trackedPlayers = JSON.parse(localStorage.getItem('trackedPlayers') || '[]');
         this.lastPlayerStates = JSON.parse(localStorage.getItem('lastPlayerStates') || '{}');
         this.notifications = [];
@@ -204,11 +205,7 @@ class NotificationSystem {
     
     async fetchServers() {
         try {
-            const response = await fetch('/api/fear?action=servers');
-            if (!response.ok) throw new Error(`API returned ${response.status}`);
-            
-            const data = await response.json();
-            return Array.isArray(data) ? data : (data.servers || data.data || []);
+            return await this.apiClient.fetchServers();
         } catch (error) {
             console.error('[NotificationSystem] Error fetching servers:', error);
             return [];
@@ -217,11 +214,7 @@ class NotificationSystem {
     
     async fetchReports() {
         try {
-            const response = await fetch('/api/reports');
-            if (!response.ok) throw new Error(`API returned ${response.status}`);
-            
-            const data = await response.json();
-            return Array.isArray(data) ? data : (data.reports || data.data || []);
+            return await this.apiClient.fetchReports();
         } catch (error) {
             console.error('[NotificationSystem] Error fetching reports:', error);
             return [];
@@ -321,18 +314,18 @@ class NotificationSystem {
         notification.innerHTML = `
             <button class="notification-close" onclick="notificationSystem.closeNotification(${notificationId})">&times;</button>
             <div class="notification-header">
-                <img src="${data.player.avatar || 'https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg'}" 
-                     alt="${data.player.name}" 
+                <img src="${SecurityUtils.sanitizeUrl(data.player.avatar) || 'https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg'}" 
+                     alt="${SecurityUtils.sanitizeHtml(data.player.name)}" 
                      class="notification-avatar"
                      onerror="this.src='https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg'">
                 <div class="notification-info">
-                    <div class="notification-name">${data.player.name || 'Unknown'}</div>
-                    <div class="notification-steamid">${data.player.steamId}</div>
+                    <div class="notification-name">${SecurityUtils.sanitizeHtml(data.player.name || 'Unknown')}</div>
+                    <div class="notification-steamid">${SecurityUtils.sanitizeHtml(data.player.steamId)}</div>
                 </div>
                 <div class="notification-icon">${iconSvg}</div>
             </div>
-            <div class="notification-message">${data.message}</div>
-            ${data.server ? `<div class="notification-server">Сервер: ${data.server}</div>` : ''}
+            <div class="notification-message">${SecurityUtils.sanitizeHtml(data.message)}</div>
+            ${data.server ? `<div class="notification-server">Сервер: ${SecurityUtils.sanitizeHtml(data.server)}</div>` : ''}
         `;
         
         // Добавляем в контейнер
