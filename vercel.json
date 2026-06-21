@@ -4,8 +4,16 @@
   "trailingSlash": false,
   "rewrites": [
     {
-      "source": "/(.*)",
-      "destination": "/maintenance.html"
+      "source": "/api/fear/servers",
+      "destination": "/api/fear-servers"
+    },
+    {
+      "source": "/api/fear/reports/recent",
+      "destination": "/api/reports-recent"
+    },
+    {
+      "source": "/api/reports/recent",
+      "destination": "/api/reports-recent"
     }
   ],
   "functions": {
