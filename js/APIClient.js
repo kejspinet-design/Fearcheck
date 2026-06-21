@@ -61,7 +61,7 @@ class APIClient {
      */
     async fetchServers() {
         try {
-            const servers = await this.request('/fear-servers');
+            const servers = await this.request('/proxy?endpoint=servers');
             console.log(`[APIClient] Servers fetched: ${servers.length}`);
             return Array.isArray(servers) ? servers : [];
         } catch (error) {
@@ -75,7 +75,7 @@ class APIClient {
      */
     async fetchReports() {
         try {
-            const reports = await this.request('/reports-recent');
+            const reports = await this.request('/proxy?endpoint=reports');
             console.log(`[APIClient] Reports fetched successfully: ${reports.length}`);
             return Array.isArray(reports) ? reports : [];
         } catch (error) {
@@ -95,7 +95,7 @@ class APIClient {
         }
 
         try {
-            const profile = await this.request(`/player?steamid=${steamId}`);
+            const profile = await this.request(`/proxy?endpoint=player&steamid=${steamId}`);
             console.log(`[APIClient] Player profile fetched:`, steamId);
             return profile;
         } catch (error) {
@@ -109,7 +109,7 @@ class APIClient {
      */
     async fetchUmaBans(steamId = null) {
         try {
-            const endpoint = steamId ? `/uma?steamid=${steamId}` : '/uma';
+            const endpoint = steamId ? `/proxy?endpoint=uma&steamid=${steamId}` : '/proxy?endpoint=uma';
             const bans = await this.request(endpoint);
             console.log(`[APIClient] UMA bans fetched: ${bans.length}`);
             return Array.isArray(bans) ? bans : [];
@@ -130,7 +130,7 @@ class APIClient {
         if (!sanitized) return null;
         
         // Используем серверный прокси для аватарок
-        return `/api/avatar-proxy?url=${encodeURIComponent(sanitized)}`;
+        return `/api/proxy?endpoint=avatar&url=${encodeURIComponent(sanitized)}`;
     }
 
     /**
