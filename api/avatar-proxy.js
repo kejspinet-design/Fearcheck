@@ -1,70 +1,66 @@
-/**
- * Vercel Serverless Function - Avatar Proxy
- * Proxies Steam avatar images to avoid CORS issues
- */
+const config = require('./config');
+const { corsMiddleware, rateLimitMiddleware, handleError, safeFetch } = require('./middleware');
 
 export default async function handler(req, res) {
-    // Enable CORS
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    // CORS
+    if (corsMiddleware(req, res)) return;
     
-    // Handle preflight
-    if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
-    }
+    // Rate limiting
+    if (rateLimitMiddleware(req, res)) return;
     
+    // Только GET запросы
     if (req.method !== 'GET') {
-        res.status(405).json({ error: 'Method not allowed' });
-        return;
+        return res.status(405).json({ error: 'Method not allowed' });
     }
+    
+    const { url } = req.query;
+    
+    // Валидация URL
+    if (!url) {
+        return res.status(400).json({ error: 'URL parameter is required' });
+    }
+    
+    // Проверка доменов
+    const allowedDomains = [
+        'steamstatic.com',
+        'avatars.steamstatic.com',
+        'ui-avatars.com'
+    ];
     
     try {
-        const { url } = req.query;
+        const parsedUrl = new URL(url);
+        const isAllowed = allowedDomains.some(domain =>
+            parsedUrl.hostname === domain || parsedUrl.hostname.endsWith('.' + domain)
+        );
         
-        if (!url) {
-            res.status(400).json({ error: 'Missing url parameter' });
-            return;
+        if (!isAllowed) {
+            return res.status(403).json({ error: 'Domain not allowed' });
         }
         
-        // Validate URL is from allowed domains
-        const allowedDomains = ['avatars.steamstatic.com', 'steamcdn-a.akamaihd.net', 'cdn.akamai.steamstatic.com'];
-        const urlObj = new URL(url);
-        
-        if (!allowedDomains.includes(urlObj.hostname)) {
-            res.status(403).json({ error: 'Domain not allowed' });
-            return;
-        }
-        
-        console.log('[Avatar Proxy] Fetching:', url);
-        
-        // Fetch the image
-        const response = await fetch(url, {
+        const response = await safeFetch(url, {
             method: 'GET',
             headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                'User-Agent': 'FearProtection/1.0'
             }
-        });
+        }, 10000);
         
         if (!response.ok) {
-            console.error('[Avatar Proxy] Fetch failed:', response.status);
-            res.status(response.status).json({ error: 'Failed to fetch image' });
-            return;
+            throw new Error(`Avatar fetch failed: ${response.status}`);
         }
         
-        // Get image buffer
+        // Проверка типа контента
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.startsWith('image/')) {
+            return res.status(400).json({ error: 'Invalid content type' });
+        }
+        
         const buffer = await response.arrayBuffer();
         
-        // Set appropriate headers
-        res.setHeader('Content-Type', response.headers.get('content-type') || 'image/jpeg');
-        res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
-        
-        // Send image
+        // Отправка изображения
+        res.setHeader('Content-Type', contentType);
+        res.setHeader('Cache-Control', 'public, max-age=86400'); // 24 часа
         res.status(200).send(Buffer.from(buffer));
-        
     } catch (error) {
-        console.error('[Avatar Proxy] Exception:', error);
-        res.status(500).json({ error: 'Internal server error', message: error.message });
+        handleError(res, error, 500);
     }
 }

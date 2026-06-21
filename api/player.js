@@ -1,91 +1,59 @@
-/**
- * Vercel Serverless Function for Fear Player API Proxy
- * Fetches player nickname and avatar from Fear Project API
- */
+const config = require('./config');
+const { corsMiddleware, rateLimitMiddleware, validateSteamId, handleError, safeFetch } = require('./middleware');
 
 export default async function handler(req, res) {
-    // Enable CORS
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    // CORS
+    if (corsMiddleware(req, res)) return;
     
-    // Handle preflight requests
-    if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
+    // Rate limiting
+    if (rateLimitMiddleware(req, res)) return;
+    
+    // Только GET запросы
+    if (req.method !== 'GET') {
+        return res.status(405).json({ error: 'Method not allowed' });
     }
     
-    // Only allow GET requests
-    if (req.method !== 'GET') {
-        res.status(405).json({ error: 'Method not allowed' });
-        return;
+    const { steamid } = req.query;
+    
+    // Валидация Steam ID
+    if (!steamid || !validateSteamId(steamid)) {
+        return res.status(400).json({ 
+            error: 'Invalid Steam ID format',
+            expected: '76561198XXXXXXXXXX' 
+        });
     }
     
     try {
-        const { steamid, mode = 'public' } = req.query;
-        
-        console.log('[Player API] Received request:', { steamid, mode });
-        
-        if (!steamid) {
-            console.log('[Player API] Missing Steam ID parameter');
-            res.status(400).json({ error: 'Missing Steam ID parameter' });
-            return;
-        }
-        
-        // Validate Steam ID format
-        const steamIdPattern = /^7656119\d{10}$/;
-        if (!steamIdPattern.test(steamid)) {
-            console.log('[Player API] Invalid Steam ID format:', steamid);
-            res.status(400).json({ error: 'Invalid Steam ID format' });
-            return;
-        }
-        
-        // Build Fear API URL for player data - using profile endpoint
-        const fearApiUrl = `https://api.fearproject.ru/profile/${encodeURIComponent(steamid)}`;
-        
-        console.log('[Player API] Requesting:', fearApiUrl);
-        
-        // Make request to Fear API with timeout
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 second timeout
-        
-        const response = await fetch(fearApiUrl, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'User-Agent': 'Fear-Protection-Check/1.0'
+        const response = await safeFetch(
+            `${config.FEAR_API.BASE_URL}/profile/${steamid}`,
+            {
+                headers: {
+                    'Cookie': `access_token=${config.FEAR_API.ACCESS_TOKEN}`,
+                    'Content-Type': 'application/json',
+                    'User-Agent': 'FearProtection/1.0'
+                }
             },
-            signal: controller.signal
-        });
-        
-        clearTimeout(timeoutId);
-        
-        console.log('[Player API] Response status:', response.status);
+            15000
+        );
         
         if (!response.ok) {
-            const errorText = await response.text();
-            console.error('[Player API] Error response:', errorText);
-            res.status(response.status).json({ 
-                error: 'Fear API error', 
-                status: response.status,
-                message: response.statusText,
-                details: errorText
-            });
-            return;
+            if (response.status === 404) {
+                return res.status(404).json({ error: 'Player not found' });
+            }
+            throw new Error(`Fear API returned ${response.status}`);
         }
         
         const data = await response.json();
-        console.log('[Player API] Success data:', JSON.stringify(data, null, 2));
         
-        // Return the data directly (fetchPlayerData expects this format)
+        // Валидация данных
+        if (!data || typeof data !== 'object') {
+            throw new Error('Invalid response format');
+        }
+        
+        // Кэширование
+        res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=120');
         res.status(200).json(data);
-        
     } catch (error) {
-        console.error('[Player API] Exception:', error);
-        res.status(500).json({ 
-            error: 'Internal server error', 
-            message: error.message,
-            stack: error.stack
-        });
+        handleError(res, error, error.name === 'AbortError' ? 504 : 500);
     }
 }

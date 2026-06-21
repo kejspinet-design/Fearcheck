@@ -1,311 +1,189 @@
 /**
- * APIClient class for handling all external API communication
- * Validates: Requirements 2.1-2.8, 10.1-10.5, 11.1-11.5
+ * APIClient.js - БЕЗОПАСНЫЙ клиент для Fear Protection API
+ * Все ключи перемещены на сервер, используются только прокси
  */
+
 class APIClient {
-    constructor(config) {
-        // Auto-detect environment (local vs production)
-        const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
-        const baseUrl = window.location.origin;
+    constructor(options = {}) {
+        // Определение окружения
+        this.isProduction = window.location.hostname !== 'localhost' && 
+                           window.location.hostname !== '127.0.0.1';
         
-        this.config = {
-            fearApiBase: config.fearApiBase || `${baseUrl}/api/fear`,
-            steamApiKey: config.steamApiKey || 'E060AF2E30A53F487CD115E1067F9983',
-            steamApiBase: config.steamApiBase || `${baseUrl}/api/player-summaries`,
-            accessToken: config.accessToken,
-            cookieDomain: config.cookieDomain || '.fearproject.ru'
-        };
+        // Базовый URL для API (всегда используем относительные пути - прокси на Vercel)
+        this.baseUrl = '/api';
         
-        console.info('[APIClient] Environment:', isProduction ? 'Production' : 'Local');
-        console.info('[APIClient] Fear API:', this.config.fearApiBase);
-        console.info('[APIClient] Steam API:', this.config.steamApiBase);
+        // Rate limiter для клиентских запросов
+        this.rateLimiter = SecurityUtils.createRateLimiter(20, 60000);
         
-        // Set access token cookie on initialization
-        this.setCookie('access_token', this.config.accessToken, {
-            domain: this.config.cookieDomain,
-            path: '/',
-            sameSite: 'Lax'
-        });
+        console.log(`[APIClient] Environment: ${this.isProduction ? 'Production' : 'Development'}`);
+        console.log(`[APIClient] API Base URL: ${this.baseUrl}`);
     }
 
     /**
-     * Set a cookie with specified options
-     * @param {string} name - Cookie name
-     * @param {string} value - Cookie value
-     * @param {Object} options - Cookie options (domain, path, sameSite, expires)
-     * 
-     * Validates: Requirements 2.4, 2.5, 11.1-11.5
+     * Универсальный метод для запросов к API
      */
-    setCookie(name, value, options = {}) {
-        let cookieString = `${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
-        
-        if (options.domain) {
-            cookieString += `; domain=${options.domain}`;
+    async request(endpoint, options = {}) {
+        // Проверка rate limit
+        if (!this.rateLimiter()) {
+            throw new Error('Too many requests. Please wait.');
         }
-        
-        if (options.path) {
-            cookieString += `; path=${options.path}`;
+
+        const url = `${this.baseUrl}${endpoint}`;
+        const defaultOptions = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+
+        const finalOptions = { ...defaultOptions, ...options };
+
+        try {
+            console.log(`[APIClient] Requesting: ${url}`);
+            
+            const response = await fetch(url, finalOptions);
+            
+            if (!response.ok) {
+                const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+                throw new Error(error.error || `HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error(`[APIClient] Error fetching ${endpoint}:`, error);
+            throw error;
         }
-        
-        if (options.sameSite) {
-            cookieString += `; SameSite=${options.sameSite}`;
-        }
-        
-        if (options.expires) {
-            cookieString += `; expires=${options.expires.toUTCString()}`;
-        }
-        
-        document.cookie = cookieString;
-        console.info('[APIClient] Cookie set:', name);
     }
 
     /**
-     * Fetch server list from Fear Project API
-     * @returns {Promise<Array>} Array of server objects
-     * 
-     * Validates: Requirements 2.1, 10.1, 10.3
+     * Получение списка серверов Fear
      */
     async fetchServers() {
         try {
-            const response = await fetch(`${this.config.fearApiBase}/servers`, {
-                method: 'GET',
-                mode: 'cors',
-                credentials: 'include',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            console.info('[APIClient] Servers fetched:', data.length || 0);
-            return data;
+            const servers = await this.request('/fear-servers');
+            console.log(`[APIClient] Servers fetched: ${servers.length}`);
+            return Array.isArray(servers) ? servers : [];
         } catch (error) {
-            console.error('[APIClient] CORS or Network error fetching servers:', error);
-            return this.handleError(error, 'fetchServers');
+            console.error('[APIClient] Error fetching servers:', error);
+            return [];
         }
     }
 
     /**
-     * Fetch recent reports from Fear Project API
-     * @returns {Promise<Array>} Array of report objects matching Report interface
-     * 
-     * Report interface:
-     * {
-     *   id: string,
-     *   reportedSteamId: string,
-     *   reporterSteamId: string,
-     *   reason: string,
-     *   timestamp: Date,
-     *   serverId: string
-     * }
-     * 
-     * Validates: Requirements 2.2, 10.1, 10.3
+     * Получение недавних репортов
      */
     async fetchReports() {
         try {
-            console.info('[APIClient] Fetching reports from /reports/recent...');
-            
-            const response = await fetch(`${this.config.fearApiBase}/reports/recent`, {
-                method: 'GET',
-                mode: 'cors',
-                credentials: 'include',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            });
-            
-            console.info(`[APIClient] Reports response status: ${response.status} ${response.statusText}`);
-            
-            if (!response.ok) {
-                // Log response body for debugging
-                const errorText = await response.text();
-                console.warn(`[APIClient] Reports endpoint error (${response.status}):`, errorText);
-                
-                if (response.status === 401) {
-                    console.error('[APIClient] Unauthorized - check access token');
-                } else if (response.status === 404) {
-                    console.error('[APIClient] Endpoint not found - verify API path');
-                }
-                
-                return [];
-            }
-            
-            const data = await response.json();
-            console.info('[APIClient] Reports fetched successfully:', Array.isArray(data) ? data.length : 'unknown count');
-            console.log('[APIClient] Reports data structure:', data);
-            
-            // Handle different response structures
-            if (Array.isArray(data)) {
-                return data;
-            } else if (data && Array.isArray(data.reports)) {
-                return data.reports;
-            } else if (data && Array.isArray(data.data)) {
-                return data.data;
-            }
-            
-            console.warn('[APIClient] Unexpected reports data structure:', data);
-            return [];
-            
+            const reports = await this.request('/reports-recent');
+            console.log(`[APIClient] Reports fetched successfully: ${reports.length}`);
+            return Array.isArray(reports) ? reports : [];
         } catch (error) {
-            console.error('[APIClient] Network error fetching reports:', error);
-            return this.handleError(error, 'fetchReports');
+            console.error('[APIClient] Error fetching reports:', error);
+            return [];
         }
     }
 
     /**
-     * Fetch player summaries from Steam API
-     * @param {Array<string>} steamIds - Array of Steam IDs (max 100)
-     * @returns {Promise<Array>} Array of player summary objects
-     * 
-     * Validates: Requirements 2.3, 2.6, 2.8, 10.3
+     * Получение данных игрока
      */
-    async fetchPlayerSummaries(steamIds) {
-        if (!steamIds || steamIds.length === 0) {
-            return [];
+    async fetchPlayerProfile(steamId) {
+        // Валидация Steam ID на клиенте
+        if (!SecurityUtils.validateSteamId(steamId)) {
+            console.error('[APIClient] Invalid Steam ID format:', steamId);
+            throw new Error('Invalid Steam ID format');
         }
-        
+
         try {
-            // Batch steam IDs (max 50 per request to avoid URL length issues)
-            const batches = [];
-            for (let i = 0; i < steamIds.length; i += 50) {
-                batches.push(steamIds.slice(i, i + 50));
-            }
-            
-            console.info(`[APIClient] Fetching player summaries in ${batches.length} batches`);
-            
-            const allPlayers = [];
-            
-            for (let i = 0; i < batches.length; i++) {
-                const batch = batches[i];
-                const steamIdsParam = batch.join(',');
-                const url = `${this.config.steamApiBase}?key=${this.config.steamApiKey}&steamids=${steamIdsParam}&format=json`;
-                
-                try {
-                    const response = await fetch(url, {
-                        method: 'GET',
-                        mode: 'cors',
-                        headers: {
-                            'Accept': 'application/json'
-                        }
-                    });
-                    
-                    if (!response.ok) {
-                        console.warn(`[APIClient] Batch ${i + 1}/${batches.length} failed with status ${response.status}`);
-                        continue;
-                    }
-                    
-                    const data = await response.json();
-                    if (data.response && data.response.players) {
-                        allPlayers.push(...data.response.players);
-                    }
-                    
-                    // Задержка между батчами для избежания rate limit
-                    if (i < batches.length - 1) {
-                        await this.delay(500);
-                    }
-                } catch (batchError) {
-                    console.error(`[APIClient] Error in batch ${i + 1}:`, batchError.message);
-                    continue;
-                }
-            }
-            
-            console.info('[APIClient] Player summaries fetched:', allPlayers.length);
-            return allPlayers;
+            const profile = await this.request(`/player?steamid=${steamId}`);
+            console.log(`[APIClient] Player profile fetched:`, steamId);
+            return profile;
         } catch (error) {
-            return this.handleError(error, 'fetchPlayerSummaries');
+            console.error(`[APIClient] Error fetching player ${steamId}:`, error);
+            throw error;
         }
     }
 
     /**
-     * Fetch player bans from Steam API
-     * @param {Array<string>} steamIds - Array of Steam IDs (max 100)
-     * @returns {Promise<Array>} Array of player ban objects
-     * 
-     * Validates: Requirements 2.3, 2.7, 2.8, 10.3
+     * Получение банов UMA
      */
-    async fetchPlayerBans(steamIds) {
-        if (!steamIds || steamIds.length === 0) {
+    async fetchUmaBans(steamId = null) {
+        try {
+            const endpoint = steamId ? `/uma?steamid=${steamId}` : '/uma';
+            const bans = await this.request(endpoint);
+            console.log(`[APIClient] UMA bans fetched: ${bans.length}`);
+            return Array.isArray(bans) ? bans : [];
+        } catch (error) {
+            console.error('[APIClient] Error fetching UMA bans:', error);
             return [];
         }
+    }
+
+    /**
+     * Прокси для аватарок (через серверный эндпоинт)
+     */
+    getAvatarProxyUrl(originalUrl) {
+        if (!originalUrl) return null;
         
+        // Санитизация URL
+        const sanitized = SecurityUtils.sanitizeUrl(originalUrl);
+        if (!sanitized) return null;
+        
+        // Используем серверный прокси для аватарок
+        return `/api/avatar-proxy?url=${encodeURIComponent(sanitized)}`;
+    }
+
+    /**
+     * Получение аватарки Steam
+     */
+    async fetchSteamAvatar(steamId) {
         try {
-            // Batch steam IDs (max 50 per request to avoid URL length issues)
-            const batches = [];
-            for (let i = 0; i < steamIds.length; i += 50) {
-                batches.push(steamIds.slice(i, i + 50));
+            const profile = await this.fetchPlayerProfile(steamId);
+            const avatarUrl = profile.avatar_full || profile.avatar_medium || profile.avatar;
+            
+            if (!avatarUrl) {
+                return this.getPlaceholderAvatar(steamId);
             }
             
-            console.info(`[APIClient] Fetching player bans in ${batches.length} batches`);
-            
-            const allBans = [];
-            
-            for (let i = 0; i < batches.length; i++) {
-                const batch = batches[i];
-                const steamIdsParam = batch.join(',');
-                const url = `${this.config.steamApiBase}/ISteamUser/GetPlayerBans/v1/?key=${this.config.steamApiKey}&steamids=${steamIdsParam}&format=json`;
-                
-                try {
-                    const response = await fetch(url, {
-                        method: 'GET',
-                        mode: 'cors',
-                        headers: {
-                            'Accept': 'application/json'
-                        }
-                    });
-                    
-                    if (!response.ok) {
-                        console.warn(`[APIClient] Batch ${i + 1}/${batches.length} failed with status ${response.status}`);
-                        continue;
-                    }
-                    
-                    const data = await response.json();
-                    if (data.players) {
-                        allBans.push(...data.players);
-                    }
-                    
-                    // Задержка между батчами для избежания rate limit
-                    if (i < batches.length - 1) {
-                        await this.delay(500);
-                    }
-                } catch (batchError) {
-                    console.error(`[APIClient] Error in batch ${i + 1}:`, batchError.message);
-                    continue;
-                }
-            }
-            
-            console.info('[APIClient] Player bans fetched:', allBans.length);
-            return allBans;
+            return this.getAvatarProxyUrl(avatarUrl);
         } catch (error) {
-            return this.handleError(error, 'fetchPlayerBans');
+            console.error('[APIClient] Error fetching avatar:', error);
+            return this.getPlaceholderAvatar(steamId);
         }
     }
 
     /**
-     * Delay helper for rate limiting
-     * @param {number} ms - Milliseconds to delay
-     * @returns {Promise} Promise that resolves after delay
+     * Генерация placeholder аватарки
      */
-    delay(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
+    getPlaceholderAvatar(steamId) {
+        const colors = ['667eea', '764ba2', 'f093fb', 'f5576c', '4facfe', '00f2fe', '43e97b', '38f9d7', 'fa709a', 'fee140'];
+        const colorIndex = steamId ? parseInt(String(steamId).slice(-2)) % colors.length : 0;
+        const color = colors[colorIndex];
+        const initials = steamId ? steamId.slice(-4) : '????';
+        
+        return `https://ui-avatars.com/api/?name=${initials}&background=${color}&color=fff&size=128&bold=true`;
     }
 
     /**
-     * Handle API errors gracefully
-     * @param {Error} error - The error object
-     * @param {string} context - Context where error occurred
-     * @returns {Array|null} Empty array or null for graceful degradation
-     * 
-     * Validates: Requirements 10.1, 10.3, 10.4, 10.5
+     * Проверка статуса API
      */
-    handleError(error, context) {
-        console.error(`[APIClient] Error in ${context}:`, error.message);
-        // Return empty data to allow graceful degradation
-        return [];
+    async healthCheck() {
+        try {
+            const servers = await this.fetchServers();
+            return {
+                status: 'ok',
+                serversAvailable: servers.length > 0
+            };
+        } catch (error) {
+            return {
+                status: 'error',
+                error: error.message
+            };
+        }
     }
+}
+
+// Глобальный экспорт
+if (typeof window !== 'undefined') {
+    window.APIClient = APIClient;
 }
